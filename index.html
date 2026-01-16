@@ -1,0 +1,326 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 馬年抽獎 | Annual Dinner</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+                body {
+                        font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+                        background: #941b0c radial-gradient(circle, #bc2f1a 0%, #8e0e00 100%);
+
+            /* 背景圖層疊 */
+                        background-image: linear-gradient(rgba(148, 27, 12, 0.85), rgba(148, 27, 12, 0.85)), url('https://poyuan0913.github.io/luckydraw/bg.jpg');
+                        background-size: cover;
+                        background-position: center;
+                        color: white;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-height: 100vh;
+                        margin: 0;
+                        overflow: hidden;
+
+        }
+
+                .card {
+                        text-align: center;
+                        background: rgba(255, 255, 255, 0.1);
+                        padding: 40px 20px;
+                        border-radius: 20px;
+                        border: 3px solid #f1c40f;
+                        width: 85%;
+                        max-width: 400px;
+                        box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+                        backdrop-filter: blur(10px);
+                        position: relative;
+                        z-index: 10;
+
+        }
+
+                .logo {
+                        max-width: 140px;
+                        margin-bottom: 10px;
+
+        }
+
+                .greetings {
+                        color: #f1c40f;
+                        font-size: 1.4rem;
+                        font-style: italic;
+                        margin-bottom: 5px;
+                        letter-spacing: 1px;
+
+        }
+
+                h2 {
+                        margin-top: 0;
+                        line-height: 1.2;
+
+        }
+
+
+        /* --- 按鈕動態設計 --- */
+                #draw-btn {
+                        background: linear-gradient(135deg, #f1c40f 0%, #d4af37 100%);
+                        color: #941b0c;
+                        border: none;
+                        padding: 18px 45px;
+                        font-size: 1.3rem;
+                        font-weight: bold;
+                        border-radius: 50px;
+                        cursor: pointer;
+                        margin-top: 20px;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                        transition: all 0.3s ease;
+                        animation: btn-breathing 2s infinite ease-in-out;
+                        outline: none;
+
+        }
+
+
+        /* 按鈕點擊後的蓄力震動狀態 */
+                .btn-loading {
+                        animation: btn-shake 0.1s infinite !important;
+                        filter: brightness(1.2);
+                        pointer-events: none;
+                        box-shadow: 0 0 30px #f1c40f !important;
+
+        }
+
+
+        /* --- 抽獎結果特效 --- */
+                #result {
+                        display: none;
+                        animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+        }
+
+                .prize-item {
+                        font-size: 1.8rem;
+                        font-weight: bold;
+                        color: #ffffff;
+                        line-height: 1.4;
+                        white-space: pre-line;
+                        margin: 20px 0;
+
+            /* 金光流影背景 */
+                        background: linear-gradient(110deg, rgba(0,0,0,0.4) 40%, rgba(241, 196, 15, 0.4) 50%, rgba(0,0,0,0.4) 60%);
+                        background-size: 200% 100%;
+                        padding: 25px 15px;
+                        border-radius: 12px;
+                        border: 1px solid rgba(241, 196, 15, 0.5);
+                        border-bottom: 4px solid #f1c40f;
+                        animation: shine-sweep 3s infinite linear;
+                        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+
+        }
+
+
+        /* --- 動畫定義 --- */
+                @keyframes btn-breathing {
+                        0%, 100% {
+                transform: scale(1);
+            }
+
+                        50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 20px rgba(241, 196, 15, 0.6);
+            }
+
+
+        }
+
+                @keyframes btn-shake {
+                        0% {
+                transform: translate(1px, 1px) rotate(0deg);
+            }
+
+                        20% {
+                transform: translate(-1px, -2px) rotate(-1deg);
+            }
+
+                        40% {
+                transform: translate(-3px, 0px) rotate(1deg);
+            }
+
+                        60% {
+                transform: translate(3px, 2px) rotate(0deg);
+            }
+
+                        80% {
+                transform: translate(1px, -1px) rotate(1deg);
+            }
+
+                        100% {
+                transform: translate(-1px, 2px) rotate(-1deg);
+            }
+
+
+        }
+
+                @keyframes popIn {
+                        from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+                        to {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+
+        }
+
+                @keyframes shine-sweep {
+                        to {
+                background-position: -200% 0;
+            }
+
+
+        }
+
+                .hidden {
+            display: none;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+        <div class="greetings">🐎 Happy Lunar New Year</div>
+        <h2>🧧 2026 TKT尾牙抽獎 🧧<br><span style="font-size: 1rem; color: #f1c40f;">Annual Dinner Lucky Draw</span></h2>
+
+        <button id="draw-btn" onclick="startDraw()">揭曉獎品 / Reveal Prize</button>
+
+        <div id="result">
+            <div style="color: #f1c40f; font-weight: bold; font-size: 1.1rem;">Congratulations! 恭喜您獲得</div>
+            <div class="prize-item" id="prize-display"></div>
+            <p style="font-size: 0.8rem; opacity: 0.8;">請截圖此畫面領獎<br>✨ 2026 TKT Year-end party by Po Yuan ✨</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 獎項清單 ---
+        const prizeList = [
+            "頭獎：iPhone 17 Pro\n(Grand Prize: iPhone 17 Pro)",
+            "二獎：Dyson 吸塵器\n(2nd Prize: Dyson Vacuum)",
+            "三獎：iPad Air\n(3rd Prize: iPad Air)",
+            "四獎：Apple Watch S11\n(4th Prize: Apple Watch)",
+            "五獎：Nintendo Switch\n(5th Prize: Switch)",
+            "六獎：Marshall 音響\n(6th Prize: Speaker)",
+            "現金獎：$8,800\n(Cash Prize: $8,800)",
+            "現金獎：$6,600\n(Cash Prize: $6,600)",
+            "現金獎：$3,600\n(Cash Prize: $3,600)",
+            "禮券 $2,000\n(Voucher $2,000)",
+            "禮券 $2,000\n(Voucher $2,000)",
+            "AirPods Pro\n(AirPods Pro)",
+            "膠囊咖啡機\n(Coffee Machine)",
+            "專業筋膜槍\n(Massage Gun)",
+            "行動電源\n(Power Bank)",
+            "藍牙耳機\n(Bluetooth Earbuds)",
+            "電動牙刷\n(Electric Toothbrush)",
+            "小米手環\n(Xiaomi Smart Band)",
+            "不鏽鋼保溫瓶\n(Thermos Bottle)",
+            "星巴克禮券 $500\n(Voucher $500)",
+            "電影票兩張\n(Cinema Tickets)",
+            "精美餐具組\n(Tableware Set)",
+            "加碼紅包 $1,000\n(Bonus: $1,000)",
+            "加碼紅包 $888\n(Bonus: $888)",
+            "特獎：神秘大禮\n(Special Prize: Mystery)"
+        ];
+
+        // 狀態鎖，防止重複觸發
+        let isDrawing = false;
+
+        function startDraw() {
+            if (isDrawing) return;
+            isDrawing = true;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            // 取得 ID，若無則預設為 0
+            const id = parseInt(urlParams.get('id')) || 0;
+            const btn = document.getElementById('draw-btn');
+
+            // 1. 初始化音效物件 (提前在點擊瞬間實例化以解鎖瀏覽器限制)
+            const drum = new Audio(`drum${id}.mp3`);
+            const winSound = new Audio('win.mp3');
+
+            // 2. 按鈕進入蓄力震動狀態
+            btn.innerHTML = "抽獎中... 🐎";
+            btn.classList.add('btn-loading');
+            btn.style.cursor = 'not-allowed';
+
+            // 3. 播放鼓聲 (處理 Promise 避免報錯)
+            drum.play().catch(e => console.log("音效自動播放受限:", e));
+
+            // 4. 等待 5.8 秒後揭曉 (鼓聲快結束時)
+            setTimeout(() => {
+                // 按鈕淡出
+                btn.style.opacity = '0';
+                setTimeout(() => {
+                    btn.style.display = 'none';
+                    revealPrize(id, winSound);
+                }, 300);
+            }, 5800);
+        }
+
+        function revealPrize(id, winSound) {
+            const prizeIndex = id - 1;
+            // 檢查 ID 是否在有效範圍 (1~25)
+            const finalPrize = (prizeIndex >= 0 && prizeIndex < prizeList.length)
+                ? prizeList[prizeIndex]
+                : "馬到成功獎\n(Horse Power Prize)";
+
+            const prizeDisplay = document.getElementById('prize-display');
+            const resultDiv = document.getElementById('result');
+
+            // 置入結果並顯示
+            prizeDisplay.innerText = finalPrize;
+            resultDiv.style.display = 'block';
+
+            // 播放獲獎音效
+            winSound.play().catch(e => console.log("得獎音效播放失敗:", e));
+
+            // 5. 噴發煙火
+            launchConfetti();
+
+            // 6. 手機震動 (支援的手機)
+            if (navigator.vibrate) {
+                navigator.vibrate([100, 50, 100, 50, 400]);
+            }
+        }
+
+        function launchConfetti() {
+            const end = Date.now() + 4000;
+            const colors = ['#f1c40f', '#ffffff', '#ff0000', '#d4af37'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 7,
+                    angle: 60,
+                    spread: 70,
+                    origin: { x: 0, y: 0.7 },
+                    colors: colors
+                });
+                confetti({
+                    particleCount: 7,
+                    angle: 120,
+                    spread: 70,
+                    origin: { x: 1, y: 0.7 },
+                    colors: colors
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+    </script>
+</body>
+</html>
