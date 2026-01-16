@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
-        /* 原有的精美 CSS 樣式 */
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
             background: #941b0c radial-gradient(circle, #bc2f1a 0%, #8e0e00 100%);
@@ -36,10 +35,12 @@
             position: relative;
             z-index: 10;
         }
-
+        /* Logo 樣式修正 */
         .logo {
             max-width: 140px;
-            margin-bottom: 10px;
+            height: auto;
+            margin: 0 auto 15px auto;
+            display: block;
         }
 
         .greetings {
@@ -85,7 +86,7 @@
             animation: shine-sweep 3s infinite linear;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        /* 管理後台樣式 */
+        /* 管理後台樣式 (只顯示編號) */
         #admin-panel {
             display: none;
             background: white;
@@ -102,7 +103,7 @@
 
         .qr-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
@@ -112,12 +113,20 @@
             padding: 10px;
             border-radius: 8px;
             text-align: center;
+            background: #fff;
         }
 
             .qr-item canvas {
-                width: 120px;
-                height: 120px;
+                width: 100px;
+                height: 100px;
             }
+
+        .id-label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #941b0c;
+            margin-bottom: 5px;
+        }
 
         @keyframes btn-breathing {
             0%, 100% {
@@ -153,6 +162,7 @@
 <body>
 
     <div id="draw-ui" class="card">
+        <img src="logo.png" alt="Company Logo" class="logo" onerror="this.style.display='none'">
         <div class="greetings">🐎 Happy Lunar New Year</div>
         <h2>🧧 2026 TKT尾牙抽獎 🧧<br><span style="font-size: 1rem; color: #f1c40f;">Annual Dinner Lucky Draw</span></h2>
         <button id="draw-btn" onclick="startDraw()">揭曉獎品 / Reveal Prize</button>
@@ -165,22 +175,19 @@
 
     <div id="admin-panel">
         <h2 style="color: #941b0c;">⚙️ QR Code 產生管理後台</h2>
-        <p>請確認目前網址正確，然後點擊右鍵儲存 QR Code 圖片。</p>
+        <p>此頁面僅顯示編號，不會洩漏獎品名稱。請對照您的清單儲存 QR Code。</p>
         <div class="qr-grid" id="qr-container"></div>
-        <button onclick="location.href=location.pathname" style="margin-top:20px; padding:10px;">返回抽獎頁</button>
+        <button onclick="location.href=location.pathname" style="margin-top:30px; padding:10px 20px; cursor:pointer;">返回抽獎頁</button>
     </div>
 
     <script>
-        const prizeList = ["iPhone 17 Pro", "Dyson 吸塵器", "iPad Air", "Apple Watch S11", "Nintendo Switch", "Marshall 音響", "$8,800", "$6,600", "$3,600", "禮券 $2,000", "禮券 $2,000", "AirPods Pro", "膠囊咖啡機", "專業筋膜槍", "行動電源", "藍牙耳機", "電動牙刷", "小米手環", "不鏽鋼保溫瓶", "星巴克禮券 $500", "電影票兩張", "精美餐具組", "$1,000", "$888", "神秘大禮"];
+        const prizeList = ["頭獎：iPhone 17 Pro", "二獎：Dyson 吸塵器", "三獎：iPad Air", "四獎：Apple Watch S11", "五獎：Nintendo Switch", "六獎：Marshall 音響", "現金獎：$8,800", "現金獎：$6,600", "現金獎：$3,600", "禮券 $2,000", "禮券 $2,000", "AirPods Pro", "膠囊咖啡機", "專業筋膜槍", "行動電源", "藍牙耳機", "電動牙刷", "小米手環", "不鏽鋼保溫瓶", "星巴克禮券 $500", "電影票兩張", "精美餐具組", "加碼紅包 $1,000", "加碼紅包 $888", "特獎：神秘大禮"];
 
         const urlParams = new URLSearchParams(window.location.search);
         let isDrawing = false;
 
-        // 初始化檢查：進入管理模式還是抽獎模式
         window.onload = function () {
-            if (urlParams.get('admin') === '1') {
-                showAdmin();
-            }
+            if (urlParams.get('admin') === '1') showAdmin();
         };
 
         function showAdmin() {
@@ -189,22 +196,21 @@
             const container = document.getElementById('qr-container');
             const baseUrl = window.location.origin + window.location.pathname;
 
-            prizeList.forEach((name, index) => {
-                const id = index + 1;
-                const key = btoa(id.toString());
+            for (let i = 1; i <= 25; i++) {
+                const key = btoa(i.toString());
                 const finalUrl = `${baseUrl}?key=${key}`;
                 const item = document.createElement('div');
                 item.className = 'qr-item';
-                item.innerHTML = `<div style="font-size:12px; font-weight:bold;">${id}. ${name}</div><canvas id="qr-${id}"></canvas>`;
+                // 這裡只顯示 ID 編號，不顯示 prizeList[i-1]
+                item.innerHTML = `<div class="id-label">編號 ${i}</div><canvas id="qr-${i}"></canvas>`;
                 container.appendChild(item);
-                new QRious({ element: document.getElementById(`qr-${id}`), value: finalUrl, size: 200 });
-            });
+                new QRious({ element: document.getElementById(`qr-${i}`), value: finalUrl, size: 200, level: 'H' });
+            }
         }
 
         function startDraw() {
             if (isDrawing) return;
             isDrawing = true;
-
             const key = urlParams.get('key') || "";
             let id = 0;
             try { id = parseInt(atob(key)) || 0; } catch (e) { id = 0; }
@@ -225,17 +231,17 @@
 
         function revealPrize(id, winSound) {
             const prizeDisplay = document.getElementById('prize-display');
-            prizeDisplay.innerText = prizeList[id - 1] || "馬到成功獎\n(Horse Power Prize)";
+            prizeDisplay.innerText = (id >= 1 && id <= 25) ? prizeList[id - 1] : "馬到成功獎\n(Horse Power Prize)";
             document.getElementById('result').style.display = 'block';
-            winSound.play();
+            winSound.play().catch(e => { });
             launchConfetti();
         }
 
         function launchConfetti() {
             const end = Date.now() + 4000;
             (function frame() {
-                confetti({ particleCount: 7, angle: 60, spread: 70, origin: { x: 0, y: 0.7 }, colors: ['#f1c40f', '#ff0000'] });
-                confetti({ particleCount: 7, angle: 120, spread: 70, origin: { x: 1, y: 0.7 }, colors: ['#f1c40f', '#ff0000'] });
+                confetti({ particleCount: 7, angle: 60, spread: 70, origin: { x: 0, y: 0.7 }, colors: ['#f1c40f', '#ff0000', '#ffffff'] });
+                confetti({ particleCount: 7, angle: 120, spread: 70, origin: { x: 1, y: 0.7 }, colors: ['#f1c40f', '#ff0000', '#ffffff'] });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
         }
