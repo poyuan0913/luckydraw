@@ -35,7 +35,7 @@
             position: relative;
             z-index: 10;
         }
-        /* Logo 樣式修正 */
+
         .logo {
             max-width: 140px;
             height: auto;
@@ -86,12 +86,13 @@
             animation: shine-sweep 3s infinite linear;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        /* 管理後台樣式 (只顯示編號) */
+
+        /* 管理後台樣式 - 完全隱藏編號與獎名 */
         #admin-panel {
             display: none;
-            background: white;
+            background: #fff;
             color: #333;
-            padding: 20px;
+            padding: 40px 20px;
             width: 100%;
             min-height: 100vh;
             position: absolute;
@@ -99,34 +100,28 @@
             left: 0;
             z-index: 100;
             overflow-y: auto;
+            text-align: center;
         }
 
         .qr-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
             margin-top: 20px;
+            justify-items: center;
         }
 
         .qr-item {
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
+            padding: 5px;
             background: #fff;
         }
 
             .qr-item canvas {
-                width: 100px;
-                height: 100px;
+                width: 120px;
+                height: 120px;
+                cursor: pointer;
+                border: 1px solid #eee;
             }
-
-        .id-label {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #941b0c;
-            margin-bottom: 5px;
-        }
 
         @keyframes btn-breathing {
             0%, 100% {
@@ -174,10 +169,10 @@
     </div>
 
     <div id="admin-panel">
-        <h2 style="color: #941b0c;">⚙️ QR Code 產生管理後台</h2>
-        <p>此頁面僅顯示編號，不會洩漏獎品名稱。請對照您的清單儲存 QR Code。</p>
+        <h2 style="color: #941b0c;">⚙️ 隱藏式 QR Code 產生器</h2>
+        <p style="font-size: 0.9rem; color: #666;">畫面已隱藏編號。儲存圖片時，檔名會自動帶入編號（如 QR_01.png）。</p>
         <div class="qr-grid" id="qr-container"></div>
-        <button onclick="location.href=location.pathname" style="margin-top:30px; padding:10px 20px; cursor:pointer;">返回抽獎頁</button>
+        <button onclick="location.href=location.pathname" style="margin-top:50px; padding:12px 24px; cursor:pointer; background:#941b0c; color:white; border:none; border-radius:5px;">返回抽獎頁</button>
     </div>
 
     <script>
@@ -201,10 +196,27 @@
                 const finalUrl = `${baseUrl}?key=${key}`;
                 const item = document.createElement('div');
                 item.className = 'qr-item';
-                // 這裡只顯示 ID 編號，不顯示 prizeList[i-1]
-                item.innerHTML = `<div class="id-label">編號 ${i}</div><canvas id="qr-${i}"></canvas>`;
+
+                // 這裡完全不放文字
+                item.innerHTML = `<canvas id="qr-${i}" title="QR_${String(i).padStart(2, '0')}"></canvas>`;
                 container.appendChild(item);
-                new QRious({ element: document.getElementById(`qr-${i}`), value: finalUrl, size: 200, level: 'H' });
+
+                // 生成 QR Code
+                const qr = new QRious({
+                    element: document.getElementById(`qr-${i}`),
+                    value: finalUrl,
+                    size: 250,
+                    level: 'H'
+                });
+
+                // 讓下載時預設檔名帶有編號 (針對部分瀏覽器優化)
+                const canvas = document.getElementById(`qr-${i}`);
+                canvas.onclick = function () {
+                    const link = document.createElement('a');
+                    link.download = `QR_${String(i).padStart(2, '0')}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                };
             }
         }
 
