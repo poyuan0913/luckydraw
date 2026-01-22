@@ -160,7 +160,7 @@
         <img src="logo.png" alt="Company Logo" class="logo" onerror="this.style.display='none'">
         <div class="greetings">🐎 Happy Lunar New Year</div>
         <h2>🧧 2026 TKT尾牙抽獎 🧧<br><span style="font-size: 1rem; color: #f1c40f;">Annual Dinner Lucky Draw</span></h2>
-        <button id="draw-btn" onclick="startDraw()">按此揭曉獎品 / Click Reveal Prize</button>
+        <button id="draw-btn" onclick="startDraw()">按此開獎 / Click Reveal Prize</button>
         <div id="result" style="display: none;">
             <div style="color: #f1c40f; font-weight: bold; font-size: 1.1rem;">Congratulations! 恭喜您獲得</div>
             <div class="prize-item" id="prize-display"></div>
@@ -258,7 +258,7 @@
             const drum = new Audio(`drum${id}.mp3`);
             const winSound = new Audio('win.mp3');
 
-            btn.innerHTML = "抽獎中... 🐎";
+            btn.innerHTML = "開獎中... 🐎";
             btn.classList.add('btn-loading');
             drum.play().catch(e => console.log("Audio blocked"));
 
