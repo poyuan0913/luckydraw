@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026 TKT尾牙抽獎 | Annual Dinner Lucky Draw</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ushelp/EasyQRCodeJS@master/dist/easy.qrcode.min.js"></script>
     <style>
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
@@ -221,29 +221,41 @@
             for (let i = 1; i <= 25; i++) {
                 const key = btoa(i.toString());
                 const finalUrl = `${baseUrl}?key=${key}`;
+
+                // 建立一個容器
                 const item = document.createElement('div');
                 item.className = 'qr-item';
-
-                // 這裡完全不放文字
-                item.innerHTML = `<canvas id="qr-${i}" title="QR_${String(i).padStart(2, '0')}"></canvas>`;
+                item.id = `qr-holder-${i}`;
                 container.appendChild(item);
 
-                // 生成 QR Code
-                const qr = new QRious({
-                    element: document.getElementById(`qr-${i}`),
-                    value: finalUrl,
-                    size: 250,
-                    level: 'H'
-                });
+                // 初始化 QRCode
+                new QRCode(document.getElementById(`qr-holder-${i}`), {
+                    text: finalUrl,
+                    width: 250,
+                    height: 250,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H, // 高容錯率，放 Logo 才不會掃不到
 
-                // 讓下載時預設檔名帶有編號 (針對部分瀏覽器優化)
-                const canvas = document.getElementById(`qr-${i}`);
-                canvas.onclick = function () {
-                    const link = document.createElement('a');
-                    link.download = `QR_${String(i).padStart(2, '0')}.png`;
-                    link.href = canvas.toDataURL();
-                    link.click();
-                };
+                    // Logo 設定
+                    logo: "logo.png", // 這裡填入您的 Logo 路徑
+                    logoWidth: 60,    // Logo 寬度
+                    logoHeight: 60,   // Logo 高度
+                    logoBackgroundColor: '#ffffff', // Logo 背景色
+                    logoBackgroundTransparent: false,
+
+                    // 點擊下載功能
+                    onRenderingEnd: function (options, dataURL) {
+                        const canvas = item.querySelector('canvas');
+                        canvas.style.cursor = 'pointer';
+                        canvas.onclick = function () {
+                            const link = document.createElement('a');
+                            link.download = `QR_${String(i).padStart(2, '0')}.png`;
+                            link.href = dataURL;
+                            link.click();
+                        };
+                    }
+                });
             }
         }
 
