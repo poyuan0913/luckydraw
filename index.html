@@ -177,31 +177,21 @@
 
     <script>
         const prizeList = [
-            "特別獎：測試\n(Special：Test)",
-            "二獎：Dyson 吸塵器\n(2nd Prize: Dyson Vacuum)",
-            "三獎：iPad Air\n(3rd Prize: iPad Air)",
+            "頭獎：iPhone 17 Pro Max\n(1st Prize: iPhone 17 Pro Max)",
+            "二獎：Dyson 吹風機旗艦組\n(2nd Prize: Dyson Hair Dryer)",
+            "三獎：iPad Air 13吋\n(3rd Prize: iPad Air)",
             "四獎：Apple Watch S11\n(4th Prize: Apple Watch)",
-            "五獎：Nintendo Switch\n(5th Prize: Switch)",
-            "六獎：Marshall 音響\n(6th Prize: Speaker)",
+            "五獎：Nintendo Switch OLED\n(5th Prize: Switch)",
             "現金獎：$8,800\n(Cash Prize: $8,800)",
             "現金獎：$6,600\n(Cash Prize: $6,600)",
             "現金獎：$3,600\n(Cash Prize: $3,600)",
-            "禮券 $2,000\n(Voucher $2,000)",
             "禮券 $2,000\n(Voucher $2,000)",
             "AirPods Pro\n(AirPods Pro)",
             "膠囊咖啡機\n(Coffee Machine)",
             "專業筋膜槍\n(Massage Gun)",
             "行動電源\n(Power Bank)",
-            "藍牙耳機\n(Bluetooth Earbuds)",
-            "電動牙刷\n(Electric Toothbrush)",
-            "小米手環\n(Xiaomi Smart Band)",
-            "不鏽鋼保溫瓶\n(Thermos Bottle)",
-            "星巴克禮券 $500\n(Voucher $500)",
-            "電影票兩張\n(Cinema Tickets)",
-            "精美餐具組\n(Tableware Set)",
             "加碼紅包 $1,000\n(Bonus: $1,000)",
-            "加碼紅包 $888\n(Bonus: $888)",
-            "特獎：神秘大禮\n(Special Prize: Mystery)"
+            "特獎：隱藏版驚喜\n(Special Prize: Hidden Surprise)"
         ];
 
 
@@ -261,28 +251,42 @@
 
         function startDraw() {
             if (isDrawing) return;
-            isDrawing = true;
+
             const key = urlParams.get('key') || "";
             let id = 0;
-            try { id = parseInt(atob(key)) || 0; } catch (e) { id = 0; }
+            try {
+                id = parseInt(atob(key)) || 0;
+            } catch (e) {
+                id = 0;
+            }
 
+            // 安全檢查：如果 ID 超過 15 或小於 1，則設為預設音效或 0
+            const soundId = (id >= 1 && id <= 15) ? id : 0;
+
+            isDrawing = true;
             const btn = document.getElementById('draw-btn');
-            const drum = new Audio(`drum${id}.mp3`);
+
+            // 根據 ID 載入對應的鼓聲，例如 drum1.mp3, drum2.mp3...
+            const drum = new Audio(`drum${soundId}.mp3`);
             const winSound = new Audio('win.mp3');
 
             btn.innerHTML = "開獎中... 🐎";
             btn.classList.add('btn-loading');
-            drum.play().catch(e => console.log("Audio blocked"));
+            btn.disabled = true;
+
+            // 播放該獎項專屬鼓聲
+            drum.play().catch(e => console.log("音效讀取失敗，請檢查檔案名稱是否正確"));
 
             setTimeout(() => {
                 btn.style.display = 'none';
                 revealPrize(id, winSound);
-            }, 5800);
+            }, 5800); // 這裡的 5800 毫秒可以根據你鼓聲的長度做調整
         }
 
         function revealPrize(id, winSound) {
             const prizeDisplay = document.getElementById('prize-display');
-            prizeDisplay.innerText = (id >= 1 && id <= 25) ? prizeList[id - 1] : "馬到成功獎\n(Horse Power Prize)";
+            // 獎項清單已縮減為 15 個
+            prizeDisplay.innerText = (id >= 1 && id <= 15) ? prizeList[id - 1] : "馬到成功獎\n(Horse Power Prize)";
             document.getElementById('result').style.display = 'block';
             winSound.play().catch(e => { });
             launchConfetti();
