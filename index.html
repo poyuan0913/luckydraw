@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 TKT尾牙抽獎 | Annual Dinner Lucky Draw</title>
+    <title>2026 TKT 尾牙抽獎 | Annual Dinner Lucky Draw</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/ushelp/EasyQRCodeJS@master/dist/easy.qrcode.min.js"></script>
     <style>
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
             background: #941b0c radial-gradient(circle, #bc2f1a 0%, #8e0e00 100%);
-            background-image: linear-gradient(rgba(148, 27, 12, 0.85), rgba(148, 27, 12, 0.85)), url('https://poyuan0913.github.io/luckydraw/bg.jpg');
+            background-image: linear-gradient(rgba(148, 27, 12, 0.85), rgba(148, 27, 12, 0.85)), url('bg.jpg');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             color: white;
             display: flex;
             align-items: center;
@@ -49,48 +50,58 @@
             font-style: italic;
             margin-bottom: 5px;
             letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
+        /* 加強版亮度按鈕 */
         #draw-btn {
-            background: linear-gradient(135deg, #f1c40f 0%, #d4af37 100%);
+            background: linear-gradient(135deg, #fff176 0%, #f1c40f 50%, #d4af37 100%);
             color: #941b0c;
-            border: none;
+            border: 2px solid #ffffff;
             padding: 18px 45px;
-            font-size: 1.3rem;
-            font-weight: bold;
+            font-size: 1.4rem;
+            font-weight: 900;
             border-radius: 50px;
             cursor: pointer;
             margin-top: 20px;
-            animation: btn-breathing 2s infinite ease-in-out;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: btn-breathing 1.5s infinite ease-in-out;
+            transition: all 0.3s;
             outline: none;
         }
 
+            #draw-btn:hover {
+                filter: brightness(1.2);
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(241, 196, 15, 0.9);
+            }
+
         .btn-loading {
             animation: btn-shake 0.1s infinite !important;
-            filter: brightness(1.2);
+            filter: grayscale(0.5) brightness(1.2);
             pointer-events: none;
         }
 
         .prize-item {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
             color: #ffffff;
             line-height: 1.4;
             white-space: pre-line;
             margin: 20px 0;
-            background: linear-gradient(110deg, rgba(0,0,0,0.4) 40%, rgba(241, 196, 15, 0.4) 50%, rgba(0,0,0,0.4) 60%);
+            background: linear-gradient(110deg, rgba(0,0,0,0.6) 40%, rgba(255, 241, 118, 0.5) 50%, rgba(0,0,0,0.6) 60%);
             background-size: 200% 100%;
             padding: 25px 15px;
             border-radius: 12px;
-            border-bottom: 4px solid #f1c40f;
+            border: 2px solid #f1c40f;
             animation: shine-sweep 3s infinite linear;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
         }
 
-        /* 管理後台樣式 - 完全隱藏編號與獎名 */
+        /* 管理後台樣式 */
         #admin-panel {
             display: none;
-            background: #fff;
+            background: #f8f9fa;
             color: #333;
             padding: 40px 20px;
             width: 100%;
@@ -105,31 +116,34 @@
 
         .qr-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 10px;
-            margin-top: 20px;
-            justify-items: center;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px auto;
+            max-width: 1000px;
         }
 
         .qr-item {
-            padding: 5px;
+            padding: 15px;
             background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
             .qr-item canvas {
-                width: 120px;
-                height: 120px;
+                width: 100% !important;
+                height: auto !important;
                 cursor: pointer;
-                border: 1px solid #eee;
             }
 
         @keyframes btn-breathing {
             0%, 100% {
                 transform: scale(1);
+                box-shadow: 0 0 20px rgba(241, 196, 15, 0.6);
             }
 
             50% {
                 transform: scale(1.05);
+                box-shadow: 0 0 35px rgba(241, 196, 15, 0.9);
             }
         }
 
@@ -159,7 +173,7 @@
     <div id="draw-ui" class="card">
         <img src="logo.png" alt="Company Logo" class="logo" onerror="this.style.display='none'">
         <div class="greetings">🐎 Happy Lunar New Year</div>
-        <h2>🧧 2026 TKT尾牙抽獎 🧧<br><span style="font-size: 1rem; color: #f1c40f;">Annual Dinner Lucky Draw</span></h2>
+        <h2>🧧 2026 TKT 尾牙抽獎 🧧<br><span style="font-size: 1rem; color: #f1c40f;">Annual Dinner Lucky Draw</span></h2>
         <button id="draw-btn" onclick="startDraw()">按此開獎 / Click Reveal Prize</button>
         <div id="result" style="display: none;">
             <div style="color: #f1c40f; font-weight: bold; font-size: 1.1rem;">Congratulations! 恭喜您獲得</div>
@@ -169,16 +183,20 @@
     </div>
 
     <div id="admin-panel">
-        <h2 style="color: #941b0c;">⚙️ 隱藏式 QR Code 產生器</h2>
-        <p style="font-size: 0.9rem; color: #666;">畫面已隱藏編號。儲存圖片時，檔名會自動帶入編號（如 QR_01.png）。</p>
+        <h2 style="color: #941b0c;">⚙️ 隱藏式 QR Code 產生器 (15 獎項)</h2>
+        <button id="download-all-btn" onclick="downloadAllQRs()" style="padding: 15px 30px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">
+            📥 一鍵下載所有 QR Code (1-15)
+        </button>
+        <p style="font-size: 0.9rem; color: #666;">點擊單張 QR Code 亦可單獨下載。</p>
         <div class="qr-grid" id="qr-container"></div>
-        <button onclick="location.href=location.pathname" style="margin-top:50px; padding:12px 24px; cursor:pointer; background:#941b0c; color:white; border:none; border-radius:5px;">返回抽獎頁</button>
+        <button onclick="location.href=location.pathname" style="margin-top:30px; padding:12px 24px; cursor:pointer; background:#941b0c; color:white; border:none; border-radius:5px;">返回抽獎頁</button>
     </div>
 
     <script>
+        // 15 個獎項設定
         const prizeList = [
-            "頭獎：iPhone 17 Pro Max\n(1st Prize: iPhone 17 Pro Max)",
-            "二獎：Dyson 吹風機旗艦組\n(2nd Prize: Dyson Hair Dryer)",
+            "頭獎：iPhone 17 Pro Max\n(1st Prize: iPhone 17)",
+            "二獎：Dyson 吹風機旗艦組\n(2nd Prize: Dyson)",
             "三獎：iPad Air 13吋\n(3rd Prize: iPad Air)",
             "四獎：Apple Watch S11\n(4th Prize: Apple Watch)",
             "五獎：Nintendo Switch OLED\n(5th Prize: Switch)",
@@ -191,12 +209,12 @@
             "專業筋膜槍\n(Massage Gun)",
             "行動電源\n(Power Bank)",
             "加碼紅包 $1,000\n(Bonus: $1,000)",
-            "特獎：隱藏版驚喜\n(Special Prize: Hidden Surprise)"
+            "特獎：隱藏版驚喜\n(Special Prize: Mystery)"
         ];
-
 
         const urlParams = new URLSearchParams(window.location.search);
         let isDrawing = false;
+        const qrDataURLs = {};
 
         window.onload = function () {
             if (urlParams.get('admin') === '1') showAdmin();
@@ -212,32 +230,25 @@
                 const key = btoa(i.toString());
                 const finalUrl = `${baseUrl}?key=${key}`;
 
-                // 建立一個容器
                 const item = document.createElement('div');
                 item.className = 'qr-item';
                 item.id = `qr-holder-${i}`;
                 container.appendChild(item);
 
-                // 初始化 QRCode
                 new QRCode(document.getElementById(`qr-holder-${i}`), {
                     text: finalUrl,
-                    width: 250,
-                    height: 250,
+                    width: 300,
+                    height: 300,
                     colorDark: "#000000",
                     colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H, // 高容錯率，放 Logo 才不會掃不到
-
-                    // Logo 設定
-                    logo: "logo.png", // 這裡填入您的 Logo 路徑
-                    logoWidth: 60,    // Logo 寬度
-                    logoHeight: 60,   // Logo 高度
-                    logoBackgroundColor: '#ffffff', // Logo 背景色
-                    logoBackgroundTransparent: false,
-
-                    // 點擊下載功能
+                    correctLevel: QRCode.CorrectLevel.H,
+                    logo: "logo.png",
+                    logoWidth: 70,
+                    logoHeight: 70,
+                    logoBackgroundColor: '#ffffff',
                     onRenderingEnd: function (options, dataURL) {
+                        qrDataURLs[i] = dataURL;
                         const canvas = item.querySelector('canvas');
-                        canvas.style.cursor = 'pointer';
                         canvas.onclick = function () {
                             const link = document.createElement('a');
                             link.download = `QR_${String(i).padStart(2, '0')}.png`;
@@ -249,43 +260,53 @@
             }
         }
 
+        async function downloadAllQRs() {
+            const btn = document.getElementById('download-all-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "正在批次下載...";
+            btn.disabled = true;
+
+            for (let i = 1; i <= 15; i++) {
+                if (qrDataURLs[i]) {
+                    const link = document.createElement('a');
+                    link.download = `QR_${String(i).padStart(2, '0')}.png`;
+                    link.href = qrDataURLs[i];
+                    link.click();
+                    await new Promise(r => setTimeout(r, 400)); // 避免瀏覽器併發下載限制
+                }
+            }
+            btn.innerText = "✅ 下載完成";
+            setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 2000);
+        }
+
         function startDraw() {
             if (isDrawing) return;
 
             const key = urlParams.get('key') || "";
             let id = 0;
-            try {
-                id = parseInt(atob(key)) || 0;
-            } catch (e) {
-                id = 0;
-            }
-
-            // 安全檢查：如果 ID 超過 15 或小於 1，則設為預設音效或 0
-            const soundId = (id >= 1 && id <= 15) ? id : 0;
+            try { id = parseInt(atob(key)) || 0; } catch (e) { id = 0; }
 
             isDrawing = true;
             const btn = document.getElementById('draw-btn');
 
-            // 根據 ID 載入對應的鼓聲，例如 drum1.mp3, drum2.mp3...
+            // 對應 1-15 首鼓聲
+            const soundId = (id >= 1 && id <= 15) ? id : 0;
             const drum = new Audio(`drum${soundId}.mp3`);
             const winSound = new Audio('win.mp3');
 
             btn.innerHTML = "開獎中... 🐎";
             btn.classList.add('btn-loading');
-            btn.disabled = true;
 
-            // 播放該獎項專屬鼓聲
-            drum.play().catch(e => console.log("音效讀取失敗，請檢查檔案名稱是否正確"));
+            drum.play().catch(e => console.log("音效播放被攔截或找不到檔案"));
 
             setTimeout(() => {
                 btn.style.display = 'none';
                 revealPrize(id, winSound);
-            }, 5800); // 這裡的 5800 毫秒可以根據你鼓聲的長度做調整
+            }, 5800);
         }
 
         function revealPrize(id, winSound) {
             const prizeDisplay = document.getElementById('prize-display');
-            // 獎項清單已縮減為 15 個
             prizeDisplay.innerText = (id >= 1 && id <= 15) ? prizeList[id - 1] : "馬到成功獎\n(Horse Power Prize)";
             document.getElementById('result').style.display = 'block';
             winSound.play().catch(e => { });
