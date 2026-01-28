@@ -83,22 +83,27 @@
         }
 
         .prize-item {
-            font-size: 1.6rem; /* 稍微縮小，提高可視度 */
-            font-weight: 800;
+            font-size: 1.4rem;
+            font-weight: bold;
             color: #ffffff;
-            line-height: 1.5; /* 增加行高，讓中英文字有呼吸感 */
-            white-space: pre-line;
-            margin: 15px 0;
-            /* 優化漸變背景，使其更沉穩 */
-            background: linear-gradient(110deg, rgba(0,0,0,0.7) 40%, rgba(241, 196, 15, 0.3) 50%, rgba(0,0,0,0.7) 60%);
+            /* 核心換行邏輯 */
+            white-space: normal; /* 允許自動換行 */
+            word-break: break-word; /* 長單字自動斷行 */
+            line-height: 1.4;
+            margin: 20px 0;
+            padding: 25px 15px;
+            background: linear-gradient(110deg, rgba(0,0,0,0.7) 40%, rgba(241, 196, 15, 0.2) 50%, rgba(0,0,0,0.7) 60%);
             background-size: 200% 100%;
-            padding: 20px 10px;
             border-radius: 12px;
             border: 2px solid #f1c40f;
             animation: shine-sweep 3s infinite linear;
-            /* 強化文字陰影，確保字體立體 */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(241, 196, 15, 0.5);
-            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            /* 讓內容垂直居中排版 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 140px;
         }
 
         /* 針對行動裝置微調 */
@@ -318,7 +323,26 @@
 
         function revealPrize(id, winSound) {
             const prizeDisplay = document.getElementById('prize-display');
-            prizeDisplay.innerText = (id >= 1 && id <= 15) ? prizeList[id - 1] : "馬到成功獎\n(Horse Power Prize)";
+            const rawText = (id >= 1 && id <= 15) ? prizeList[id - 1] : "馬到成功獎\n(Horse Power Prize)";
+
+            // 透過換行符拆分文字，並根據內容自動套用不同樣式
+            const lines = rawText.split('\n');
+            let formattedHTML = "";
+
+            lines.forEach((line) => {
+                if (line.includes('$')) {
+                    // 金額部分：放大顯示，並強調黃金色
+                    formattedHTML += `<div style="font-size: 1.8rem; color: #f1c40f; margin-top: 8px; font-weight: 900;">${line}</div>`;
+                } else if (line.match(/[\[\(\)]/) || line.match(/[a-zA-Z]/)) {
+                    // 英文翻譯或括號內容：縮小字體，降低亮度
+                    formattedHTML += `<div style="font-size: 0.95rem; opacity: 0.85; font-weight: 400; line-height: 1.2; margin: 4px 0;">${line}</div>`;
+                } else {
+                    // 中文獎項主標題：保持清晰大字
+                    formattedHTML += `<div style="font-size: 1.4rem; letter-spacing: 2px;">${line}</div>`;
+                }
+            });
+
+            prizeDisplay.innerHTML = formattedHTML;
             document.getElementById('result').style.display = 'block';
             winSound.play().catch(e => { });
             launchConfetti();
