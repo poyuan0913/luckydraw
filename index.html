@@ -83,19 +83,30 @@
         }
 
         .prize-item {
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 1.6rem; /* 稍微縮小，提高可視度 */
+            font-weight: 800;
             color: #ffffff;
-            line-height: 1.4;
+            line-height: 1.5; /* 增加行高，讓中英文字有呼吸感 */
             white-space: pre-line;
-            margin: 20px 0;
-            background: linear-gradient(110deg, rgba(0,0,0,0.6) 40%, rgba(255, 241, 118, 0.5) 50%, rgba(0,0,0,0.6) 60%);
+            margin: 15px 0;
+            /* 優化漸變背景，使其更沉穩 */
+            background: linear-gradient(110deg, rgba(0,0,0,0.7) 40%, rgba(241, 196, 15, 0.3) 50%, rgba(0,0,0,0.7) 60%);
             background-size: 200% 100%;
-            padding: 25px 15px;
+            padding: 20px 10px;
             border-radius: 12px;
             border: 2px solid #f1c40f;
             animation: shine-sweep 3s infinite linear;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            /* 強化文字陰影，確保字體立體 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(241, 196, 15, 0.5);
+            letter-spacing: 1px;
+        }
+
+        /* 針對行動裝置微調 */
+        @media (max-width: 480px) {
+            .prize-item {
+                font-size: 1.3rem; /* 手機版字體再縮小一點，防止溢出 */
+                padding: 15px 5px;
+            }
         }
 
         /* 管理後台樣式 */
@@ -195,21 +206,21 @@
     <script>
         // 15 個獎項設定 (中英雙語對照版)
         const prizeList = [
-            "現金 + 郵政禮券\n[Cash + Cash (Post Office)]\n$51,000",
-            "郵政禮券\n[Cash (Post Office)]\n$36,000",
-            "郵政禮券\n[Cash (Post Office)]\n$30,000",
-            "新光三越禮券 + 郵政禮券\n[Shin Kong Mitsukoshi Coupon + Cash]\n$20,000",
-            "現金\n[Cash]\n$20,000",
-            "川湯春天溫泉飯店住宿券\n[Chuang-Tang Spring Hotel Voucher]\n$19,920",
-            "郵政禮券\n[Cash (Post Office)]\n$17,000",
-            "家樂福禮券 + 郵政禮券\n[Carrefour Coupon + Cash]\n$15,500",
-            "現金 + 郵政禮券\n[Cash + Cash (Post Office)]\n$15,000",
-            "現金 + 郵政禮券\n[Cash + Cash (Post Office)]\n$13,000",
-            "家樂福禮券 + 郵政禮券\n[Carrefour Coupon + Cash]\n$13,000",
-            "遠東百貨禮券 + 現金\n[Far Eastern Coupon + Cash]\n$10,600",
-            "郵政禮券\nCash [(Post Office)]\n$10,000",
-            "現金\n[Cash]\n$10,000",
-            "家樂福禮券 + 郵政禮券\n[Carrefour Coupon + Cash]\n$10,000"
+            "1、現金 + 郵政禮券\n[Cash + Cash (Post Office)]\n$51,000",
+            "2、郵政禮券\n[Cash (Post Office)]\n$36,000",
+            "3、郵政禮券\n[Cash (Post Office)]\n$30,000",
+            "4、新光三越禮券 + 郵政禮券\n[Shin Kong Mitsukoshi Coupon + Cash]\n$20,000",
+            "5、現金\n[Cash]\n$20,000",
+            "6、川湯春天溫泉飯店住宿券\n[Chuang-Tang Spring Hotel Voucher]\n$19,920",
+            "7、郵政禮券\n[Cash (Post Office)]\n$17,000",
+            "8、家樂福禮券 + 郵政禮券\n[Carrefour Coupon + Cash]\n$15,500",
+            "9、現金 + 郵政禮券\n[Cash + Cash (Post Office)]\n$15,000",
+            "10、現金 + 郵政禮券\n[Cash + Cash (Post Office)]\n$13,000",
+            "11、家樂福禮券 + 郵政禮券\n[Carrefour Coupon + Cash]\n$13,000",
+            "12、遠東百貨禮券 + 現金\n[Far Eastern Coupon + Cash]\n$10,600",
+            "13、郵政禮券\nCash [(Post Office)]\n$10,000",
+            "14、現金\n[Cash]\n$10,000",
+            "15、家樂福禮券 + 郵政禮券\n[Carrefour Coupon + Cash]\n$10,000"
         ];
 
         const urlParams = new URLSearchParams(window.location.search);
