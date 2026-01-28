@@ -211,21 +211,21 @@
     <script>
         // 15 個獎項設定 (中英雙語對照版)
         const prizeList = [
-            "1、現金 + 郵政禮券\n[Cash + Cash (Post Office)]\n$51,000",
-            "2、郵政禮券\n[Cash (Post Office)]\n$36,000",
-            "3、郵政禮券\n[Cash (Post Office)]\n$30,000",
-            "4、新光三越禮券 + 郵政禮券\n[Shin Kong Mitsukoshi Coupon + Cash]\n$20,000",
-            "5、現金\n[Cash]\n$20,000",
-            "6、川湯春天溫泉飯店住宿券\n[Chuang-Tang Spring Hotel Voucher]\n$19,920",
-            "7、郵政禮券\n[Cash (Post Office)]\n$17,000",
-            "8、家樂福禮券 + 郵政禮券\n[Carrefour Coupon + Cash]\n$15,500",
-            "9、現金 + 郵政禮券\n[Cash + Cash (Post Office)]\n$15,000",
-            "10、現金 + 郵政禮券\n[Cash + Cash (Post Office)]\n$13,000",
-            "11、家樂福禮券 + 郵政禮券\n[Carrefour Coupon + Cash]\n$13,000",
-            "12、遠東百貨禮券 + 現金\n[Far Eastern Coupon + Cash]\n$10,600",
-            "13、郵政禮券\nCash [(Post Office)]\n$10,000",
-            "14、現金\n[Cash]\n$10,000",
-            "15、家樂福禮券 + 郵政禮券\n[Carrefour Coupon + Cash]\n$10,000"
+            "1、現金 + 郵政禮券\nCash + Cash (Post Office)\n: $51,000",
+            "2、郵政禮券\nCash (Post Office)\n: $36,000",
+            "3、郵政禮券\nCash (Post Office)\n: $30,000",
+            "4、新光三越禮券 + 郵政禮券\nShin Kong Mitsukoshi Coupon + Cash (Post Office)\n: $20,000",
+            "5、現金\nCash\n: $20,000",
+            "6、川湯春天溫泉飯店住宿券\nChuang-Tang Spring Hotel Voucher\n: $19,920",
+            "7、郵政禮券\nCash (Post Office)\n: $17,000",
+            "8、家樂福禮券 + 郵政禮券\nCarrefour Coupon + Cash (Post Office)\n: $15,500",
+            "9、郵政禮券 + 現金\nCash (Post Office) + Cash\n: $15,000",
+            "10、郵政禮券 + 現金\nCash (Post Office) + Cash\n: $13,000",
+            "11、家樂福禮券 + 郵政禮券\nCarrefour Coupon + Cash (Post Office)\n: $13,000",
+            "12、遠東百貨禮券 + 現金\nFar Eastern Coupon + Cash\n: $10,600",
+            "13、郵政禮券\nCash (Post Office)\n: $10,000",
+            "14、現金\nCash\n: $10,000",
+            "15、郵政禮券 + 家樂福禮券\nCash (Post Office) + Carrefour Coupon\n: $10,000"
         ];
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -323,22 +323,21 @@
 
         function revealPrize(id, winSound) {
             const prizeDisplay = document.getElementById('prize-display');
-            const rawText = (id >= 1 && id <= 15) ? prizeList[id - 1] : "馬到成功獎\n(Horse Power Prize)";
+            const rawText = (id >= 1 && id <= 15) ? prizeList[id - 1] : "馬到成功獎\nHorse Power Prize\n: $888";
 
-            // 透過換行符拆分文字，並根據內容自動套用不同樣式
             const lines = rawText.split('\n');
             let formattedHTML = "";
 
             lines.forEach((line) => {
-                if (line.includes('$')) {
-                    // 金額部分：放大顯示，並強調黃金色
-                    formattedHTML += `<div style="font-size: 1.8rem; color: #f1c40f; margin-top: 8px; font-weight: 900;">${line}</div>`;
-                } else if (line.match(/[\[\(\)]/) || line.match(/[a-zA-Z]/)) {
-                    // 英文翻譯或括號內容：縮小字體，降低亮度
-                    formattedHTML += `<div style="font-size: 0.95rem; opacity: 0.85; font-weight: 400; line-height: 1.2; margin: 4px 0;">${line}</div>`;
+                if (line.includes('$') || line.startsWith(':')) {
+                    // 金額行：顯示為醒目的金黃色大字
+                    formattedHTML += `<div style="font-size: 1.8rem; color: #f1c40f; margin-top: 10px; font-weight: 900; text-shadow: 0 0 15px rgba(241,196,15,0.5);">${line.replace(':', '')}</div>`;
+                } else if (line.match(/[a-zA-Z]/)) {
+                    // 英文行：自動換行小字
+                    formattedHTML += `<div style="font-size: 0.9rem; opacity: 0.8; font-weight: normal; line-height: 1.2; margin-top: 5px;">${line}</div>`;
                 } else {
-                    // 中文獎項主標題：保持清晰大字
-                    formattedHTML += `<div style="font-size: 1.4rem; letter-spacing: 2px;">${line}</div>`;
+                    // 中文主標題：清楚的中型字
+                    formattedHTML += `<div style="font-size: 1.3rem; letter-spacing: 1px;">${line}</div>`;
                 }
             });
 
