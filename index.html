@@ -323,7 +323,7 @@
 
         function revealPrize(id, winSound) {
             const prizeDisplay = document.getElementById('prize-display');
-            const rawText = (id >= 1 && id <= 15) ? prizeList[id - 1] : "馬到成功獎\nHorse Power Prize\n: $888";
+            const rawText = (id >= 1 && id <= 15) ? prizeList[id - 1] : "馬到成功獎\nHorse Power Prize";
 
             const lines = rawText.split('\n');
             let formattedHTML = "";
