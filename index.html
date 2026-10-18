@@ -12,7 +12,7 @@
 
   <!-- 關鍵樣式優先載入 -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 核心 3D 與邏輯庫 (加上 defer 避免阻塞解析) -->
+  <!-- 核心 3D 與邏輯庫 -->
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -200,6 +200,7 @@
       display: inline-block;
     }
 
+    /* 列印專用樣式：徹底隱藏所有獎品名稱，僅保留票券序號與 Logo QR Code */
     @media print {
       body * { visibility: hidden; }
       #qrAdminDrawer, #qrAdminDrawer * { visibility: visible; }
@@ -211,17 +212,21 @@
         background: white !important;
         color: black !important;
       }
-      .no-print { display: none !important; }
+      .no-print, .hide-in-print { display: none !important; }
       #qrCardsContainer {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 16px !important;
+        gap: 20px !important;
       }
       .ticket-print-card {
         page-break-inside: avoid;
-        border: 2px dashed #64748b !important;
+        border: 2px dashed #334155 !important;
         background: #ffffff !important;
         color: #0f172a !important;
+        padding: 16px !important;
+      }
+      .ticket-print-card .secret-ticket-desc {
+        display: block !important;
       }
     }
   </style>
@@ -604,11 +609,11 @@
         <div class="flex items-center gap-2">
           <button id="downloadAllQRsBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition shadow">
             <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
-            <span>一鍵下載全部 QR</span>
+            <span>一鍵下載全部 QR (無獎品文案)</span>
           </button>
           <button id="printAllBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-medium transition shadow">
             <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-            <span>列印票券</span>
+            <span>列印票券 (隱藏獎項)</span>
           </button>
         </div>
       </div>
@@ -628,7 +633,7 @@
     </div>
   </div>
 
-  <!-- 單張 QR Code 放大預覽 Modal -->
+  <!-- 單張 QR Code 放大預覽 Modal (完全隱藏獎項名稱) -->
   <div id="singleQRModal" class="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden">
     <div class="relative w-full max-w-sm bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl flex flex-col items-center">
       <button id="closeSingleQRBtn" class="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
@@ -645,14 +650,15 @@
               <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle">Technik • Kompetenz • Tradition</text>
             </svg>
           </div>
-          <span class="text-[12px] font-extrabold text-slate-800 mt-1">2027 TKT 尾牙摸彩券</span>
+          <span class="text-[13px] font-black text-slate-800 mt-1">2027 TKT 尾牙摸彩券</span>
         </div>
 
         <div class="w-full h-px border-t border-dashed border-slate-300 my-2"></div>
 
         <div class="text-sm font-black text-blue-700" id="singleCardTicketTag">幸運號碼 #01</div>
-        <div class="text-xs text-slate-500 mb-2">★ 驚喜盲盒 · 掃碼開獎 ★</div>
+        <div class="text-xs text-amber-600 font-bold mb-2">★ 3D 專屬盲盒 · 掃碼開獎 ★</div>
 
+        <!-- 嵌入 Logo 的 QR Code 容器 -->
         <div id="singleQRCanvasBox" class="bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-center shadow-sm"></div>
 
         <p class="text-[9px] text-slate-400 mt-2.5">
@@ -663,7 +669,7 @@
       <div class="w-full mt-3">
         <button id="downloadSinglePngBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-tkt-blue to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-glow-blue transition">
           <i data-lucide="download" class="w-4 h-4"></i>
-          <span>下載單張票券 PNG (內嵌 Logo)</span>
+          <span>下載摸彩券 PNG (內嵌 Logo / 保密)</span>
         </button>
       </div>
     </div>
@@ -1418,7 +1424,7 @@
     }
 
     /* ============================================================
-       6. 後台管理 (動態載入 SheetJS，不拖慢前台首屏)
+       6. 後台管理 (內嵌 Logo QR Code 繪製 + 隱藏獎項列印與下載)
     ============================================================ */
     function verifyAndOpenAdmin() {
       const isAuth = sessionStorage.getItem('admin_authenticated');
@@ -1482,25 +1488,35 @@
       return window.location.origin + window.location.pathname;
     }
 
-    function drawLogoOnQRCanvas(canvas, logoW = 70, logoH = 70) {
+    /* 在 QR Code 畫布中央繪製專屬白底保護層與 TKT 向量 Logo */
+    function drawLogoOnQRCanvas(canvas) {
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       const qrW = canvas.width;
       const qrH = canvas.height;
 
-      const actualW = Math.min(logoW, Math.floor(qrW * 0.28));
-      const actualH = Math.min(logoH, Math.floor(qrH * 0.28));
-      const x = (qrW - actualW) / 2;
-      const y = (qrH - actualH) / 2;
+      // Logo 尺寸固定為 QR 寬度的 26%
+      const logoW = Math.floor(qrW * 0.26);
+      const logoH = Math.floor(qrH * 0.26);
+      const x = (qrW - logoW) / 2;
+      const y = (qrH - logoH) / 2;
 
-      const padding = 3;
+      // 繪製圓角白底框，避免 QR 點陣干擾 Logo
+      const padding = Math.max(3, Math.floor(qrW * 0.015));
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x - padding, y - padding, actualW + padding * 2, actualH + padding * 2);
-      ctx.strokeStyle = '#cbd5e1';
+      ctx.fillRect(x - padding, y - padding, logoW + padding * 2, logoH + padding * 2);
+      ctx.strokeStyle = '#e2e8f0';
       ctx.lineWidth = 1;
-      ctx.strokeRect(x - padding, y - padding, actualW + padding * 2, actualH + padding * 2);
+      ctx.strokeRect(x - padding, y - padding, logoW + padding * 2, logoH + padding * 2);
 
-      ctx.drawImage(cachedLogoImg, x, y, actualW, actualH);
+      // 繪製 Logo 圖片
+      if (cachedLogoImg.complete) {
+        ctx.drawImage(cachedLogoImg, x, y, logoW, logoH);
+      } else {
+        cachedLogoImg.onload = () => {
+          ctx.drawImage(cachedLogoImg, x, y, logoW, logoH);
+        };
+      }
     }
 
     function renderQRManager() {
@@ -1514,22 +1530,29 @@
         const targetUrl = `${baseUrl}?key=${key}`;
 
         const card = document.createElement('div');
-        card.className = "ticket-print-card bg-slate-800/60 hover:bg-slate-800 border border-slate-700/80 rounded-2xl p-4 flex flex-col justify-between transition shadow-sm";
+        card.className = "ticket-print-card bg-slate-800/60 hover:bg-slate-800 border border-slate-700/80 rounded-2xl p-4 flex flex-col justify-between transition shadow-sm text-center";
 
         card.innerHTML = `
           <div class="flex items-center justify-between mb-1.5">
             <span class="text-xs font-mono font-black bg-tkt-blue/30 text-blue-300 border border-tkt-blue/40 px-2 py-0.5 rounded-full">
               Ticket #${String(ticketId).padStart(2, '0')}
             </span>
-            <span class="text-[10px] text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full">
+            <span class="text-[10px] text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full hide-in-print">
               🎵 drum${ticketId}.mp3
             </span>
           </div>
 
-          <p class="text-[11px] text-slate-300 line-clamp-2 h-8 my-1 leading-tight font-medium" title="${item.name.replace(/"/g, '&quot;')}">
+          <!-- 螢幕管理模式顯示獎項，但列印時完全隱藏 (hide-in-print) -->
+          <p class="text-[11px] text-slate-300 line-clamp-2 h-8 my-1 leading-tight font-medium hide-in-print" title="${item.name.replace(/"/g, '&quot;')}">
             ${item.name.replace(/\n/g, ' ')}
           </p>
 
+          <!-- 列印時替換為神秘抽獎券標籤 -->
+          <div class="hidden secret-ticket-desc text-xs font-black text-slate-800 my-1">
+            2027 TKT 尾牙專屬盲盒摸彩券
+          </div>
+
+          <!-- 帶有 Logo 的 QR Code 縮圖 -->
           <div class="bg-white p-2 rounded-xl self-center shadow cursor-pointer hover:ring-2 ring-tkt-blue transition my-1" id="qr_thumb_${ticketId}" title="點擊單張下載"></div>
 
           <div class="mt-2 flex items-center justify-between pt-2 border-t border-slate-700/60 text-xs no-print">
@@ -1552,22 +1575,18 @@
               height: 140,
               colorDark: "#000000",
               colorLight: "#ffffff",
-              correctLevel: QRCode.CorrectLevel.H,
-              logo: TKT_LOGO_DATA_URL,
-              logoWidth: 70,
-              logoHeight: 70,
-              logoBackgroundColor: '#ffffff'
+              correctLevel: QRCode.CorrectLevel.H
             });
 
             setTimeout(() => {
               const canvas = holder.querySelector('canvas');
               if (canvas) {
-                drawLogoOnQRCanvas(canvas, 70, 70);
+                drawLogoOnQRCanvas(canvas);
                 const dataURL = canvas.toDataURL('image/png');
                 qrDataURLs[ticketId] = dataURL;
                 canvas.onclick = () => downloadSinglePNG(ticketId, dataURL);
               }
-            }, 100);
+            }, 80);
           }
         }, 10);
       });
@@ -1582,7 +1601,6 @@
       });
     }
 
-    // 動態加載 SheetJS
     function loadSheetJS(callback) {
       if (window.XLSX) {
         callback();
@@ -1667,7 +1685,7 @@
       for (let i = 1; i <= prizeList.length; i++) {
         if (qrDataURLs[i]) {
           downloadSinglePNG(i, qrDataURLs[i]);
-          await new Promise(r => setTimeout(r, 250));
+          await new Promise(r => setTimeout(r, 220));
         }
       }
       btn.innerHTML = `<span>✅ 下載完成</span>`;
@@ -1693,97 +1711,99 @@
         height: 260,
         colorDark: "#000000",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H,
-        logo: TKT_LOGO_DATA_URL,
-        logoWidth: 70,
-        logoHeight: 70,
-        logoBackgroundColor: '#ffffff'
+        correctLevel: QRCode.CorrectLevel.H
       });
 
       setTimeout(() => {
         const canvas = box.querySelector('canvas');
         if (canvas) {
-          drawLogoOnQRCanvas(canvas, 70, 70);
+          drawLogoOnQRCanvas(canvas);
         }
       }, 100);
 
       document.getElementById('singleQRModal').classList.remove('hidden');
     }
 
+    /* 輸出單張票券 PNG (完整置入 Logo，且絕不顯示獎項內容) */
     function exportSingleTicketPNG(ticketId) {
       const canvas = document.getElementById('exportCanvas');
       const ctx = canvas.getContext('2d');
-      const w = 600, h = 850;
+      const w = 600, h = 820;
       canvas.width = w;
       canvas.height = h;
 
+      // 票券底色與裝飾邊框
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = "#0000FF";
-      ctx.fillRect(0, 0, w, 20);
+      ctx.fillRect(0, 0, w, 18);
       ctx.strokeStyle = "#CBD5E1";
       ctx.lineWidth = 4;
       ctx.strokeRect(16, 16, w - 32, h - 32);
 
-      const logoSize = 130;
+      // 上方 TKT 品牌標誌
+      const logoSize = 120;
       const logoX = (w - logoSize) / 2;
-      ctx.drawImage(cachedLogoImg, logoX, 36, logoSize, logoSize);
+      ctx.drawImage(cachedLogoImg, logoX, 35, logoSize, logoSize);
 
       ctx.fillStyle = "#0F172A";
       ctx.font = "900 24px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("2027 TKT 尾牙春酒抽獎券", w / 2, 185);
+      ctx.fillText("2027 TKT 尾牙摸彩券", w / 2, 182);
 
+      // 虛線撕票分隔線
       ctx.strokeStyle = "#94A3B8";
       ctx.lineWidth = 2;
       ctx.setLineDash([8, 8]);
       ctx.beginPath();
-      ctx.moveTo(35, 210);
-      ctx.lineTo(w - 35, 210);
+      ctx.moveTo(35, 205);
+      ctx.lineTo(w - 35, 205);
       ctx.stroke();
       ctx.setLineDash([]);
 
+      // 幸運序號（僅標示號碼，完全不寫獎品）
       ctx.fillStyle = "#0000FF";
       ctx.font = "800 24px monospace";
-      ctx.fillText(`LUCKY TICKET #${String(ticketId).padStart(2, '0')}`, w / 2, 252);
+      ctx.fillText(`LUCKY TICKET #${String(ticketId).padStart(2, '0')}`, w / 2, 246);
 
       ctx.fillStyle = "#D97706";
-      ctx.font = "bold 19px sans-serif";
-      ctx.fillText("★ 3D 專屬盲盒 · 掃碼啟動扭蛋 ★", w / 2, 285);
+      ctx.font = "bold 18px sans-serif";
+      ctx.fillText("★ 3D 專屬盲盒 · 掃碼啟動扭蛋 ★", w / 2, 278);
 
+      // 生成臨時高解析度 QR Code 並嵌入 Logo
       const tempDiv = document.createElement('div');
       const key = btoa(ticketId.toString());
       new QRCode(tempDiv, {
         text: `${getCleanBaseUrl()}?key=${key}`,
-        width: 300,
-        height: 300,
+        width: 320,
+        height: 320,
         colorDark: "#000000",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H,
-        logo: TKT_LOGO_DATA_URL,
-        logoWidth: 70,
-        logoHeight: 70,
-        logoBackgroundColor: '#ffffff'
+        correctLevel: QRCode.CorrectLevel.H
       });
 
       setTimeout(() => {
         const qrCanvas = tempDiv.querySelector('canvas');
         if (qrCanvas) {
-          drawLogoOnQRCanvas(qrCanvas, 70, 70);
+          drawLogoOnQRCanvas(qrCanvas);
 
-          const qrSize = 300;
+          const qrSize = 320;
           const qrx = (w - qrSize) / 2;
-          const qry = 325;
+          const qry = 310;
           ctx.fillStyle = "#F8FAFC";
-          ctx.fillRect(qrx - 15, qry - 15, qrSize + 30, qry - 15);
+          ctx.fillRect(qrx - 15, qry - 15, qrSize + 30, qrSize + 30);
           ctx.strokeStyle = "#E2E8F0";
           ctx.lineWidth = 2;
           ctx.strokeRect(qrx - 15, qry - 15, qrSize + 30, qrSize + 30);
           ctx.drawImage(qrCanvas, qrx, qry, qrSize, qrSize);
 
           ctx.fillStyle = "#475569";
-          ctx.font = "14px sans-serif";
-          ctx.fillText("請持手機相機直接掃描本 QR Code 即刻轉動扭蛋", w / 2, 705);
+          ctx.font = "bold 14px sans-serif";
+          ctx.fillText("持手機相機直接掃描本 QR Code 即刻轉動扭蛋！", w / 2, 695);
+
+          ctx.fillStyle = "#94A3B8";
+          ctx.font = "12px sans-serif";
+          ctx.fillText("獎項內容已加密封存 · 轉開扭蛋即刻揭曉", w / 2, 725);
 
           const a = document.createElement('a');
           a.download = `TKT_2027_尾牙摸彩券_#${String(ticketId).padStart(2, '0')}.png`;
@@ -1797,7 +1817,6 @@
        7. 頁面初始化
     ============================================================ */
     window.addEventListener('DOMContentLoaded', () => {
-      // 確保外部 defer 腳本載入完成
       function waitForLibraries() {
         if (window.THREE && window.CANNON && window.QRCode) {
           if (window.lucide) lucide.createIcons();
