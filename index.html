@@ -70,73 +70,83 @@
 
     @keyframes tense-heartbeat {
       0%, 100% { transform: scale(1); }
-      20% { transform: scale(1.12); }
-      40% { transform: scale(0.96); }
-      60% { transform: scale(1.08); }
+      20% { transform: scale(1.10); }
+      40% { transform: scale(0.97); }
+      60% { transform: scale(1.06); }
     }
     .tense-egg-pulse {
       animation: tense-heartbeat 0.45s ease-in-out infinite;
     }
 
     /* ========================================================
-       ✨ 開獎後獎品內容框尊爵動態特效 (新增)
+       ✨ 開獎後獎品內容框：細膩慢速黃金掃光質感動畫 (優化)
     ======================================================== */
-    /* 1. 流光呼吸邊框與外發光 */
     @keyframes prize-box-glow {
       0%, 100% {
-        box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), inset 0 0 20px rgba(0, 0, 255, 0.35);
+        box-shadow: 0 0 25px rgba(245, 158, 11, 0.35), inset 0 0 20px rgba(0, 0, 255, 0.3);
         border-color: rgba(245, 158, 11, 0.7);
       }
       50% {
-        box-shadow: 0 0 45px rgba(245, 158, 11, 0.8), 0 0 60px rgba(0, 0, 255, 0.45), inset 0 0 30px rgba(245, 158, 11, 0.5);
-        border-color: rgba(255, 223, 100, 0.95);
+        box-shadow: 0 0 45px rgba(245, 158, 11, 0.75), 0 0 55px rgba(0, 0, 255, 0.4), inset 0 0 30px rgba(245, 158, 11, 0.45);
+        border-color: rgba(255, 230, 130, 0.95);
       }
     }
     .prize-box-neon {
-      animation: prize-box-glow 2.4s ease-in-out infinite;
+      animation: prize-box-glow 3.2s ease-in-out infinite;
       position: relative;
       overflow: hidden;
     }
 
-    /* 2. 流動掃光 (Shimmer Light Sweep) */
-    @keyframes shimmer-sweep {
-      0% { transform: translateX(-150%) skewX(-25deg); }
-      50%, 100% { transform: translateX(200%) skewX(-25deg); }
+    /* 調慢掃光速度至 5 秒循環，平滑柔和漸層 */
+    @keyframes shimmer-sweep-slow {
+      0% {
+        transform: translateX(-180%) skewX(-20deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      60% {
+        transform: translateX(240%) skewX(-20deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(240%) skewX(-20deg);
+        opacity: 0;
+      }
     }
     .prize-shimmer-sweep {
       position: absolute;
-      top: 0;
+      top: -20%;
       left: 0;
-      width: 60%;
-      height: 100%;
+      width: 80%;
+      height: 140%;
       background: linear-gradient(
         90deg,
-        transparent,
-        rgba(255, 255, 255, 0.08),
-        rgba(255, 225, 100, 0.35),
-        rgba(255, 255, 255, 0.08),
-        transparent
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 25%,
+        rgba(255, 235, 150, 0.38) 50%,
+        rgba(255, 255, 255, 0.03) 75%,
+        transparent 100%
       );
       pointer-events: none;
-      animation: shimmer-sweep 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      animation: shimmer-sweep-slow 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
 
-    /* 3. 金黃燙金流動文字 */
     .golden-prize-text {
-      background: linear-gradient(135deg, #FFF7D6 0%, #F59E0B 40%, #FFEBA3 70%, #D97706 100%);
+      background: linear-gradient(135deg, #FFF9E6 0%, #F59E0B 35%, #FFF0BA 70%, #D97706 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.5));
+      filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.4));
     }
 
-    /* 4. 獎品框彈性爆發進場 */
     @keyframes pop-box-in {
-      0% { transform: scale(0.85); opacity: 0; }
-      60% { transform: scale(1.05); opacity: 1; }
+      0% { transform: scale(0.88); opacity: 0; }
+      65% { transform: scale(1.03); opacity: 1; }
       100% { transform: scale(1); opacity: 1; }
     }
     .prize-box-enter {
-      animation: pop-box-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation: pop-box-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -349,19 +359,17 @@
       <h3 class="text-xl sm:text-2xl font-black text-white mb-2 tracking-wide">恭喜幸運中獎！</h3>
       
       <!-- ========================================================
-           ✨ 強化版：開獎後獎品內容框 (霓虹呼吸流光 + 掃光 + 燙金)
+           ✨ 強化優化：獎品內容框 (慢速細膩流光掃光 + 燙金)
       ======================================================== -->
-      <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-br from-blue-950/95 via-slate-900/90 to-indigo-950/95 border-2 border-amber-400/80 rounded-2xl p-5 my-4 shadow-2xl relative">
-        <!-- 動態流動掃光束 -->
+      <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-br from-blue-950/95 via-slate-900/95 to-indigo-950/95 border-2 border-amber-400/80 rounded-2xl p-5 my-4 shadow-2xl relative">
+        <!-- 細膩慢速掃光 -->
         <div class="prize-shimmer-sweep"></div>
 
-        <!-- 獎項序號徽章 -->
         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-900/80 border border-blue-400/50 shadow-inner mb-2.5">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span class="text-xs font-mono font-extrabold text-blue-200 tracking-wider" id="revealTicketNo">幸運序號 #--</span>
         </div>
 
-        <!-- 獎項內容主文字 (燙金高質感漸層) -->
         <div class="golden-prize-text text-base sm:text-lg font-black whitespace-pre-line leading-relaxed" id="revealPrizeTitle">
           大獎揭曉中...
         </div>
@@ -393,7 +401,7 @@
           </div>
           <div>
             <h2 class="text-base sm:text-lg font-black text-white">⚙️ 30 獎項 QR Code & Excel 設定後台</h2>
-            <p class="text-xs text-slate-400">掉落後緊張鼓聲 3 秒 / 開獎 win.mp3</p>
+            <p class="text-xs text-slate-400">雙重自訂 MP3 + Web Audio 智能備援保證發聲</p>
           </div>
         </div>
 
@@ -499,7 +507,7 @@
       <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
       <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
       <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
-      <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">Technik • Kompetenz • Tradition</text>
+      <text x="150" y="212" font-family="'Arial Black', 'Helvetica Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">Technik • Kompetenz • Tradition</text>
     </svg>`;
     const TKT_LOGO_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(TKT_LOGO_SVG);
 
@@ -642,7 +650,6 @@
         }
       },
 
-      // 掉落出蛋口後 3 秒內的加速緊張大鼓聲
       startTenseDrums() {
         if (isSoundMuted) return;
         Sound.stopTenseDrums();
@@ -758,13 +765,13 @@
     };
 
     /* ============================================================
-       3. Three.js + Cannon.js 3D 滿裝扭蛋模擬
+       3. Three.js + Cannon.js 3D 滿裝扭蛋模擬 (徹底消除穿透異常)
     ============================================================ */
     let scene, camera, renderer, world;
     let ballMeshes = [], ballBodies = [];
     let mixerRotorMesh, mixerRotorBody;
     const SPHERE_RADIUS = 3.6;
-    const CAPSULE_RADIUS = 0.54;
+    const CAPSULE_RADIUS = 0.52; // 微調半徑，留出安全碰撞餘裕
     const NUM_CAPSULES = 85;
     const CAPSULE_COLORS = [0x0000FF, 0xEF4444, 0xF59E0B, 0x10B981, 0x8B5CF6, 0xEC4899, 0x06B6D4];
 
@@ -777,22 +784,24 @@
       camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
       camera.position.set(0, 0.6, 9.2);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       container.appendChild(renderer.domElement);
 
-      scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-      const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.78));
+      const mainLight = new THREE.DirectionalLight(0xffffff, 1.25);
       mainLight.position.set(5, 8, 6);
       scene.add(mainLight);
 
       world = new CANNON.World();
-      world.gravity.set(0, -9.82 * 1.6, 0);
-      world.solver.iterations = 10;
+      world.gravity.set(0, -9.82 * 1.5, 0);
+      world.broadphase = new CANNON.NaiveBroadphase();
+      world.solver.iterations = 12; // 提高解算器迭代次數避免穿透
 
+      // 玻璃外罩
       const glassGeo = new THREE.SphereGeometry(SPHERE_RADIUS, 48, 48);
       const glassMat = new THREE.MeshPhysicalMaterial({
         color: 0xbedaff,
@@ -805,23 +814,28 @@
       });
       scene.add(new THREE.Mesh(glassGeo, glassMat));
 
+      // 物理實心加厚包覆邊界（避免薄 Plane 被高速球體穿透）
       const boundaryMat = new CANNON.Material("boundary");
-      const planes = [
-        { n: [0, 1, 0], pos: [0, -SPHERE_RADIUS * 0.90, 0] },
-        { n: [0, -1, 0], pos: [0, SPHERE_RADIUS * 0.96, 0] },
-        { n: [1, 0, 0], pos: [-SPHERE_RADIUS * 0.90, 0, 0] },
-        { n: [-1, 0, 0], pos: [SPHERE_RADIUS * 0.90, 0, 0] },
-        { n: [0, 0, 1], pos: [0, 0, -SPHERE_RADIUS * 0.90] },
-        { n: [0, 0, -1], pos: [0, 0, -SPHERE_RADIUS * 0.90] }
+      const wallThickness = 1.0;
+      const r = SPHERE_RADIUS * 0.90;
+
+      const walls = [
+        { size: [r * 2, wallThickness, r * 2], pos: [0, -r - wallThickness, 0] }, // 底
+        { size: [r * 2, wallThickness, r * 2], pos: [0, r + wallThickness + 0.3, 0] }, // 頂
+        { size: [wallThickness, r * 2, r * 2], pos: [-r - wallThickness, 0, 0] }, // 左
+        { size: [wallThickness, r * 2, r * 2], pos: [r + wallThickness, 0, 0] },  // 右
+        { size: [r * 2, r * 2, wallThickness], pos: [0, 0, -r - wallThickness] }, // 前
+        { size: [r * 2, r * 2, wallThickness], pos: [0, 0, r + wallThickness] }   // 後
       ];
-      planes.forEach(p => {
+
+      walls.forEach(w => {
         const body = new CANNON.Body({ mass: 0, material: boundaryMat });
-        body.addShape(new CANNON.Plane());
-        body.quaternion.setFromVectors(new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(...p.n));
-        body.position.set(...p.pos);
+        body.addShape(new CANNON.Box(new CANNON.Vec3(w.size[0] / 2, w.size[1] / 2, w.size[2] / 2)));
+        body.position.set(...w.pos);
         world.addBody(body);
       });
 
+      // 85 顆扭蛋球穩定生成
       const sphereMat = new CANNON.Material("capsuleMat");
       for (let i = 0; i < NUM_CAPSULES; i++) {
         const group = new THREE.Group();
@@ -839,26 +853,26 @@
         ballMeshes.push(group);
 
         const sphereBody = new CANNON.Body({
-          mass: 0.3,
+          mass: 0.28,
           shape: new CANNON.Sphere(CAPSULE_RADIUS),
           material: sphereMat,
-          linearDamping: 0.25,
-          angularDamping: 0.3
+          linearDamping: 0.28,
+          angularDamping: 0.35
         });
 
         const layerRatio = i / NUM_CAPSULES;
         const theta = Math.random() * Math.PI * 2;
-        const currentMaxR = Math.sqrt(Math.max(0.05, 1 - Math.pow((layerRatio * 2 - 1), 2))) * (SPHERE_RADIUS * 0.68);
-        const r = Math.random() * currentMaxR;
-        const y = -2.0 + layerRatio * 3.8;
+        const currentMaxR = Math.sqrt(Math.max(0.05, 1 - Math.pow((layerRatio * 2 - 1), 2))) * (SPHERE_RADIUS * 0.65);
+        const rPos = Math.random() * currentMaxR;
+        const y = -1.9 + layerRatio * 3.6;
 
-        sphereBody.position.set(Math.cos(theta) * r, y, Math.sin(theta) * r);
+        sphereBody.position.set(Math.cos(theta) * rPos, y, Math.sin(theta) * rPos);
         world.addBody(sphereBody);
         ballBodies.push(sphereBody);
       }
 
       mixerRotorMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(2.8, 0.25, 0.35),
+        new THREE.BoxGeometry(2.6, 0.22, 0.32),
         new THREE.MeshStandardMaterial({ color: 0xF59E0B, metalness: 0.8, roughness: 0.2 })
       );
       scene.add(mixerRotorMesh);
@@ -866,9 +880,9 @@
       mixerRotorBody = new CANNON.Body({
         mass: 0,
         type: CANNON.Body.KINEMATIC,
-        position: new CANNON.Vec3(0, -SPHERE_RADIUS * 0.75, 0)
+        position: new CANNON.Vec3(0, -SPHERE_RADIUS * 0.74, 0)
       });
-      mixerRotorBody.addShape(new CANNON.Box(new CANNON.Vec3(1.4, 0.125, 0.175)));
+      mixerRotorBody.addShape(new CANNON.Box(new CANNON.Vec3(1.3, 0.11, 0.16)));
       world.addBody(mixerRotorBody);
 
       setupOrbitControl(container);
@@ -899,12 +913,19 @@
       });
     }
 
+    // 攪動力道平衡：流暢波浪翻滾，加入速度上限限制
     function churnBallsPhysics() {
-      mixerRotorBody.angularVelocity.set(0, 24, 0);
+      mixerRotorBody.angularVelocity.set(0, 22, 0);
       ballBodies.forEach(body => {
-        body.velocity.y = 7.5 + Math.random() * 8.0;
-        body.velocity.x += (Math.random() - 0.5) * 5.0;
-        body.velocity.z += (Math.random() - 0.5) * 5.0;
+        body.velocity.y = 6.8 + Math.random() * 6.5;
+        body.velocity.x += (Math.random() - 0.5) * 4.5;
+        body.velocity.z += (Math.random() - 0.5) * 4.5;
+
+        // 速度上限保護（Clamp），防止穿透與物理崩潰
+        const maxV = 11.0;
+        body.velocity.x = Math.max(-maxV, Math.min(maxV, body.velocity.x));
+        body.velocity.y = Math.max(-maxV, Math.min(maxV, body.velocity.y));
+        body.velocity.z = Math.max(-maxV, Math.min(maxV, body.velocity.z));
       });
     }
 
@@ -923,7 +944,7 @@
       }
       mixerRotorMesh.position.copy(mixerRotorBody.position);
       mixerRotorMesh.quaternion.copy(mixerRotorBody.quaternion);
-      mixerRotorBody.angularVelocity.scale(0.96, mixerRotorBody.angularVelocity);
+      mixerRotorBody.angularVelocity.scale(0.95, mixerRotorBody.angularVelocity);
       renderer.render(scene, camera);
     }
 
@@ -968,7 +989,6 @@
       if (isSpinning) return;
       isSpinning = true;
 
-      // 點擊解鎖音訊信任
       Sound.unlock();
 
       if (boundTicketId) {
@@ -978,7 +998,6 @@
         selectedPrizeItem = prizeList[randIdx];
       }
 
-      // 播放轉動音效
       Sound.playDrum(selectedPrizeItem.id);
 
       const lever = document.getElementById('crankLever');
@@ -988,18 +1007,17 @@
         churnBallsPhysics();
       }, 220);
 
-      // 第 5.0 秒停止手柄旋轉
+      // 第 5.0 秒停止手柄旋轉，物理平緩自然減速
       setTimeout(() => {
         clearInterval(stirTimer);
         lever.classList.remove('spinning-crank');
       }, 5000);
 
-      // 第 5.8 秒時扭蛋掉落出蛋口
+      // 第 5.8 秒扭蛋掉落出蛋口
       setTimeout(() => {
         const btn = document.getElementById('spinActionBtn');
         if (btn) btn.style.display = 'none';
 
-        // 停止轉動聲，立即無縫切換為 3 秒緊湊加速心跳大鼓聲！
         Sound.stopDrum();
         Sound.startTenseDrums();
 
@@ -1035,7 +1053,6 @@
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
-        // 播放開獎音效 win.mp3
         Sound.playWin();
         fireConfettiCelebration();
 
@@ -1045,7 +1062,7 @@
         // 重新觸發內容框彈出動態
         const prizeBox = document.getElementById('prizeContentBox');
         prizeBox.classList.remove('prize-box-enter');
-        void prizeBox.offsetWidth; // 強制重繪
+        void prizeBox.offsetWidth;
         prizeBox.classList.add('prize-box-enter');
 
         const modal = document.getElementById('revealModal');
