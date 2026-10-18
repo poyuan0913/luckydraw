@@ -5,20 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>2027 TKT 尾牙抽獎 | 3D 擬真滿裝扭蛋系統</title>
 
-  <!-- Tailwind CSS CDN -->
+  <!-- 資源預連線加速 -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+
+  <!-- 關鍵樣式優先載入 -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Three.js (3D 核心庫) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- Cannon.js (3D 剛體物理引擎) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
-  <!-- QRCode.js (QR Code 生成) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Canvas Confetti (彩花噴灑與煙火特效) -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <!-- Lucide Icons (圖示庫) -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- SheetJS (Excel .xlsx 檔案解析庫) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- 核心 3D 與邏輯庫 (加上 defer 避免阻塞解析) -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script defer src="https://unpkg.com/lucide@latest"></script>
 
   <script>
     tailwind.config = {
@@ -101,7 +100,6 @@
       transform-origin: 50% 10%;
     }
 
-    /* 金色外框呼吸光暈 */
     @keyframes golden-ambient-pulse {
       0%, 100% {
         box-shadow: 0 0 20px rgba(245, 158, 11, 0.35), inset 0 0 15px rgba(245, 158, 11, 0.2);
@@ -117,7 +115,6 @@
       position: relative;
     }
 
-    /* 純連貫無停頓、絲滑流動光影動畫 */
     @keyframes golden-continuous-flow {
       0% {
         transform: translate3d(-150%, 0, 0) rotate(18deg);
@@ -156,7 +153,6 @@
       animation: golden-continuous-flow 4.8s linear infinite;
     }
 
-    /* 光束微小粒子閃爍漂浮 */
     @keyframes golden-dust-float {
       0%, 100% {
         transform: translate3d(0, 0, 0) scale(0.8);
@@ -196,7 +192,6 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* 獎品英文字串強制單行、不換行、不斷字 */
     .prize-en-nowrap {
       white-space: nowrap !important;
       word-break: keep-all !important;
@@ -444,7 +439,7 @@
         <span id="activeTicketStatus" class="font-mono text-amber-400 font-bold">隨機幸運抽取模式</span>
       </div>
 
-      <!-- 抽獎前扭蛋機最底部署名：自適應裝置且強制單行不斷行 -->
+      <!-- 抽獎前扭蛋機最底部署名 -->
       <div class="w-full mt-3 pt-2.5 border-t border-slate-800/60 flex items-center justify-center overflow-hidden px-1">
         <span 
           style="font-size: clamp(9.5px, 2.9vw, 13px); letter-spacing: 0.05em;"
@@ -475,29 +470,24 @@
         <i data-lucide="trophy" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950"></i>
       </div>
 
-      <!-- CONGRATULATIONS 字級調大 -->
       <div class="text-sm sm:text-base md:text-lg font-black text-amber-300 tracking-[0.28em] uppercase mb-0.5 drop-shadow-[0_2px_8px_rgba(245,158,11,0.6)] shrink-0">
         CONGRATULATIONS
       </div>
 
-      <!-- 恭喜幸運中獎！字級調小 -->
       <h3 class="text-xs sm:text-sm md:text-base font-bold text-slate-100/90 mb-1 tracking-wider drop-shadow shrink-0">
         🎉 恭喜幸運中獎！ 🎉
       </h3>
       
-      <!-- 獎品內容框：深邃層次漸層 + GPU 硬體加速均勻絲滑流光 + 微小金色流動粒子 -->
+      <!-- 獎品內容框：深邃層次漸層 + 絲滑金色光影流動 -->
       <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#0f1d4a] via-[#070e28] to-[#040616] border-2 border-amber-400/90 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 my-1.5 sm:my-2.5 shadow-2xl relative w-full max-w-sm sm:max-w-md mx-auto flex flex-col items-center justify-center min-h-[96px] sm:min-h-[110px] max-h-[24vh] overflow-hidden">
         
-        <!-- 頂部鏡面高光反光層 -->
         <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/18 via-white/4 to-transparent pointer-events-none rounded-t-xl z-10"></div>
         
-        <!-- 連貫絲滑金光流淌層（無停頓、無卡頓） -->
         <div class="prize-golden-shimmer-smooth z-10"></div>
 
-        <!-- 浮動金色微小粒子 -->
         <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-3 left-6" style="animation-delay: 0s;"></div>
         <div class="golden-dust-particle z-10 w-1 h-1 bottom-4 left-16" style="animation-delay: 1.2s;"></div>
-        <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-4 right-10" style="animation-delay: 2.1s;"></div>
+        <div class="golden-dust-particle z-10 w-2 h-2 top-4 right-10" style="animation-delay: 2.1s;"></div>
         <div class="golden-dust-particle z-10 w-1 h-1 bottom-3 right-8" style="animation-delay: 0.6s;"></div>
         <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/2 left-1/4" style="animation-delay: 3s;"></div>
         <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/3 right-1/4" style="animation-delay: 1.8s;"></div>
@@ -507,7 +497,6 @@
           <span class="text-[10px] sm:text-[11px] font-mono font-black text-blue-100 tracking-wider" id="revealTicketNo">幸運序號 #--</span>
         </div>
 
-        <!-- 獎項文字容器 -->
         <div class="w-full flex-1 flex flex-col items-center justify-center text-center px-1 overflow-hidden relative z-20">
           <div id="revealPrizeTitle" class="font-black tracking-wide w-full flex flex-col items-center justify-center leading-snug">
             大獎揭曉中...
@@ -526,7 +515,7 @@
     </div>
   </div>
 
-  <!-- 後台管理密碼驗證視窗 (以密碼星號/黑點遮蔽) -->
+  <!-- 後台管理密碼驗證視窗 -->
   <div id="adminPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-200">
     <div class="relative w-full max-w-sm glass-panel rounded-2xl p-5 border border-slate-700 shadow-2xl flex flex-col">
       <div class="flex items-center justify-between mb-4 pb-2.5 border-b border-slate-700/60">
@@ -1020,7 +1009,7 @@
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
       renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       container.appendChild(renderer.domElement);
@@ -1033,9 +1022,9 @@
       world = new CANNON.World();
       world.gravity.set(0, -9.82 * 1.5, 0);
       world.broadphase = new CANNON.NaiveBroadphase();
-      world.solver.iterations = 12;
+      world.solver.iterations = 10;
 
-      const glassGeo = new THREE.SphereGeometry(SPHERE_RADIUS, 48, 48);
+      const glassGeo = new THREE.SphereGeometry(SPHERE_RADIUS, 36, 36);
       const glassMat = new THREE.MeshPhysicalMaterial({
         color: 0xbedaff,
         transparent: true,
@@ -1071,11 +1060,11 @@
       for (let i = 0; i < NUM_CAPSULES; i++) {
         const group = new THREE.Group();
         const topMesh = new THREE.Mesh(
-          new THREE.SphereGeometry(CAPSULE_RADIUS, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+          new THREE.SphereGeometry(CAPSULE_RADIUS, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2),
           new THREE.MeshStandardMaterial({ color: CAPSULE_COLORS[i % CAPSULE_COLORS.length], roughness: 0.25 })
         );
         const bottomMesh = new THREE.Mesh(
-          new THREE.SphereGeometry(CAPSULE_RADIUS, 18, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+          new THREE.SphereGeometry(CAPSULE_RADIUS, 14, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
           new THREE.MeshStandardMaterial({ color: 0xF8FAFC, roughness: 0.3 })
         );
         group.add(topMesh);
@@ -1165,7 +1154,7 @@
       const dt = Math.min((time - lastTime) / 1000, 0.033);
       lastTime = time;
 
-      world.step(1 / 60, dt, 5);
+      world.step(1 / 60, dt, 4);
 
       for (let i = 0; i < ballMeshes.length; i++) {
         ballMeshes[i].position.copy(ballBodies[i].position);
@@ -1265,7 +1254,7 @@
     }
 
     /* ============================================================
-       動態文字自適應縮放：精準匹配框體，確保英文長句完全不斷行
+       動態文字自適應縮放
     ============================================================ */
     function adjustPrizeFontSize() {
       const container = document.getElementById('prizeContentBox');
@@ -1354,9 +1343,6 @@
       }, 550);
     }
 
-    /* ============================================================
-       震撼全螢幕連環高空煙火秀 + 聲學爆裂音效同步聯動
-    ============================================================ */
     function fireGrandFireworksShow() {
       if (typeof confetti === 'undefined') return;
 
@@ -1432,7 +1418,7 @@
     }
 
     /* ============================================================
-       6. Excel 匯入、範本下載與 QR 後台管理 (以黑點/星號遮蔽輸入)
+       6. 後台管理 (動態載入 SheetJS，不拖慢前台首屏)
     ============================================================ */
     function verifyAndOpenAdmin() {
       const isAuth = sessionStorage.getItem('admin_authenticated');
@@ -1596,57 +1582,73 @@
       });
     }
 
+    // 動態加載 SheetJS
+    function loadSheetJS(callback) {
+      if (window.XLSX) {
+        callback();
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      s.onload = callback;
+      document.head.appendChild(s);
+    }
+
     function handleExcelUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[firstSheetName];
-          const rows = XLSX.utils.sheet_to_json(sheet);
+      loadSheetJS(() => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(sheet);
 
-          if (!rows || rows.length === 0) {
-            alert("Excel 檔案為空或格式不正確！");
-            return;
+            if (!rows || rows.length === 0) {
+              alert("Excel 檔案為空或格式不正確！");
+              return;
+            }
+
+            const parsedList = [];
+            for (let i = 0; i < Math.min(rows.length, 30); i++) {
+              const row = rows[i];
+              parsedList.push({
+                id: parseInt(row.id || (i + 1), 10),
+                name: String(row.name || `獎項 #${i + 1}`),
+                audio: String(row.audio || `drum${i + 1}.mp3`).trim()
+              });
+            }
+
+            prizeList = parsedList;
+            localStorage.setItem('tkt_custom_prizes', JSON.stringify(prizeList));
+            alert(`✅ 成功匯入 ${prizeList.length} 個獎項設定！`);
+            renderQRManager();
+          } catch(err) {
+            alert("解析 Excel 失敗，請確認檔案格式是否正確。");
+            console.error(err);
           }
-
-          const parsedList = [];
-          for (let i = 0; i < Math.min(rows.length, 30); i++) {
-            const row = rows[i];
-            parsedList.push({
-              id: parseInt(row.id || (i + 1), 10),
-              name: String(row.name || `獎項 #${i + 1}`),
-              audio: String(row.audio || `drum${i + 1}.mp3`).trim()
-            });
-          }
-
-          prizeList = parsedList;
-          localStorage.setItem('tkt_custom_prizes', JSON.stringify(prizeList));
-          alert(`✅ 成功匯入 ${prizeList.length} 個獎項設定！`);
-          renderQRManager();
-        } catch(err) {
-          alert("解析 Excel 失敗，請確認檔案格式是否正確。");
-          console.error(err);
-        }
-      };
-      reader.readAsArrayBuffer(file);
+        };
+        reader.readAsArrayBuffer(file);
+      });
     }
 
     function downloadExcelTemplate() {
-      const templateData = prizeList.map(p => ({
-        id: p.id,
-        name: p.name,
-        audio: `drum${p.id}.mp3`
-      }));
+      loadSheetJS(() => {
+        const templateData = prizeList.map(p => ({
+          id: p.id,
+          name: p.name,
+          audio: `drum${p.id}.mp3`
+        }));
 
-      const ws = XLSX.utils.json_to_sheet(templateData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "獎項清單");
-      XLSX.writeFile(wb, "2027_TKT_抽獎獎項與轉動音效範本.xlsx");
+        const ws = XLSX.utils.json_to_sheet(templateData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "獎項清單");
+        XLSX.writeFile(wb, "2027_TKT_抽獎獎項與轉動音效範本.xlsx");
+      });
     }
 
     function downloadSinglePNG(ticketId, dataURL) {
@@ -1792,13 +1794,20 @@
     }
 
     /* ============================================================
-       7. 頁面初始化與事件綁定
+       7. 頁面初始化
     ============================================================ */
     window.addEventListener('DOMContentLoaded', () => {
-      if (window.lucide) lucide.createIcons();
-
-      init3DGachapon();
-      detectAssignedTicket();
+      // 確保外部 defer 腳本載入完成
+      function waitForLibraries() {
+        if (window.THREE && window.CANNON && window.QRCode) {
+          if (window.lucide) lucide.createIcons();
+          init3DGachapon();
+          detectAssignedTicket();
+        } else {
+          setTimeout(waitForLibraries, 40);
+        }
+      }
+      waitForLibraries();
 
       document.body.addEventListener('click', () => {
         Sound.unlock();
@@ -1838,7 +1847,6 @@
         }, 250);
       });
 
-      // 後台按鈕與密碼彈窗事件綁定
       document.getElementById('toggleQRAdminBtn').addEventListener('click', verifyAndOpenAdmin);
       document.getElementById('closeAdminPasswordBtn').addEventListener('click', closeAdminPasswordModal);
       document.getElementById('cancelAdminPasswordBtn').addEventListener('click', closeAdminPasswordModal);
