@@ -101,43 +101,58 @@
       transform-origin: 50% 10%;
     }
 
-    @keyframes prize-box-glow {
+    /* 金色光影流動：外邊框極致絲滑慢速呼吸 */
+    @keyframes golden-ambient-pulse {
       0%, 100% {
-        box-shadow: 0 0 24px rgba(245, 158, 11, 0.45), inset 0 0 22px rgba(59, 130, 246, 0.35);
+        box-shadow: 0 0 25px rgba(245, 158, 11, 0.35), 0 0 45px rgba(217, 119, 6, 0.2), inset 0 0 22px rgba(245, 158, 11, 0.2);
         border-color: rgba(245, 158, 11, 0.85);
       }
       50% {
-        box-shadow: 0 0 50px rgba(245, 158, 11, 0.95), 0 0 65px rgba(59, 130, 246, 0.45), inset 0 0 32px rgba(245, 158, 11, 0.55);
-        border-color: rgba(255, 245, 180, 1);
+        box-shadow: 0 0 50px rgba(245, 158, 11, 0.75), 0 0 75px rgba(251, 191, 36, 0.45), inset 0 0 35px rgba(245, 158, 11, 0.45);
+        border-color: rgba(254, 240, 138, 0.95);
       }
     }
     .prize-box-neon {
-      animation: prize-box-glow 3.2s ease-in-out infinite;
+      animation: golden-ambient-pulse 4.8s ease-in-out infinite;
       position: relative;
     }
 
-    @keyframes shimmer-sweep-slow {
-      0% { transform: translateX(-180%) skewX(-20deg); opacity: 0; }
-      20% { opacity: 1; }
-      60% { transform: translateX(240%) skewX(-20deg); opacity: 1; }
-      100% { transform: translateX(240%) skewX(-20deg); opacity: 0; }
+    /* 絲滑慢速金光流淌動畫 */
+    @keyframes golden-sweep-flow-smooth {
+      0% {
+        transform: translateX(-190%) skewX(-20deg);
+        opacity: 0;
+      }
+      18% {
+        opacity: 0.85;
+      }
+      55% {
+        transform: translateX(210%) skewX(-20deg);
+        opacity: 0.85;
+      }
+      100% {
+        transform: translateX(210%) skewX(-20deg);
+        opacity: 0;
+      }
     }
-    .prize-shimmer-sweep {
+    .prize-golden-shimmer-smooth {
       position: absolute;
-      top: -20%;
+      top: -30%;
       left: 0;
-      width: 75%;
-      height: 140%;
+      width: 85%;
+      height: 160%;
       background: linear-gradient(
         90deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.08) 25%,
-        rgba(255, 245, 180, 0.65) 50%,
-        rgba(255, 255, 255, 0.08) 75%,
+        rgba(251, 191, 36, 0.02) 25%,
+        rgba(254, 240, 138, 0.4) 46%,
+        rgba(245, 158, 11, 0.55) 54%,
+        rgba(251, 191, 36, 0.1) 75%,
         transparent 100%
       );
       pointer-events: none;
-      animation: shimmer-sweep-slow 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      filter: blur(1px);
+      animation: golden-sweep-flow-smooth 6.2s cubic-bezier(0.33, 1, 0.68, 1) infinite;
     }
 
     .golden-prize-text {
@@ -159,10 +174,13 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    .prize-text-keep-words {
-      word-break: keep-all;
-      overflow-wrap: break-word;
-      hyphens: none;
+    /* 獎品英文字串強制單行、不換行、不斷字 */
+    .prize-en-nowrap {
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+      hyphens: none !important;
+      display: inline-block;
     }
 
     @media print {
@@ -242,7 +260,7 @@
     </div>
   </header>
 
-  <!-- 專屬提示橫幅：隱藏幸運抽獎號碼，以神秘保密風格提示 -->
+  <!-- 專屬提示橫幅 -->
   <div id="exclusiveBanner" class="hidden relative z-20 bg-gradient-to-r from-blue-950 via-tkt-blue to-indigo-950 border-b border-blue-400/30 px-4 py-2 text-center text-xs sm:text-sm shadow-md">
     <div class="inline-flex items-center gap-2">
       <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping"></span>
@@ -404,11 +422,13 @@
         <span id="activeTicketStatus" class="font-mono text-amber-400 font-bold">隨機幸運抽取模式</span>
       </div>
 
-      <!-- 扭蛋機最底部署名 -->
-      <div class="w-full text-center mt-3 pt-2.5 border-t border-slate-800/60">
-        <p class="text-xs sm:text-[13px] font-bold tracking-wider bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.35)]">
+      <!-- 抽獎前扭蛋機最底部署名：自適應裝置且強制單行不斷行 -->
+      <div class="w-full mt-3 pt-2.5 border-t border-slate-800/60 flex items-center justify-center overflow-hidden px-1">
+        <span 
+          style="font-size: clamp(9.5px, 2.9vw, 13px); letter-spacing: 0.05em;"
+          class="whitespace-nowrap inline-block font-bold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.4)] select-none">
           ✨ 2027 TKT Year-end party by Po Yuan ✨
-        </p>
+        </span>
       </div>
 
     </div>
@@ -443,14 +463,14 @@
         🎉 恭喜幸運中獎！ 🎉
       </h3>
       
-      <!-- 獎品內容框：深邃層次漸層 + 頂部鏡面高光反光層 -->
-      <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#0e1c48] via-[#060b24] to-[#040718] border-2 border-amber-400/90 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 my-1.5 sm:my-2.5 shadow-2xl relative w-full max-w-sm sm:max-w-md mx-auto flex flex-col items-center justify-center min-h-[96px] sm:min-h-[110px] max-h-[24vh] overflow-hidden">
+      <!-- 獎品內容框：深邃層次漸層 + 慢速絲滑金色光影流動特效 -->
+      <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#0f1d4a] via-[#070e28] to-[#040616] border-2 border-amber-400/90 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 my-1.5 sm:my-2.5 shadow-2xl relative w-full max-w-sm sm:max-w-md mx-auto flex flex-col items-center justify-center min-h-[96px] sm:min-h-[110px] max-h-[24vh] overflow-hidden">
         
         <!-- 頂部鏡面高光反光層 -->
         <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/18 via-white/4 to-transparent pointer-events-none rounded-t-xl z-10"></div>
         
-        <!-- 動態流光掃過層 -->
-        <div class="prize-shimmer-sweep z-10"></div>
+        <!-- 慢速絲滑金光流淌層 -->
+        <div class="prize-golden-shimmer-smooth z-10"></div>
 
         <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-900/90 border border-blue-400/60 shadow-inner mb-1 shrink-0 relative z-20">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -459,7 +479,7 @@
 
         <!-- 獎項文字容器 -->
         <div class="w-full flex-1 flex flex-col items-center justify-center text-center px-1 overflow-hidden relative z-20">
-          <div id="revealPrizeTitle" class="prize-text-keep-words break-keep font-black tracking-wide w-full flex flex-col items-center justify-center leading-snug">
+          <div id="revealPrizeTitle" class="font-black tracking-wide w-full flex flex-col items-center justify-center leading-snug">
             大獎揭曉中...
           </div>
         </div>
@@ -476,7 +496,7 @@
     </div>
   </div>
 
-  <!-- 後台管理密碼驗證視窗 (以密碼星號/黑點遮蔽，不顯示明碼) -->
+  <!-- 後台管理密碼驗證視窗 (以密碼星號/黑點遮蔽) -->
   <div id="adminPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-200">
     <div class="relative w-full max-w-sm glass-panel rounded-2xl p-5 border border-slate-700 shadow-2xl flex flex-col">
       <div class="flex items-center justify-between mb-4 pb-2.5 border-b border-slate-700/60">
@@ -493,7 +513,6 @@
         請輸入後台管理密碼進入設定系統：
       </p>
 
-      <!-- 密碼輸入框：type="password" 自動以圓點/星號遮蔽 -->
       <div class="relative mb-2">
         <input 
           type="password" 
@@ -1216,25 +1235,32 @@
     }
 
     /* ============================================================
-       動態文字自適應縮放：精準匹配微縮顯示框
+       動態文字自適應縮放：精準匹配框體，確保英文長句完全不斷行
     ============================================================ */
     function adjustPrizeFontSize() {
       const container = document.getElementById('prizeContentBox');
       const textElem = document.getElementById('revealPrizeTitle');
+      const enElem = document.getElementById('revealEnPart');
       if (!container || !textElem) return;
 
       const isMobile = window.innerWidth < 640;
-      let startSize = isMobile ? 20 : (window.innerWidth < 1024 ? 24 : 28);
-      const minSize = 13;
+      let startSize = isMobile ? 22 : (window.innerWidth < 1024 ? 26 : 30);
+      const minSize = 11;
 
       textElem.style.fontSize = `${startSize}px`;
 
       let currentSize = startSize;
+      const maxAvailableWidth = container.clientWidth - 28;
+      const maxAvailableHeight = container.clientHeight - 34;
+
+      // 檢查整體容器高度、寬度，以及英文單行是否超出邊界
       while (
         currentSize > minSize &&
-        (textElem.scrollHeight > container.clientHeight - 32 || textElem.scrollWidth > container.clientWidth - 12)
+        (textElem.scrollHeight > maxAvailableHeight ||
+         textElem.scrollWidth > maxAvailableWidth ||
+         (enElem && enElem.scrollWidth > maxAvailableWidth))
       ) {
-        currentSize -= 1;
+        currentSize -= 0.5;
         textElem.style.fontSize = `${currentSize}px`;
       }
     }
@@ -1252,9 +1278,9 @@
       }
 
       return `
-        <div class="golden-prize-text font-black leading-tight drop-shadow mb-0.5">${zhPart}</div>
-        ${enPart ? `<div class="text-blue-100/90 font-semibold tracking-normal leading-tight opacity-95 text-[0.58em] sm:text-[0.64em] my-0.5 prize-text-keep-words">${enPart}</div>` : ''}
-        ${pricePart ? `<div class="text-amber-300 font-extrabold tracking-wider text-[0.7em] sm:text-[0.76em] mt-0.5 bg-amber-400/15 px-2.5 py-0.5 rounded-full border border-amber-400/30 inline-block drop-shadow">${pricePart}</div>` : ''}
+        <div class="golden-prize-text font-black leading-tight drop-shadow mb-1">${zhPart}</div>
+        ${enPart ? `<div id="revealEnPart" class="prize-en-nowrap text-amber-100/95 font-semibold tracking-normal leading-tight opacity-95 text-[0.6em] sm:text-[0.66em] my-0.5">${enPart}</div>` : ''}
+        ${pricePart ? `<div class="text-amber-300 font-extrabold tracking-wider text-[0.72em] sm:text-[0.78em] mt-1 bg-amber-400/15 px-2.5 py-0.5 rounded-full border border-amber-400/35 inline-block drop-shadow">${pricePart}</div>` : ''}
       `;
     }
 
