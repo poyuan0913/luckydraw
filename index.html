@@ -78,10 +78,11 @@
       animation: tense-heartbeat 0.45s ease-in-out infinite;
     }
 
+    /* 吉祥小羊懸浮動畫 */
     @keyframes sheep-float-motion {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
-      25% { transform: translateY(-3.5px) rotate(-2.5deg); }
-      75% { transform: translateY(2px) rotate(2deg); }
+      25% { transform: translateY(-4px) rotate(-3deg); }
+      75% { transform: translateY(2.5px) rotate(2.5deg); }
     }
     .anim-sheep-float {
       animation: sheep-float-motion 3.2s ease-in-out infinite;
@@ -89,10 +90,11 @@
       transform-origin: center bottom;
     }
 
+    /* 喜慶鞭炮搖擺動畫 */
     @keyframes firecracker-swing-motion {
       0%, 100% { transform: rotate(0deg) translateY(0); }
-      30% { transform: rotate(5.5deg) translateY(-1px); }
-      75% { transform: rotate(-5.5deg) translateY(0.5px); }
+      30% { transform: rotate(7deg) translateY(-1px); }
+      75% { transform: rotate(-7deg) translateY(0.5px); }
     }
     .anim-cracker-swing {
       animation: firecracker-swing-motion 2.6s ease-in-out infinite;
@@ -100,31 +102,59 @@
       transform-origin: 50% 10%;
     }
 
-    /* 頂部「2027 TKT End Party」標題專屬光影流動效果 */
+    /* 頂部「2027 TKT End Party」無框柔和流動光芒 */
     @keyframes title-shimmer-flow {
-      0% {
-        background-position: -200% center;
-      }
-      100% {
-        background-position: 200% center;
-      }
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
     }
     .anim-title-shimmer {
       background: linear-gradient(
-        110deg,
-        #FFFFFF 0%,
-        #93C5FD 25%,
-        #FFFFFF 45%,
-        #FDE047 55%,
-        #F59E0B 75%,
-        #FFFFFF 100%
+        90deg,
+        #cbd5e1 0%,
+        #93c5fd 20%,
+        #cbd5e1 40%,
+        #ffffff 50%,
+        #fde047 55%,
+        #cbd5e1 70%,
+        #93c5fd 85%,
+        #cbd5e1 100%
+      );
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      animation: title-shimmer-flow 6s ease-in-out infinite;
+      display: inline-block;
+      filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.4))
+              drop-shadow(0 1px 4px rgba(59, 130, 246, 0.5));
+    }
+
+    /* 喜慶紅色粗體流動光影效果 (2027 TKT Lucky Draw) */
+    @keyframes festive-red-shimmer-flow {
+      0% { background-position: -250% center; }
+      100% { background-position: 250% center; }
+    }
+    .anim-festive-red-shimmer {
+      background: linear-gradient(
+        115deg,
+        #FF2A2A 0%,
+        #FF5252 20%,
+        #FFE57F 45%,
+        #FFFFFF 50%,
+        #FFD166 55%,
+        #FF2A2A 80%,
+        #D90429 100%
       );
       background-size: 250% auto;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: title-shimmer-flow 5s linear infinite;
+      animation: festive-red-shimmer-flow 3.4s ease-in-out infinite;
       display: inline-block;
-      filter: drop-shadow(0 2px 8px rgba(0, 0, 255, 0.45));
+      font-weight: 900;
+      filter: drop-shadow(0 0 10px rgba(255, 42, 42, 0.95))
+              drop-shadow(0 0 24px rgba(239, 68, 68, 0.65))
+              drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85));
     }
 
     /* 「啟動 3D 扭蛋」按鈕立體懸浮微動效果 */
@@ -147,59 +177,77 @@
       transform: translateY(1px) scale(0.98);
     }
 
+    /* 慢速、柔和絲滑的框體外金光呼吸 (7.2 秒週期) */
     @keyframes golden-ambient-pulse {
       0%, 100% {
-        box-shadow: 0 0 20px rgba(245, 158, 11, 0.35), inset 0 0 15px rgba(245, 158, 11, 0.2);
-        border-color: rgba(245, 158, 11, 0.85);
+        box-shadow: 0 0 18px rgba(245, 158, 11, 0.28), inset 0 0 12px rgba(245, 158, 11, 0.16);
+        border-color: rgba(245, 158, 11, 0.82);
       }
       50% {
-        box-shadow: 0 0 45px rgba(245, 158, 11, 0.75), inset 0 0 25px rgba(245, 158, 11, 0.4);
+        box-shadow: 0 0 36px rgba(245, 158, 11, 0.62), inset 0 0 22px rgba(245, 158, 11, 0.32);
         border-color: rgba(254, 240, 138, 0.95);
       }
     }
     .prize-box-neon {
-      animation: golden-ambient-pulse 4.8s ease-in-out infinite;
+      animation: golden-ambient-pulse 7.2s ease-in-out infinite;
       position: relative;
+      isolation: isolate;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
-    @keyframes golden-continuous-flow {
+    /* 絲滑慢速光流動動畫 (6.8 秒週期，長間隔高雅滑過) */
+    @keyframes golden-continuous-flow-mobile {
       0% {
-        transform: translate3d(-150%, 0, 0) rotate(18deg);
+        transform: translate3d(-200%, 0, 0) rotate(20deg);
+        -webkit-transform: translate3d(-200%, 0, 0) rotate(20deg);
         opacity: 0;
       }
-      20% {
+      10% {
+        opacity: 0;
+      }
+      25% {
+        opacity: 0.85;
+      }
+      65% {
         opacity: 0.85;
       }
       80% {
-        opacity: 0.85;
+        opacity: 0;
       }
       100% {
-        transform: translate3d(150%, 0, 0) rotate(18deg);
+        transform: translate3d(200%, 0, 0) rotate(20deg);
+        -webkit-transform: translate3d(200%, 0, 0) rotate(20deg);
         opacity: 0;
       }
     }
 
     .prize-golden-shimmer-smooth {
       position: absolute;
-      top: -60%;
-      left: -20%;
-      width: 140%;
-      height: 220%;
+      top: -120%;
+      left: -60%;
+      width: 240%;
+      height: 340%;
       background: linear-gradient(
         90deg,
         transparent 0%,
-        rgba(251, 191, 36, 0) 30%,
-        rgba(254, 240, 138, 0.25) 45%,
-        rgba(255, 255, 255, 0.8) 50%,
-        rgba(245, 158, 11, 0.45) 55%,
-        rgba(251, 191, 36, 0) 70%,
+        rgba(251, 191, 36, 0) 32%,
+        rgba(254, 240, 138, 0.22) 46%,
+        rgba(255, 255, 255, 0.85) 50%,
+        rgba(245, 158, 11, 0.42) 54%,
+        rgba(251, 191, 36, 0) 68%,
         transparent 100%
       );
       pointer-events: none;
+      z-index: 15;
       will-change: transform, opacity;
-      animation: golden-continuous-flow 4.8s linear infinite;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      animation: golden-continuous-flow-mobile 6.8s cubic-bezier(0.33, 1, 0.68, 1) infinite;
+      -webkit-animation: golden-continuous-flow-mobile 6.8s cubic-bezier(0.33, 1, 0.68, 1) infinite;
     }
 
+    /* 金粉微粒漂浮（放慢至 6.5 秒） */
     @keyframes golden-dust-float {
       0%, 100% {
         transform: translate3d(0, 0, 0) scale(0.8);
@@ -217,7 +265,7 @@
       box-shadow: 0 0 6px #F59E0B;
       pointer-events: none;
       will-change: transform, opacity;
-      animation: golden-dust-float 4.2s ease-in-out infinite;
+      animation: golden-dust-float 6.5s ease-in-out infinite;
     }
 
     .golden-prize-text {
@@ -306,7 +354,6 @@
 
         <div>
           <h1 class="text-base sm:text-xl font-black tracking-wider flex items-center gap-2">
-            <!-- 增加光影流動效果的標題 -->
             <span class="anim-title-shimmer">2027 TKT End Party</span>
             <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold hidden md:inline-block">
               年度盛典
@@ -344,11 +391,11 @@
   <main id="draw-ui" class="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center">
 
     <!-- 頂部招牌框 -->
-    <div class="w-80 sm:w-96 bg-gradient-to-r from-tkt-dark via-tkt-blue to-blue-700 rounded-2xl py-2.5 px-4 sm:px-5 shadow-glow-blue border border-blue-300/40 text-center relative z-20 flex items-center justify-between mb-3 sm:mb-4 overflow-hidden">
+    <div class="w-[22rem] sm:w-[26rem] bg-gradient-to-r from-tkt-dark via-tkt-blue to-blue-700 rounded-2xl py-2.5 px-3.5 sm:px-5 shadow-glow-blue border border-blue-300/40 text-center relative z-20 flex items-center justify-between mb-3 sm:mb-4 overflow-hidden">
       
       <!-- 左側：吉祥小羊圖示 -->
-      <div class="anim-sheep-float w-10 h-10 bg-amber-400/10 rounded-xl border border-amber-400/40 flex items-center justify-center shadow-inner hover:scale-110 transition-transform shrink-0" title="吉羊開泰">
-        <svg viewBox="0 0 64 64" class="w-7 h-7 drop-shadow" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="anim-sheep-float w-12 h-12 sm:w-14 sm:h-14 bg-amber-400/15 rounded-2xl border border-amber-300/50 flex items-center justify-center shadow-lg hover:scale-110 transition-transform shrink-0" title="吉羊開泰">
+        <svg viewBox="0 0 64 64" class="w-9 h-9 sm:w-10 sm:h-10 drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M 22 22 C 14 10 3 20 12 30 C 16 34 22 28 22 24" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round" fill="none"/>
           <path d="M 42 22 C 50 10 61 20 52 30 C 48 34 42 28 42 24" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round" fill="none"/>
           <ellipse cx="32" cy="35" rx="14" ry="17" fill="#FFFFFF"/>
@@ -369,21 +416,21 @@
         </svg>
       </div>
 
-      <!-- 中間標題文字：強制多裝置單行不斷行 -->
+      <!-- 中間標題文字：喜氣紅色粗體流動光影 -->
       <div class="text-center px-1 flex-1 min-w-0 overflow-hidden">
         <div class="text-[9px] sm:text-[10px] tracking-widest font-black text-blue-200 uppercase whitespace-nowrap">3D REALISTIC GACHAPON</div>
-        <div class="w-full flex items-center justify-center overflow-hidden">
+        <div class="w-full flex items-center justify-center overflow-hidden py-0.5">
           <span 
-            style="font-size: clamp(11px, 3.4vw, 16px);"
-            class="whitespace-nowrap inline-block font-black text-amber-300 tracking-wide drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)] select-none">
+            style="font-size: clamp(12px, 3.6vw, 17px);"
+            class="whitespace-nowrap inline-block anim-festive-red-shimmer tracking-wide select-none">
             ✨ 2027 TKT Lucky Draw ✨
           </span>
         </div>
       </div>
 
       <!-- 右側：喜慶鞭炮圖示 -->
-      <div class="anim-cracker-swing w-10 h-10 bg-rose-500/10 rounded-xl border border-rose-400/40 flex items-center justify-center shadow-inner hover:scale-110 transition-transform shrink-0" title="迎春鞭炮">
-        <svg viewBox="0 0 64 64" class="w-7 h-7 drop-shadow" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="anim-cracker-swing w-12 h-12 sm:w-14 sm:h-14 bg-rose-500/15 rounded-2xl border border-rose-400/50 flex items-center justify-center shadow-lg hover:scale-110 transition-transform shrink-0" title="迎春鞭炮">
+        <svg viewBox="0 0 64 64" class="w-9 h-9 sm:w-10 sm:h-10 drop-shadow-[0_2px_8px_rgba(244,63,94,0.5)]" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M 28 6 L 31 10" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
           <path d="M 36 7 L 33 11" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
           <circle cx="32" cy="7" r="1.5" fill="#EF4444"/>
@@ -485,7 +532,7 @@
         </div>
       </div>
 
-      <!-- 增加立體懸浮微動效果的啟動按鈕 -->
+      <!-- 啟動按鈕 -->
       <button id="spinActionBtn" class="anim-btn-float mt-4 w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-tkt-blue to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base tracking-wider active:scale-[0.98] transition flex items-center justify-center gap-2 border border-blue-300/40 cursor-pointer">
         <i data-lucide="sparkles" class="w-4 h-4 text-amber-300 animate-pulse"></i>
         <span>啟動 3D 扭蛋 (SPIN)</span>
@@ -535,19 +582,20 @@
         🎉 恭喜幸運中獎！ 🎉
       </h3>
       
-      <!-- 獎品內容框：深邃層次漸層 + 絲滑金色光影流動 -->
+      <!-- 獎品內容框：深邃層次漸層 + 慢速絲滑流暢金光 -->
       <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#0f1d4a] via-[#070e28] to-[#040616] border-2 border-amber-400/90 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 my-1.5 sm:my-2.5 shadow-2xl relative w-full max-w-sm sm:max-w-md mx-auto flex flex-col items-center justify-center min-h-[96px] sm:min-h-[110px] max-h-[24vh] overflow-hidden">
         
         <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/18 via-white/4 to-transparent pointer-events-none rounded-t-xl z-10"></div>
         
-        <div class="prize-golden-shimmer-smooth z-10"></div>
+        <!-- 慢速絲滑流光圖層 -->
+        <div class="prize-golden-shimmer-smooth"></div>
 
         <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-3 left-6" style="animation-delay: 0s;"></div>
-        <div class="golden-dust-particle z-10 w-1 h-1 bottom-4 left-16" style="animation-delay: 1.2s;"></div>
-        <div class="golden-dust-particle z-10 w-2 h-2 top-4 right-10" style="animation-delay: 2.1s;"></div>
-        <div class="golden-dust-particle z-10 w-1 h-1 bottom-3 right-8" style="animation-delay: 0.6s;"></div>
-        <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/2 left-1/4" style="animation-delay: 3s;"></div>
-        <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/3 right-1/4" style="animation-delay: 1.8s;"></div>
+        <div class="golden-dust-particle z-10 w-1 h-1 bottom-4 left-16" style="animation-delay: 1.8s;"></div>
+        <div class="golden-dust-particle z-10 w-2 h-2 top-4 right-10" style="animation-delay: 3.2s;"></div>
+        <div class="golden-dust-particle z-10 w-1 h-1 bottom-3 right-8" style="animation-delay: 0.9s;"></div>
+        <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/2 left-1/4" style="animation-delay: 4.5s;"></div>
+        <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/3 right-1/4" style="animation-delay: 2.7s;"></div>
 
         <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-900/90 border border-blue-400/60 shadow-inner mb-1 shrink-0 relative z-20">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
