@@ -116,7 +116,7 @@
             <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
             <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
             <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
-            <text x="150" y="212" font-family="'Arial Black', 'Helvetica Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">
+            <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">
               Technik • Kompetenz • Tradition
             </text>
           </svg>
@@ -310,7 +310,7 @@
           </div>
           <div>
             <h2 class="text-base sm:text-lg font-black text-white">⚙️ 30 獎項 QR Code & Excel 設定後台</h2>
-            <p class="text-xs text-slate-400">掉落後停頓 3 秒開獎 / 轉動 drum{id}.mp3 | 開獎 win.mp3</p>
+            <p class="text-xs text-slate-400">雙重自訂 MP3 + Web Audio 智能備援保證發聲</p>
           </div>
         </div>
 
@@ -416,7 +416,7 @@
       <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
       <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
       <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
-      <text x="150" y="212" font-family="'Arial Black', 'Helvetica Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">Technik • Kompetenz • Tradition</text>
+      <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">Technik • Kompetenz • Tradition</text>
     </svg>`;
     const TKT_LOGO_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(TKT_LOGO_SVG);
 
@@ -487,13 +487,38 @@
     const qrDataURLs = {};
 
     /* ============================================================
-       2. 音效系統 (轉動 drum{soundId}.mp3 / 開獎 win.mp3)
+       2. 音效系統 (解決 Autoplay 阻擋問題，支援預先喚醒與合成備援)
     ============================================================ */
     let isSoundMuted = false;
     let drum = null;
     let winSound = null;
+    let audioCtx = null;
+
+    // Web Audio API 實時音效備援引擎
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
 
     const Sound = {
+      // 點擊瞬間預先喚醒瀏覽器音訊物件 (解開 Autoplay 政策限制)
+      unlockAllSounds() {
+        try {
+          getAudioContext();
+          if (!winSound) {
+            winSound = new Audio('win.mp3');
+            winSound.preload = 'auto';
+            winSound.load();
+          }
+        } catch(e){}
+      },
+
       playDrum(id) {
         if (isSoundMuted) return;
 
@@ -509,10 +534,13 @@
           drum.volume = 1.0;
           const p = drum.play();
           if (p !== undefined) {
-            p.catch(err => console.warn(`無法播放 drum${soundId}.mp3:`, err));
+            p.catch(err => {
+              console.warn(`自訂音效 drum${soundId}.mp3 無法播放，自動啟用機械轉動備援音:`, err);
+              Sound.playFallbackDrum();
+            });
           }
         } catch(e) {
-          console.warn("轉動音效載入異常:", e);
+          Sound.playFallbackDrum();
         }
       },
 
@@ -527,22 +555,63 @@
       playWin() {
         if (isSoundMuted) return;
 
-        if (winSound) {
-          winSound.pause();
-          winSound.currentTime = 0;
-          winSound = null;
-        }
-
         try {
-          winSound = new Audio('win.mp3');
+          if (!winSound) {
+            winSound = new Audio('win.mp3');
+          }
           winSound.volume = 1.0;
+          winSound.currentTime = 0;
           const p = winSound.play();
           if (p !== undefined) {
-            p.catch(err => console.warn("無法播放 win.mp3:", err));
+            p.catch(err => {
+              console.warn("自訂 win.mp3 播放受阻或檔案遺失，自動播放勝利號角備援音:", err);
+              Sound.playFallbackWin();
+            });
           }
         } catch(e) {
-          console.warn("開獎音效載入異常:", e);
+          Sound.playFallbackWin();
         }
+      },
+
+      // 合成備援音效 (保證無檔案時絕對發聲)
+      playFallbackDrum() {
+        if (isSoundMuted) return;
+        try {
+          const ctx = getAudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.11);
+        } catch(e){}
+      },
+
+      playFallbackWin() {
+        if (isSoundMuted) return;
+        try {
+          const ctx = getAudioContext();
+          const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const startTime = ctx.currentTime + idx * 0.08;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, startTime);
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.25, startTime + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.7);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + 0.75);
+          });
+        } catch(e){}
       }
     };
 
@@ -582,6 +651,7 @@
       world.gravity.set(0, -9.82 * 1.6, 0);
       world.solver.iterations = 10;
 
+      // 玻璃罩
       const glassGeo = new THREE.SphereGeometry(SPHERE_RADIUS, 48, 48);
       const glassMat = new THREE.MeshPhysicalMaterial({
         color: 0xbedaff,
@@ -594,6 +664,7 @@
       });
       scene.add(new THREE.Mesh(glassGeo, glassMat));
 
+      // 物理封閉邊界
       const boundaryMat = new CANNON.Material("boundary");
       const planes = [
         { n: [0, 1, 0], pos: [0, -SPHERE_RADIUS * 0.90, 0] },
@@ -611,6 +682,7 @@
         world.addBody(body);
       });
 
+      // 85 顆分層穩定生成
       const sphereMat = new CANNON.Material("capsuleMat");
       for (let i = 0; i < NUM_CAPSULES; i++) {
         const group = new THREE.Group();
@@ -748,7 +820,7 @@
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 出蛋口停頓 3 秒自動破殼 (調整此處停頓秒數)
+       5. 5.8 秒轉動 + 出蛋口停頓 3 秒自動破殼 (點擊預先喚醒音效)
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
@@ -757,6 +829,9 @@
       if (isSpinning) return;
       isSpinning = true;
 
+      // 關鍵：在使用者點擊按鈕的當下，立即喚醒瀏覽器音訊信任權限
+      Sound.unlockAllSounds();
+
       if (boundTicketId) {
         selectedPrizeItem = prizeList.find(p => p.id === boundTicketId) || prizeList[0];
       } else {
@@ -764,7 +839,7 @@
         selectedPrizeItem = prizeList[randIdx];
       }
 
-      // 播放對應之 drum{soundId}.mp3
+      // 播放對應之 drum{soundId}.mp3 (或自動備援)
       Sound.playDrum(selectedPrizeItem.id);
 
       const lever = document.getElementById('crankLever');
@@ -792,7 +867,7 @@
         chuteStatusText.textContent = "準備開獎...";
         droppedEgg.classList.remove('hidden');
 
-        // 在出蛋口停頓 3 秒 (3000ms) 後停止轉動音效並破殼
+        // 在出蛋口停頓 3 秒 (3000ms) 後停止轉動音效並破殼開獎
         setTimeout(() => {
           Sound.stopDrum();
           revealPrize(selectedPrizeItem.id);
@@ -814,7 +889,7 @@
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
-        // 播放開獎音效 win.mp3
+        // 播放開獎音效 win.mp3 (或自動備援號角)
         Sound.playWin();
         fireConfettiCelebration();
 
@@ -1182,6 +1257,11 @@
       init3DGachapon();
       detectAssignedTicket();
 
+      // 使用者進入頁面點擊任意處時，先行解鎖 AudioContext
+      document.body.addEventListener('click', () => {
+        getAudioContext();
+      }, { once: true });
+
       if (new URLSearchParams(window.location.search).get('admin') === '1') {
         verifyAndOpenAdmin();
       }
@@ -1196,6 +1276,8 @@
         soundIcon.setAttribute('data-lucide', isSoundMuted ? 'volume-x' : 'volume-2');
         if (isSoundMuted) {
           Sound.stopDrum();
+        } else {
+          getAudioContext();
         }
         if (window.lucide) lucide.createIcons();
       });
