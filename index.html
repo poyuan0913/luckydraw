@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
@@ -867,11 +867,11 @@
         chuteStatusText.textContent = "準備開獎...";
         droppedEgg.classList.remove('hidden');
 
-        // 在出蛋口停頓 3 秒 (3000ms) 後停止轉動音效並破殼開獎
+        // 在出蛋口停頓 2 秒 (2000ms) 後停止轉動音效並破殼開獎
         setTimeout(() => {
           Sound.stopDrum();
           revealPrize(selectedPrizeItem.id);
-        }, 3000);
+        }, 2000);
 
       }, 5800);
     }
