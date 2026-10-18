@@ -242,15 +242,14 @@
     </div>
   </header>
 
-  <!-- 專屬籤號提示橫幅 -->
+  <!-- 專屬提示橫幅：隱藏幸運抽獎號碼，以神秘保密風格提示 -->
   <div id="exclusiveBanner" class="hidden relative z-20 bg-gradient-to-r from-blue-950 via-tkt-blue to-indigo-950 border-b border-blue-400/30 px-4 py-2 text-center text-xs sm:text-sm shadow-md">
     <div class="inline-flex items-center gap-2">
       <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping"></span>
       <span class="text-slate-100">已成功載入您的專屬盲盒：</span>
-      <strong class="text-amber-300 font-extrabold text-sm sm:text-base tracking-widest bg-black/40 px-3 py-0.5 rounded-full border border-amber-400/50">
-        幸運抽獎號碼 #<span id="bannerTicketId">--</span>
+      <strong class="text-amber-300 font-extrabold text-xs sm:text-sm tracking-wider bg-black/40 px-3 py-0.5 rounded-full border border-amber-400/50">
+        ✨ 專屬神秘盲盒已就緒（號碼已加密封存，開獎揭曉！）
       </strong>
-      <span class="text-[11px] text-blue-200 ml-1 hidden sm:inline">（內容完全保密，轉動出蛋點擊揭曉！）</span>
     </div>
   </div>
 
@@ -415,7 +414,7 @@
     </div>
   </main>
 
-  <!-- 開獎揭曉祝賀彈窗 (優化標題比例與框體加強反光質感) -->
+  <!-- 開獎揭曉祝賀彈窗 -->
   <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-lg hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
     <div id="revealCard" class="relative w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 text-center border-2 border-amber-400/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-300 my-auto max-h-[90vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
       
@@ -434,20 +433,20 @@
         <i data-lucide="trophy" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950"></i>
       </div>
 
-      <!-- CONGRATULATIONS 字級調大，氣勢更足 -->
+      <!-- CONGRATULATIONS 字級調大 -->
       <div class="text-sm sm:text-base md:text-lg font-black text-amber-300 tracking-[0.28em] uppercase mb-0.5 drop-shadow-[0_2px_8px_rgba(245,158,11,0.6)] shrink-0">
         CONGRATULATIONS
       </div>
 
-      <!-- 恭喜幸運中獎！字級調小，層次平衡 -->
+      <!-- 恭喜幸運中獎！字級調小 -->
       <h3 class="text-xs sm:text-sm md:text-base font-bold text-slate-100/90 mb-1 tracking-wider drop-shadow shrink-0">
         🎉 恭喜幸運中獎！ 🎉
       </h3>
       
-      <!-- 獎品內容框：深邃層次漸層 + 頂部弧形玻璃高光反光層 -->
+      <!-- 獎品內容框：深邃層次漸層 + 頂部鏡面高光反光層 -->
       <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#0e1c48] via-[#060b24] to-[#040718] border-2 border-amber-400/90 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 my-1.5 sm:my-2.5 shadow-2xl relative w-full max-w-sm sm:max-w-md mx-auto flex flex-col items-center justify-center min-h-[96px] sm:min-h-[110px] max-h-[24vh] overflow-hidden">
         
-        <!-- 頂部鏡面高光反光層 (增加反光立體質感) -->
+        <!-- 頂部鏡面高光反光層 -->
         <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/18 via-white/4 to-transparent pointer-events-none rounded-t-xl z-10"></div>
         
         <!-- 動態流光掃過層 -->
@@ -474,6 +473,49 @@
       <button id="closeModalBtn" class="w-full py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs sm:text-sm tracking-wider hover:brightness-110 active:scale-95 transition shadow-md border border-amber-200/50 shrink-0">
         收下幸運大獎 / 繼續體驗
       </button>
+    </div>
+  </div>
+
+  <!-- 後台管理密碼驗證視窗 (以密碼星號/黑點遮蔽，不顯示明碼) -->
+  <div id="adminPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-200">
+    <div class="relative w-full max-w-sm glass-panel rounded-2xl p-5 border border-slate-700 shadow-2xl flex flex-col">
+      <div class="flex items-center justify-between mb-4 pb-2.5 border-b border-slate-700/60">
+        <div class="flex items-center gap-2 text-white font-black text-sm">
+          <i data-lucide="lock" class="w-4 h-4 text-amber-400"></i>
+          <span>管理員身分驗證</span>
+        </div>
+        <button id="closeAdminPasswordBtn" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+        請輸入後台管理密碼進入設定系統：
+      </p>
+
+      <!-- 密碼輸入框：type="password" 自動以圓點/星號遮蔽 -->
+      <div class="relative mb-2">
+        <input 
+          type="password" 
+          id="adminPasswordInput" 
+          placeholder="••••••••••••" 
+          autocomplete="current-password"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 font-mono tracking-widest"
+        />
+      </div>
+
+      <div id="adminPasswordError" class="text-[11px] text-rose-400 min-h-[18px] mb-3 font-medium hidden">
+        密碼錯誤，請重新輸入！
+      </div>
+
+      <div class="flex items-center justify-end gap-2 mt-1">
+        <button id="cancelAdminPasswordBtn" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          取消
+        </button>
+        <button id="submitAdminPasswordBtn" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-tkt-dark to-tkt-blue hover:brightness-110 active:scale-95 transition shadow-glow-blue">
+          確認登入
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1087,7 +1129,7 @@
     }
 
     /* ============================================================
-       4. 專屬籤號檢測
+       4. 專屬籤號檢測 (掃描後隱藏籤號，保持全保密)
     ============================================================ */
     let boundTicketId = null;
 
@@ -1108,11 +1150,10 @@
       if (tid && tid >= 1 && tid <= prizeList.length) {
         boundTicketId = tid;
         const banner = document.getElementById('exclusiveBanner');
-        document.getElementById('bannerTicketId').textContent = String(tid).padStart(2, '0');
         banner.classList.remove('hidden');
 
         const activeStatus = document.getElementById('activeTicketStatus');
-        activeStatus.textContent = `已鎖定專屬籤號 #${String(tid).padStart(2, '0')}`;
+        activeStatus.textContent = `✨ 專屬幸運盲盒模式`;
         activeStatus.classList.add('text-emerald-400');
       }
     }
@@ -1336,7 +1377,7 @@
     }
 
     /* ============================================================
-       6. Excel 匯入、範本下載與 QR 後台管理
+       6. Excel 匯入、範本下載與 QR 後台管理 (以黑點/星號遮蔽輸入)
     ============================================================ */
     function verifyAndOpenAdmin() {
       const isAuth = sessionStorage.getItem('admin_authenticated');
@@ -1344,14 +1385,46 @@
         renderQRManager();
         document.getElementById('qrAdminDrawer').classList.remove('hidden');
       } else {
-        const pwd = prompt("請輸入管理員密碼進入後台：");
-        if (pwd === ADMIN_PASSWORD) {
-          sessionStorage.setItem('admin_authenticated', 'true');
-          renderQRManager();
-          document.getElementById('qrAdminDrawer').classList.remove('hidden');
-        } else if (pwd !== null) {
-          alert("密碼錯誤，拒絕存取！");
-        }
+        openAdminPasswordModal();
+      }
+    }
+
+    function openAdminPasswordModal() {
+      const modal = document.getElementById('adminPasswordModal');
+      const input = document.getElementById('adminPasswordInput');
+      const errorText = document.getElementById('adminPasswordError');
+
+      input.value = '';
+      errorText.classList.add('hidden');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        input.focus();
+      }, 20);
+    }
+
+    function closeAdminPasswordModal() {
+      const modal = document.getElementById('adminPasswordModal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        document.getElementById('adminPasswordInput').value = '';
+      }, 200);
+    }
+
+    function submitAdminPassword() {
+      const input = document.getElementById('adminPasswordInput');
+      const errorText = document.getElementById('adminPasswordError');
+
+      if (input.value === ADMIN_PASSWORD) {
+        sessionStorage.setItem('admin_authenticated', 'true');
+        closeAdminPasswordModal();
+        renderQRManager();
+        document.getElementById('qrAdminDrawer').classList.remove('hidden');
+      } else {
+        errorText.classList.remove('hidden');
+        input.value = '';
+        input.focus();
       }
     }
 
@@ -1710,7 +1783,20 @@
         }, 250);
       });
 
+      // 後台按鈕與密碼彈窗事件綁定
       document.getElementById('toggleQRAdminBtn').addEventListener('click', verifyAndOpenAdmin);
+      document.getElementById('closeAdminPasswordBtn').addEventListener('click', closeAdminPasswordModal);
+      document.getElementById('cancelAdminPasswordBtn').addEventListener('click', closeAdminPasswordModal);
+      document.getElementById('submitAdminPasswordBtn').addEventListener('click', submitAdminPassword);
+
+      document.getElementById('adminPasswordInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          submitAdminPassword();
+        } else if (e.key === 'Escape') {
+          closeAdminPasswordModal();
+        }
+      });
+
       document.getElementById('closeQRDrawerBtn').addEventListener('click', () => {
         document.getElementById('qrAdminDrawer').classList.add('hidden');
       });
