@@ -61,21 +61,23 @@
 
     @keyframes egg-crack-glow {
       0% { transform: scale(1); filter: brightness(1); }
-      50% { transform: scale(1.18); filter: brightness(2) drop-shadow(0 0 30px #F59E0B); }
+      50% { transform: scale(1.25); filter: brightness(2.2) drop-shadow(0 0 40px #EF4444); }
       100% { transform: scale(0.9); filter: brightness(1.2); }
     }
     .egg-cracking {
       animation: egg-crack-glow 0.65s ease-in-out forwards;
     }
 
+    /* 加強版心跳搏動緊張視覺 */
     @keyframes tense-heartbeat {
-      0%, 100% { transform: scale(1); }
-      20% { transform: scale(1.10); }
-      40% { transform: scale(0.97); }
-      60% { transform: scale(1.06); }
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(239,68,68,0.5)); }
+      15% { transform: scale(1.18); filter: drop-shadow(0 0 25px rgba(245,158,11,0.9)); }
+      30% { transform: scale(0.96); }
+      45% { transform: scale(1.12); filter: drop-shadow(0 0 20px rgba(239,68,68,0.85)); }
+      60% { transform: scale(1); }
     }
     .tense-egg-pulse {
-      animation: tense-heartbeat 0.45s ease-in-out infinite;
+      animation: tense-heartbeat 0.38s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
     }
 
     /* 吉祥小羊懸浮動畫 */
@@ -203,18 +205,10 @@
         -webkit-transform: translate3d(-200%, 0, 0) rotate(20deg);
         opacity: 0;
       }
-      10% {
-        opacity: 0;
-      }
-      25% {
-        opacity: 0.85;
-      }
-      65% {
-        opacity: 0.85;
-      }
-      80% {
-        opacity: 0;
-      }
+      10% { opacity: 0; }
+      25% { opacity: 0.85; }
+      65% { opacity: 0.85; }
+      80% { opacity: 0; }
       100% {
         transform: translate3d(200%, 0, 0) rotate(20deg);
         -webkit-transform: translate3d(200%, 0, 0) rotate(20deg);
@@ -376,13 +370,13 @@
     </div>
   </header>
 
-  <!-- 專屬提示橫幅 -->
-  <div id="exclusiveBanner" class="hidden relative z-20 bg-gradient-to-r from-blue-950 via-tkt-blue to-indigo-950 border-b border-blue-400/30 px-4 py-2 text-center text-xs sm:text-sm shadow-md">
-    <div class="inline-flex items-center gap-2">
-      <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-      <span class="text-slate-100">已成功載入您的專屬盲盒：</span>
-      <strong class="text-amber-300 font-extrabold text-xs sm:text-sm tracking-wider bg-black/40 px-3 py-0.5 rounded-full border border-amber-400/50">
-        ✨ 專屬神秘盲盒已就緒（號碼已加密封存，開獎揭曉！）
+  <!-- 專屬提示橫幅：單行不換行，無多餘附註 -->
+  <div id="exclusiveBanner" class="hidden relative z-20 bg-gradient-to-r from-blue-950 via-tkt-blue to-indigo-950 border-b border-blue-400/30 px-3 py-1.5 text-center shadow-md overflow-x-auto no-scrollbar">
+    <div class="inline-flex items-center justify-center gap-2 whitespace-nowrap min-w-full text-xs sm:text-sm">
+      <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
+      <span class="text-slate-100 whitespace-nowrap">已成功載入您的專屬盲盒：</span>
+      <strong class="text-amber-300 font-extrabold whitespace-nowrap tracking-wider bg-black/40 px-3 py-0.5 rounded-full border border-amber-400/50">
+        ✨ 專屬神秘盲盒已就緒
       </strong>
     </div>
   </div>
@@ -587,7 +581,6 @@
         
         <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/18 via-white/4 to-transparent pointer-events-none rounded-t-xl z-10"></div>
         
-        <!-- 慢速絲滑流光圖層 -->
         <div class="prize-golden-shimmer-smooth"></div>
 
         <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-3 left-6" style="animation-delay: 0s;"></div>
@@ -750,7 +743,6 @@
               <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle">Technik • Kompetenz • Tradition</text>
             </svg>
           </div>
-          <!-- 單張預覽加入尾牙 -->
           <span class="text-[13px] font-black text-slate-800 mt-1">2027 TKT 尾牙摸彩券</span>
         </div>
 
@@ -856,13 +848,15 @@
     const qrDataURLs = {};
 
     /* ============================================================
-       2. 音效系統修復：支援桌面與手機端強制手勢解鎖與 Web Audio 萬能發聲
+       2. 音效系統：深度升級心跳低音鼓 + 3秒懸疑爬升合成器 (Web Audio)
     ============================================================ */
     let isSoundMuted = false;
     let drum = null;
     let winSound = null;
     let audioCtx = null;
     let tenseDrumTimer = null;
+    let tenseRiserOsc = null;
+    let tenseRiserGain = null;
     let preloadedAudios = {};
 
     const Sound = {
@@ -948,26 +942,63 @@
         }
       },
 
+      /* 重點加強：超震撼心跳低頻 + 持續性 Shepard 爬升懸疑音 + 衝刺滾奏 */
       startTenseDrums() {
         if (isSoundMuted) return;
         Sound.stopTenseDrums();
 
         const ctx = this.getCtx();
-        let beatCount = 0;
         const totalDuration = 3000;
         const startTime = Date.now();
 
+        // 1. 緊張感攀升音源 (Shepard Tone Riser)
+        try {
+          tenseRiserOsc = ctx.createOscillator();
+          tenseRiserGain = ctx.createGain();
+          
+          tenseRiserOsc.type = 'sawtooth';
+          const now = ctx.currentTime;
+          tenseRiserOsc.frequency.setValueAtTime(80, now);
+          tenseRiserOsc.frequency.exponentialRampToValueAtTime(520, now + 3.0);
+
+          // 帶通濾波器創造空靈壓迫感
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(220, now);
+          filter.frequency.exponentialRampToValueAtTime(1600, now + 3.0);
+          filter.Q.value = 3.5;
+
+          tenseRiserGain.gain.setValueAtTime(0.01, now);
+          tenseRiserGain.gain.linearRampToValueAtTime(0.22, now + 2.5);
+          tenseRiserGain.gain.exponentialRampToValueAtTime(0.001, now + 3.05);
+
+          tenseRiserOsc.connect(filter);
+          filter.connect(tenseRiserGain);
+          tenseRiserGain.connect(ctx.destination);
+
+          tenseRiserOsc.start(now);
+          tenseRiserOsc.stop(now + 3.1);
+        } catch(e){}
+
+        // 2. 加速度心跳低頻大鼓節拍
         function scheduleNextBeat() {
           const elapsed = Date.now() - startTime;
           if (elapsed >= totalDuration) return;
 
-          Sound.hitTenseDrumBeat(ctx);
-          beatCount++;
-
           const progress = Math.min(elapsed / totalDuration, 1);
-          const nextInterval = 360 - progress * 270;
+          const isFinalRush = elapsed > 2000; // 最後 1 秒進入狂風驟雨般的急促滾奏
 
-          tenseDrumTimer = setTimeout(scheduleNextBeat, Math.max(nextInterval, 85));
+          Sound.hitTenseHeartbeatBeat(ctx, progress, isFinalRush);
+
+          // 間隔由一開始的 380ms 逐漸加速縮短到 75ms
+          let nextInterval;
+          if (!isFinalRush) {
+            nextInterval = 380 - progress * 240;
+          } else {
+            nextInterval = 90 - (progress - 0.66) * 60; // 狂暴衝刺
+          }
+
+          tenseDrumTimer = setTimeout(scheduleNextBeat, Math.max(nextInterval, 65));
         }
 
         scheduleNextBeat();
@@ -978,25 +1009,72 @@
           clearTimeout(tenseDrumTimer);
           tenseDrumTimer = null;
         }
+        if (tenseRiserOsc) {
+          try {
+            tenseRiserOsc.stop();
+            tenseRiserOsc.disconnect();
+          } catch(e){}
+          tenseRiserOsc = null;
+        }
       },
 
-      hitTenseDrumBeat(ctx) {
+      /* 雙重低頻音爆 (Double-Thump Sub Bass) */
+      hitTenseHeartbeatBeat(ctx, progress, isFinalRush) {
         try {
+          const now = ctx.currentTime;
+
+          // 主深沉低音鼓 (Sub Bass 40-160Hz)
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
 
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(115, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(38, ctx.currentTime + 0.12);
+          const startPitch = 150 + progress * 50;
+          osc.frequency.setValueAtTime(startPitch, now);
+          osc.frequency.exponentialRampToValueAtTime(36, now + 0.14);
 
-          gain.gain.setValueAtTime(0.55, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+          const volume = Math.min(0.55 + progress * 0.45, 1.0);
+          gain.gain.setValueAtTime(volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
           osc.connect(gain);
           gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
 
-          osc.start(ctx.currentTime);
-          osc.stop(ctx.currentTime + 0.13);
+          // 撲通！雙心跳的第二個微回音 (Lub-Dub)
+          if (!isFinalRush) {
+            const secondOsc = ctx.createOscillator();
+            const secondGain = ctx.createGain();
+            const secondTime = now + 0.085;
+
+            secondOsc.type = 'sine';
+            secondOsc.frequency.setValueAtTime(110 + progress * 30, secondTime);
+            secondOsc.frequency.exponentialRampToValueAtTime(32, secondTime + 0.11);
+
+            secondGain.gain.setValueAtTime(volume * 0.65, secondTime);
+            secondGain.gain.exponentialRampToValueAtTime(0.001, secondTime + 0.12);
+
+            secondOsc.connect(secondGain);
+            secondGain.connect(ctx.destination);
+            secondOsc.start(secondTime);
+            secondOsc.stop(secondTime + 0.13);
+          } else {
+            // 最後衝刺階段加入金屬軍鼓清脆噪聲
+            const bufferSize = ctx.sampleRate * 0.04;
+            const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+              output[i] = Math.random() * 2 - 1;
+            }
+            const noise = ctx.createBufferSource();
+            noise.buffer = noiseBuffer;
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.35, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+            noise.connect(noiseGain);
+            noiseGain.connect(ctx.destination);
+            noise.start(now);
+          }
         } catch(e){}
       },
 
@@ -1333,7 +1411,7 @@
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 停頓 3 秒 (零時差點擊發聲)
+       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
@@ -1368,7 +1446,7 @@
         if (btn) btn.style.display = 'none';
 
         Sound.stopDrum();
-        Sound.startTenseDrums();
+        Sound.startTenseDrums(); // 啟動加強版緊張感配樂
 
         const droppedEgg = document.getElementById('droppedEgg');
         const ball = document.getElementById('droppedEggBall');
@@ -1670,7 +1748,6 @@
             ${item.name.replace(/\n/g, ' ')}
           </p>
 
-          <!-- 後台列印加入尾牙 -->
           <div class="hidden secret-ticket-desc text-xs font-black text-slate-800 my-1">
             2027 TKT 尾牙專屬盲盒摸彩券
           </div>
@@ -1868,7 +1945,6 @@
       ctx.fillStyle = "#0F172A";
       ctx.font = "900 24px sans-serif";
       ctx.textAlign = "center";
-      /* Canvas 繪圖標題加入尾牙 */
       ctx.fillText("2027 TKT 尾牙摸彩券", w / 2, 182);
 
       ctx.strokeStyle = "#94A3B8";
@@ -1923,7 +1999,6 @@
           ctx.fillText("獎項內容已加密封存 · 轉開扭蛋即刻揭曉", w / 2, 725);
 
           const a = document.createElement('a');
-          /* 下載檔案名加入尾牙 */
           a.download = `TKT_2027_尾牙摸彩券_#${String(ticketId).padStart(2, '0')}.png`;
           a.href = canvas.toDataURL("image/png");
           a.click();
