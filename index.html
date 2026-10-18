@@ -100,6 +100,53 @@
       transform-origin: 50% 10%;
     }
 
+    /* 頂部「2027 TKT 尾牙抽獎」標題專屬光影流動效果 */
+    @keyframes title-shimmer-flow {
+      0% {
+        background-position: -200% center;
+      }
+      100% {
+        background-position: 200% center;
+      }
+    }
+    .anim-title-shimmer {
+      background: linear-gradient(
+        110deg,
+        #FFFFFF 0%,
+        #93C5FD 25%,
+        #FFFFFF 45%,
+        #FDE047 55%,
+        #F59E0B 75%,
+        #FFFFFF 100%
+      );
+      background-size: 250% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: title-shimmer-flow 5s linear infinite;
+      display: inline-block;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 255, 0.45));
+    }
+
+    /* 「啟動 3D 扭蛋」按鈕立體懸浮微動效果 */
+    @keyframes btn-float-pulse {
+      0%, 100% {
+        transform: translateY(0px);
+        box-shadow: 0 0 25px rgba(0, 0, 255, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+      }
+      50% {
+        transform: translateY(-4px);
+        box-shadow: 0 0 38px rgba(59, 130, 246, 0.75), 0 0 50px rgba(245, 158, 11, 0.35), 0 10px 22px rgba(0, 0, 0, 0.5);
+      }
+    }
+    .anim-btn-float {
+      animation: btn-float-pulse 2.8s ease-in-out infinite;
+      will-change: transform, box-shadow;
+    }
+    .anim-btn-float:active {
+      animation: none;
+      transform: translateY(1px) scale(0.98);
+    }
+
     @keyframes golden-ambient-pulse {
       0%, 100% {
         box-shadow: 0 0 20px rgba(245, 158, 11, 0.35), inset 0 0 15px rgba(245, 158, 11, 0.2);
@@ -115,7 +162,6 @@
       position: relative;
     }
 
-    /* 連貫絲滑金光流淌 */
     @keyframes golden-continuous-flow {
       0% {
         transform: translate3d(-150%, 0, 0) rotate(18deg);
@@ -193,7 +239,6 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* 獎品英文字串強制單行、不換行、不斷字 */
     .prize-en-nowrap {
       white-space: nowrap !important;
       word-break: keep-all !important;
@@ -260,8 +305,9 @@
         <div class="h-8 w-px bg-slate-800 hidden sm:block"></div>
 
         <div>
-          <h1 class="text-base sm:text-xl font-black tracking-wider bg-gradient-to-r from-white via-blue-100 to-amber-300 bg-clip-text text-transparent flex items-center gap-2">
-            <span>2027 TKT 尾牙抽獎</span>
+          <h1 class="text-base sm:text-xl font-black tracking-wider flex items-center gap-2">
+            <!-- 增加光影流動效果的標題 -->
+            <span class="anim-title-shimmer">2027 TKT 尾牙抽獎</span>
             <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold hidden md:inline-block">
               年度盛典
             </span>
@@ -298,10 +344,10 @@
   <main id="draw-ui" class="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center">
 
     <!-- 頂部招牌框 -->
-    <div class="w-80 sm:w-96 bg-gradient-to-r from-tkt-dark via-tkt-blue to-blue-700 rounded-2xl py-2.5 px-5 shadow-glow-blue border border-blue-300/40 text-center relative z-20 flex items-center justify-between mb-3 sm:mb-4">
+    <div class="w-80 sm:w-96 bg-gradient-to-r from-tkt-dark via-tkt-blue to-blue-700 rounded-2xl py-2.5 px-4 sm:px-5 shadow-glow-blue border border-blue-300/40 text-center relative z-20 flex items-center justify-between mb-3 sm:mb-4 overflow-hidden">
       
       <!-- 左側：吉祥小羊圖示 -->
-      <div class="anim-sheep-float w-10 h-10 bg-amber-400/10 rounded-xl border border-amber-400/40 flex items-center justify-center shadow-inner hover:scale-110 transition-transform" title="吉羊開泰">
+      <div class="anim-sheep-float w-10 h-10 bg-amber-400/10 rounded-xl border border-amber-400/40 flex items-center justify-center shadow-inner hover:scale-110 transition-transform shrink-0" title="吉羊開泰">
         <svg viewBox="0 0 64 64" class="w-7 h-7 drop-shadow" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M 22 22 C 14 10 3 20 12 30 C 16 34 22 28 22 24" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round" fill="none"/>
           <path d="M 42 22 C 50 10 61 20 52 30 C 48 34 42 28 42 24" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round" fill="none"/>
@@ -323,16 +369,20 @@
         </svg>
       </div>
 
-      <!-- 中間標題文字 -->
-      <div class="text-center px-1">
-        <div class="text-[10px] tracking-widest font-black text-blue-200 uppercase">3D REALISTIC GACHAPON</div>
-        <div class="text-sm sm:text-base font-black text-amber-300 tracking-wider flex items-center justify-center gap-1">
-          <span>✨ 2027 TKT 滿裝扭蛋機 ✨</span>
+      <!-- 中間標題文字：強制多裝置單行不斷行 -->
+      <div class="text-center px-1 flex-1 min-w-0 overflow-hidden">
+        <div class="text-[9px] sm:text-[10px] tracking-widest font-black text-blue-200 uppercase whitespace-nowrap">3D REALISTIC GACHAPON</div>
+        <div class="w-full flex items-center justify-center overflow-hidden">
+          <span 
+            style="font-size: clamp(11px, 3.4vw, 16px);"
+            class="whitespace-nowrap inline-block font-black text-amber-300 tracking-wide drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)] select-none">
+            ✨ 2027 TKT 滿裝扭蛋機 ✨
+          </span>
         </div>
       </div>
 
       <!-- 右側：喜慶鞭炮圖示 -->
-      <div class="anim-cracker-swing w-10 h-10 bg-rose-500/10 rounded-xl border border-rose-400/40 flex items-center justify-center shadow-inner hover:scale-110 transition-transform" title="迎春鞭炮">
+      <div class="anim-cracker-swing w-10 h-10 bg-rose-500/10 rounded-xl border border-rose-400/40 flex items-center justify-center shadow-inner hover:scale-110 transition-transform shrink-0" title="迎春鞭炮">
         <svg viewBox="0 0 64 64" class="w-7 h-7 drop-shadow" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M 28 6 L 31 10" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
           <path d="M 36 7 L 33 11" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
@@ -435,8 +485,9 @@
         </div>
       </div>
 
-      <button id="spinActionBtn" class="mt-4 w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-tkt-blue to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base tracking-wider shadow-glow-blue active:scale-[0.98] transition flex items-center justify-center gap-2 border border-blue-300/40">
-        <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+      <!-- 增加立體懸浮微動效果的啟動按鈕 -->
+      <button id="spinActionBtn" class="anim-btn-float mt-4 w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-tkt-blue to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base tracking-wider active:scale-[0.98] transition flex items-center justify-center gap-2 border border-blue-300/40 cursor-pointer">
+        <i data-lucide="sparkles" class="w-4 h-4 text-amber-300 animate-pulse"></i>
         <span>啟動 3D 扭蛋 (SPIN)</span>
       </button>
 
@@ -766,7 +817,6 @@
     let preloadedAudios = {};
 
     const Sound = {
-      // 取得或建立全域單例 AudioContext
       getCtx() {
         if (!audioCtx) {
           const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
@@ -778,7 +828,6 @@
         return audioCtx;
       },
 
-      // 背景預載音效
       preloadTrack(id) {
         if (!id || preloadedAudios[id]) return;
         try {
@@ -789,13 +838,12 @@
         } catch(e) {}
       },
 
-      // 強制喚醒瀏覽器硬體通道，解決 Autoplay 阻擋
       unlock() {
         try {
           const ctx = this.getCtx();
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
-          gain.gain.value = 0.0001; // 極微小音量解鎖
+          gain.gain.value = 0.0001;
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start(0);
@@ -811,11 +859,9 @@
         }
       },
 
-      // 播放轉動音效：雙軌保證出聲（優先 MP3，失敗立即無縫切換合成音）
       playDrum(id) {
         if (isSoundMuted) return;
 
-        // 1. 強制喚醒音訊通道
         this.unlock();
 
         const soundId = (id >= 1 && id <= 30) ? id : 0;
@@ -977,7 +1023,6 @@
         } catch(e){}
       },
 
-      // 萬能機械旋轉合成音（不依賴外部音檔，瀏覽器 100% 自行發聲）
       playFallbackDrum() {
         if (isSoundMuted) return;
         try {
@@ -1234,7 +1279,6 @@
         activeStatus.textContent = `✨ 專屬幸運盲盒模式`;
         activeStatus.classList.add('text-emerald-400');
 
-        // 零延遲關鍵：識別號碼後立刻背景預載該首音效
         Sound.preloadTrack(tid);
       }
     }
@@ -1249,7 +1293,6 @@
       if (isSpinning) return;
       isSpinning = true;
 
-      // 1. 先確認抽中的號碼
       if (boundTicketId) {
         selectedPrizeItem = prizeList.find(p => p.id === boundTicketId) || prizeList[0];
       } else {
@@ -1257,10 +1300,8 @@
         selectedPrizeItem = prizeList[randIdx];
       }
 
-      // 2. 在點擊瞬發事件內第一時間播放，絕無時間差
       Sound.playDrum(selectedPrizeItem.id);
 
-      // 3. 轉把與 3D 物理動畫啟動
       const lever = document.getElementById('crankLever');
       lever.classList.add('spinning-crank');
 
@@ -1853,7 +1894,6 @@
       }
       waitForLibraries();
 
-      // 多重手勢通道解鎖：無論點擊、觸碰或按鍵，均第一時間喚醒 AudioContext
       const unlockAudio = () => {
         Sound.unlock();
       };
@@ -1895,7 +1935,6 @@
         }, 250);
       });
 
-      // 後台按鈕與密碼彈窗事件綁定
       document.getElementById('toggleQRAdminBtn').addEventListener('click', verifyAndOpenAdmin);
       document.getElementById('closeAdminPasswordBtn').addEventListener('click', closeAdminPasswordModal);
       document.getElementById('cancelAdminPasswordBtn').addEventListener('click', closeAdminPasswordModal);
