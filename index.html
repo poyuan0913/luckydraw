@@ -45,10 +45,10 @@
 
   <style>
     .glass-panel {
-      background: rgba(11, 19, 43, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(11, 19, 43, 0.90);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     @keyframes crank-spin {
@@ -59,7 +59,6 @@
       animation: crank-spin 5.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    /* 開獎破殼閃光動畫 */
     @keyframes egg-crack-glow {
       0% { transform: scale(1); filter: brightness(1); }
       50% { transform: scale(1.18); filter: brightness(2) drop-shadow(0 0 30px #F59E0B); }
@@ -69,7 +68,6 @@
       animation: egg-crack-glow 0.65s ease-in-out forwards;
     }
 
-    /* 停頓 3 秒期間的緊張微幅心跳震顫動畫 */
     @keyframes tense-heartbeat {
       0%, 100% { transform: scale(1); }
       20% { transform: scale(1.12); }
@@ -78,6 +76,67 @@
     }
     .tense-egg-pulse {
       animation: tense-heartbeat 0.45s ease-in-out infinite;
+    }
+
+    /* ========================================================
+       ✨ 開獎後獎品內容框尊爵動態特效 (新增)
+    ======================================================== */
+    /* 1. 流光呼吸邊框與外發光 */
+    @keyframes prize-box-glow {
+      0%, 100% {
+        box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), inset 0 0 20px rgba(0, 0, 255, 0.35);
+        border-color: rgba(245, 158, 11, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 45px rgba(245, 158, 11, 0.8), 0 0 60px rgba(0, 0, 255, 0.45), inset 0 0 30px rgba(245, 158, 11, 0.5);
+        border-color: rgba(255, 223, 100, 0.95);
+      }
+    }
+    .prize-box-neon {
+      animation: prize-box-glow 2.4s ease-in-out infinite;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 2. 流動掃光 (Shimmer Light Sweep) */
+    @keyframes shimmer-sweep {
+      0% { transform: translateX(-150%) skewX(-25deg); }
+      50%, 100% { transform: translateX(200%) skewX(-25deg); }
+    }
+    .prize-shimmer-sweep {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 225, 100, 0.35),
+        rgba(255, 255, 255, 0.08),
+        transparent
+      );
+      pointer-events: none;
+      animation: shimmer-sweep 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* 3. 金黃燙金流動文字 */
+    .golden-prize-text {
+      background: linear-gradient(135deg, #FFF7D6 0%, #F59E0B 40%, #FFEBA3 70%, #D97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.5));
+    }
+
+    /* 4. 獎品框彈性爆發進場 */
+    @keyframes pop-box-in {
+      0% { transform: scale(0.85); opacity: 0; }
+      60% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .prize-box-enter {
+      animation: pop-box-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -123,7 +182,6 @@
   <header class="relative z-30 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md px-4 py-2.5 sticky top-0 shadow-lg">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- 正方形 1:1 TKT Logo[cite: 1, 2] -->
         <div class="bg-white p-1 rounded-xl shadow-md border border-white/20 flex items-center justify-center w-11 h-11 hover:scale-105 transition-transform duration-200">
           <svg class="w-full h-full" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
             <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
@@ -290,9 +348,21 @@
       <div class="text-[11px] font-black text-amber-400 tracking-widest uppercase mb-1">CONGRATULATIONS</div>
       <h3 class="text-xl sm:text-2xl font-black text-white mb-2 tracking-wide">恭喜幸運中獎！</h3>
       
-      <div class="bg-gradient-to-b from-blue-950/90 to-slate-900 border border-blue-400/40 rounded-2xl p-4 my-4 shadow-inner">
-        <div class="text-xs font-bold text-blue-300 mb-1" id="revealTicketNo">幸運序號 #--</div>
-        <div class="text-base sm:text-lg font-black text-amber-300 whitespace-pre-line leading-relaxed" id="revealPrizeTitle">
+      <!-- ========================================================
+           ✨ 強化版：開獎後獎品內容框 (霓虹呼吸流光 + 掃光 + 燙金)
+      ======================================================== -->
+      <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-br from-blue-950/95 via-slate-900/90 to-indigo-950/95 border-2 border-amber-400/80 rounded-2xl p-5 my-4 shadow-2xl relative">
+        <!-- 動態流動掃光束 -->
+        <div class="prize-shimmer-sweep"></div>
+
+        <!-- 獎項序號徽章 -->
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-900/80 border border-blue-400/50 shadow-inner mb-2.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-xs font-mono font-extrabold text-blue-200 tracking-wider" id="revealTicketNo">幸運序號 #--</span>
+        </div>
+
+        <!-- 獎項內容主文字 (燙金高質感漸層) -->
+        <div class="golden-prize-text text-base sm:text-lg font-black whitespace-pre-line leading-relaxed" id="revealPrizeTitle">
           大獎揭曉中...
         </div>
       </div>
@@ -429,7 +499,7 @@
       <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
       <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
       <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
-      <text x="150" y="212" font-family="'Arial Black', 'Helvetica Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">Technik • Kompetenz • Tradition</text>
+      <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">Technik • Kompetenz • Tradition</text>
     </svg>`;
     const TKT_LOGO_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(TKT_LOGO_SVG);
 
@@ -520,7 +590,6 @@
     }
 
     const Sound = {
-      // 點擊瞬間預先喚醒瀏覽器音效信任
       unlock() {
         try {
           const ctx = getAudioContext();
@@ -540,7 +609,6 @@
         } catch(e){}
       },
 
-      // 5.8 秒轉動期間音效
       playDrum(id) {
         if (isSoundMuted) return;
 
@@ -574,25 +642,23 @@
         }
       },
 
-      // 【核心功能】：掉落出蛋口後 3 秒內的加速緊張大鼓聲 (咚…咚…咚咚咚咚！)
+      // 掉落出蛋口後 3 秒內的加速緊張大鼓聲
       startTenseDrums() {
         if (isSoundMuted) return;
         Sound.stopTenseDrums();
 
         const ctx = getAudioContext();
         let beatCount = 0;
-        const totalDuration = 3000; // 3 秒
+        const totalDuration = 3000;
         const startTime = Date.now();
 
         function scheduleNextBeat() {
           const elapsed = Date.now() - startTime;
           if (elapsed >= totalDuration) return;
 
-          // 擊打一次緊張心跳低音大鼓
           Sound.hitTenseDrumBeat(ctx);
           beatCount++;
 
-          // 擊鼓頻率漸進加快：由 360ms 遞減至 90ms，塑造極致緊湊感
           const progress = Math.min(elapsed / totalDuration, 1);
           const nextInterval = 360 - progress * 270;
 
@@ -609,7 +675,6 @@
         }
       },
 
-      // 單次低頻重音大鼓物理合成
       hitTenseDrumBeat(ctx) {
         try {
           const osc = ctx.createOscillator();
@@ -630,7 +695,6 @@
         } catch(e){}
       },
 
-      // 開獎音效 win.mp3 (若檔案不存在則自動號角備援)
       playWin() {
         if (isSoundMuted) return;
 
@@ -652,7 +716,6 @@
         }
       },
 
-      // 備援轉動音效
       playFallbackDrum() {
         if (isSoundMuted) return;
         try {
@@ -671,7 +734,6 @@
         } catch(e){}
       },
 
-      // 備援勝利號角音效
       playFallbackWin() {
         if (isSoundMuted) return;
         try {
@@ -750,7 +812,7 @@
         { n: [1, 0, 0], pos: [-SPHERE_RADIUS * 0.90, 0, 0] },
         { n: [-1, 0, 0], pos: [SPHERE_RADIUS * 0.90, 0, 0] },
         { n: [0, 0, 1], pos: [0, 0, -SPHERE_RADIUS * 0.90] },
-        { n: [0, 0, -1], pos: [0, 0, SPHERE_RADIUS * 0.90] }
+        { n: [0, 0, -1], pos: [0, 0, -SPHERE_RADIUS * 0.90] }
       ];
       planes.forEach(p => {
         const body = new CANNON.Body({ mass: 0, material: boundaryMat });
@@ -897,7 +959,7 @@
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 出蛋口停頓 3 秒 (搭配緊張鼓聲) 開獎流程
+       5. 5.8 秒轉動 + 停頓 3 秒 (漸急緊張鼓聲) 開獎流程
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
@@ -906,7 +968,7 @@
       if (isSpinning) return;
       isSpinning = true;
 
-      // 點擊瞬間解鎖音訊權限
+      // 點擊解鎖音訊信任
       Sound.unlock();
 
       if (boundTicketId) {
@@ -916,7 +978,7 @@
         selectedPrizeItem = prizeList[randIdx];
       }
 
-      // 1. 轉動 5.8 秒期間播放 drum{id}.mp3
+      // 播放轉動音效
       Sound.playDrum(selectedPrizeItem.id);
 
       const lever = document.getElementById('crankLever');
@@ -932,7 +994,7 @@
         lever.classList.remove('spinning-crank');
       }, 5000);
 
-      // 第 5.8 秒時扭蛋掉落至出蛋口
+      // 第 5.8 秒時扭蛋掉落出蛋口
       setTimeout(() => {
         const btn = document.getElementById('spinActionBtn');
         if (btn) btn.style.display = 'none';
@@ -945,7 +1007,6 @@
         const ball = document.getElementById('droppedEggBall');
         const chuteStatusText = document.getElementById('chuteStatusText');
 
-        // 加上緊張微幅脈衝動畫
         ball.classList.remove('egg-cracking');
         ball.classList.add('tense-egg-pulse');
         chuteStatusText.textContent = "🥁 準備揭曉中...";
@@ -965,7 +1026,6 @@
       const chuteStatusText = document.getElementById('chuteStatusText');
       const ball = document.getElementById('droppedEggBall');
 
-      // 停止緊張脈衝，啟動開蛋破殼閃光特效
       ball.classList.remove('tense-egg-pulse');
       ball.classList.add('egg-cracking');
       chuteStatusText.textContent = "開獎中...";
@@ -975,12 +1035,18 @@
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
-        // 破殼瞬間爆發播放 win.mp3
+        // 播放開獎音效 win.mp3
         Sound.playWin();
         fireConfettiCelebration();
 
         document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
         document.getElementById('revealPrizeTitle').textContent = selectedPrizeItem.name;
+
+        // 重新觸發內容框彈出動態
+        const prizeBox = document.getElementById('prizeContentBox');
+        prizeBox.classList.remove('prize-box-enter');
+        void prizeBox.offsetWidth; // 強制重繪
+        prizeBox.classList.add('prize-box-enter');
 
         const modal = document.getElementById('revealModal');
         const card = document.getElementById('revealCard');
@@ -1343,7 +1409,6 @@
       init3DGachapon();
       detectAssignedTicket();
 
-      // 使用者進入頁面點擊任意處時，先行喚醒全域音訊環境
       document.body.addEventListener('click', () => {
         Sound.unlock();
       }, { once: true });
