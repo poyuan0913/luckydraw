@@ -853,6 +853,7 @@
     let isSoundMuted = false;
     let drum = null;
     let winSound = null;
+    let winSoundTimer = null; // win.mp3 計時器
     let audioCtx = null;
     let tenseDrumTimer = null;
     let tenseRiserOsc = null;
@@ -1078,8 +1079,10 @@
         } catch(e){}
       },
 
+      /* win.mp3 播放 7 秒自動停止 */
       playWin() {
         if (isSoundMuted) return;
+        this.stopWin();
 
         try {
           if (!winSound) {
@@ -1094,8 +1097,26 @@
               Sound.playFallbackWin();
             });
           }
+
+          // 精準 7 秒後停止播放
+          winSoundTimer = setTimeout(() => {
+            Sound.stopWin();
+          }, 7000);
         } catch(e) {
           Sound.playFallbackWin();
+        }
+      },
+
+      stopWin() {
+        if (winSoundTimer) {
+          clearTimeout(winSoundTimer);
+          winSoundTimer = null;
+        }
+        if (winSound) {
+          try {
+            winSound.pause();
+            winSound.currentTime = 0;
+          } catch(e) {}
         }
       },
 
@@ -1528,7 +1549,7 @@
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
-        Sound.playWin();
+        Sound.playWin(); // 播放 7 秒自動停止
         fireGrandFireworksShow();
 
         document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
@@ -2043,6 +2064,7 @@
         if (isSoundMuted) {
           Sound.stopDrum();
           Sound.stopTenseDrums();
+          Sound.stopWin(); // 靜音時立即停止開獎音樂
         } else {
           Sound.unlock();
         }
@@ -2050,6 +2072,7 @@
       });
 
       document.getElementById('closeModalBtn').addEventListener('click', () => {
+        Sound.stopWin(); // 關閉彈窗時停止 win.mp3
         const modal = document.getElementById('revealModal');
         const card = document.getElementById('revealCard');
         card.classList.remove('scale-100');
