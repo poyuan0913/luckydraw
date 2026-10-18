@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
@@ -59,6 +59,7 @@
       animation: crank-spin 5.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
+    /* 開獎破殼閃光動畫 */
     @keyframes egg-crack-glow {
       0% { transform: scale(1); filter: brightness(1); }
       50% { transform: scale(1.18); filter: brightness(2) drop-shadow(0 0 30px #F59E0B); }
@@ -67,6 +68,18 @@
     .egg-cracking {
       animation: egg-crack-glow 0.65s ease-in-out forwards;
     }
+
+    /* 停頓 3 秒期間的緊張微幅心跳震顫動畫 */
+    @keyframes tense-heartbeat {
+      0%, 100% { transform: scale(1); }
+      20% { transform: scale(1.12); }
+      40% { transform: scale(0.96); }
+      60% { transform: scale(1.08); }
+    }
+    .tense-egg-pulse {
+      animation: tense-heartbeat 0.45s ease-in-out infinite;
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -98,7 +111,7 @@
 </head>
 <body class="bg-tkt-bg text-slate-100 min-h-screen flex flex-col font-sans select-none overflow-x-hidden relative">
 
-  <!-- 背景動態金藍光暈 -->
+  <!-- 背景金藍光暈 -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-700/20 rounded-full blur-[140px]"></div>
     <div class="absolute top-1/2 -right-32 w-96 h-96 bg-amber-500/15 rounded-full blur-[150px]"></div>
@@ -116,7 +129,7 @@
             <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
             <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
             <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
-            <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">
+            <text x="150" y="212" font-family="'Arial Black', 'Helvetica Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">
               Technik • Kompetenz • Tradition
             </text>
           </svg>
@@ -229,7 +242,7 @@
             <div class="absolute inset-x-2 top-0 h-1 bg-slate-800 rounded-b"></div>
             
             <div id="droppedEgg" class="hidden absolute flex flex-col items-center transform hover:scale-110 transition">
-              <div id="droppedEggBall" class="w-12 h-12 rounded-full border-2 border-white/90 shadow-[0_0_20px_rgba(245,158,11,0.85)] flex items-center justify-center text-sm font-black text-white relative overflow-hidden animate-bounce">
+              <div id="droppedEggBall" class="w-12 h-12 rounded-full border-2 border-white/90 shadow-[0_0_20px_rgba(245,158,11,0.85)] flex items-center justify-center text-sm font-black text-white relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-b from-rose-500 from-50% to-white to-50%"></div>
                 <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[3px] bg-slate-900/60 z-10"></div>
                 <span class="relative z-20 drop-shadow">🎁</span>
@@ -310,7 +323,7 @@
           </div>
           <div>
             <h2 class="text-base sm:text-lg font-black text-white">⚙️ 30 獎項 QR Code & Excel 設定後台</h2>
-            <p class="text-xs text-slate-400">雙重自訂 MP3 + Web Audio 智能備援保證發聲</p>
+            <p class="text-xs text-slate-400">掉落後緊張鼓聲 3 秒 / 開獎 win.mp3</p>
           </div>
         </div>
 
@@ -416,7 +429,7 @@
       <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
       <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
       <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
-      <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">Technik • Kompetenz • Tradition</text>
+      <text x="150" y="212" font-family="'Arial Black', 'Helvetica Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">Technik • Kompetenz • Tradition</text>
     </svg>`;
     const TKT_LOGO_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(TKT_LOGO_SVG);
 
@@ -487,14 +500,14 @@
     const qrDataURLs = {};
 
     /* ============================================================
-       2. 音效系統 (解決 Autoplay 阻擋問題，支援預先喚醒與合成備援)
+       2. 音效系統 (轉動音效 + 停頓 3 秒漸急緊張鼓聲 + 開獎 win.mp3)
     ============================================================ */
     let isSoundMuted = false;
     let drum = null;
     let winSound = null;
     let audioCtx = null;
+    let tenseDrumTimer = null;
 
-    // Web Audio API 實時音效備援引擎
     function getAudioContext() {
       if (!audioCtx) {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -507,10 +520,18 @@
     }
 
     const Sound = {
-      // 點擊瞬間預先喚醒瀏覽器音訊物件 (解開 Autoplay 政策限制)
-      unlockAllSounds() {
+      // 點擊瞬間預先喚醒瀏覽器音效信任
+      unlock() {
         try {
-          getAudioContext();
+          const ctx = getAudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          gain.gain.value = 0.001;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.04);
+
           if (!winSound) {
             winSound = new Audio('win.mp3');
             winSound.preload = 'auto';
@@ -519,6 +540,7 @@
         } catch(e){}
       },
 
+      // 5.8 秒轉動期間音效
       playDrum(id) {
         if (isSoundMuted) return;
 
@@ -535,7 +557,7 @@
           const p = drum.play();
           if (p !== undefined) {
             p.catch(err => {
-              console.warn(`自訂音效 drum${soundId}.mp3 無法播放，自動啟用機械轉動備援音:`, err);
+              console.warn(`自訂 drum${soundId}.mp3 無法播放，自動啟用機械轉動備援音:`, err);
               Sound.playFallbackDrum();
             });
           }
@@ -552,6 +574,63 @@
         }
       },
 
+      // 【核心功能】：掉落出蛋口後 3 秒內的加速緊張大鼓聲 (咚…咚…咚咚咚咚！)
+      startTenseDrums() {
+        if (isSoundMuted) return;
+        Sound.stopTenseDrums();
+
+        const ctx = getAudioContext();
+        let beatCount = 0;
+        const totalDuration = 3000; // 3 秒
+        const startTime = Date.now();
+
+        function scheduleNextBeat() {
+          const elapsed = Date.now() - startTime;
+          if (elapsed >= totalDuration) return;
+
+          // 擊打一次緊張心跳低音大鼓
+          Sound.hitTenseDrumBeat(ctx);
+          beatCount++;
+
+          // 擊鼓頻率漸進加快：由 360ms 遞減至 90ms，塑造極致緊湊感
+          const progress = Math.min(elapsed / totalDuration, 1);
+          const nextInterval = 360 - progress * 270;
+
+          tenseDrumTimer = setTimeout(scheduleNextBeat, Math.max(nextInterval, 85));
+        }
+
+        scheduleNextBeat();
+      },
+
+      stopTenseDrums() {
+        if (tenseDrumTimer) {
+          clearTimeout(tenseDrumTimer);
+          tenseDrumTimer = null;
+        }
+      },
+
+      // 單次低頻重音大鼓物理合成
+      hitTenseDrumBeat(ctx) {
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(115, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(38, ctx.currentTime + 0.12);
+
+          gain.gain.setValueAtTime(0.55, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.13);
+        } catch(e){}
+      },
+
+      // 開獎音效 win.mp3 (若檔案不存在則自動號角備援)
       playWin() {
         if (isSoundMuted) return;
 
@@ -564,7 +643,7 @@
           const p = winSound.play();
           if (p !== undefined) {
             p.catch(err => {
-              console.warn("自訂 win.mp3 播放受阻或檔案遺失，自動播放勝利號角備援音:", err);
+              console.warn("自訂 win.mp3 播放受阻，啟用號角合成備援音:", err);
               Sound.playFallbackWin();
             });
           }
@@ -573,7 +652,7 @@
         }
       },
 
-      // 合成備援音效 (保證無檔案時絕對發聲)
+      // 備援轉動音效
       playFallbackDrum() {
         if (isSoundMuted) return;
         try {
@@ -592,6 +671,7 @@
         } catch(e){}
       },
 
+      // 備援勝利號角音效
       playFallbackWin() {
         if (isSoundMuted) return;
         try {
@@ -604,7 +684,7 @@
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, startTime);
             gain.gain.setValueAtTime(0, startTime);
-            gain.gain.linearRampToValueAtTime(0.25, startTime + 0.04);
+            gain.gain.linearRampToValueAtTime(0.3, startTime + 0.04);
             gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.7);
             osc.connect(gain);
             gain.connect(ctx.destination);
@@ -651,7 +731,6 @@
       world.gravity.set(0, -9.82 * 1.6, 0);
       world.solver.iterations = 10;
 
-      // 玻璃罩
       const glassGeo = new THREE.SphereGeometry(SPHERE_RADIUS, 48, 48);
       const glassMat = new THREE.MeshPhysicalMaterial({
         color: 0xbedaff,
@@ -664,7 +743,6 @@
       });
       scene.add(new THREE.Mesh(glassGeo, glassMat));
 
-      // 物理封閉邊界
       const boundaryMat = new CANNON.Material("boundary");
       const planes = [
         { n: [0, 1, 0], pos: [0, -SPHERE_RADIUS * 0.90, 0] },
@@ -682,7 +760,6 @@
         world.addBody(body);
       });
 
-      // 85 顆分層穩定生成
       const sphereMat = new CANNON.Material("capsuleMat");
       for (let i = 0; i < NUM_CAPSULES; i++) {
         const group = new THREE.Group();
@@ -820,7 +897,7 @@
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 出蛋口停頓 3 秒自動破殼 (點擊預先喚醒音效)
+       5. 5.8 秒轉動 + 出蛋口停頓 3 秒 (搭配緊張鼓聲) 開獎流程
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
@@ -829,8 +906,8 @@
       if (isSpinning) return;
       isSpinning = true;
 
-      // 關鍵：在使用者點擊按鈕的當下，立即喚醒瀏覽器音訊信任權限
-      Sound.unlockAllSounds();
+      // 點擊瞬間解鎖音訊權限
+      Sound.unlock();
 
       if (boundTicketId) {
         selectedPrizeItem = prizeList.find(p => p.id === boundTicketId) || prizeList[0];
@@ -839,7 +916,7 @@
         selectedPrizeItem = prizeList[randIdx];
       }
 
-      // 播放對應之 drum{soundId}.mp3 (或自動備援)
+      // 1. 轉動 5.8 秒期間播放 drum{id}.mp3
       Sound.playDrum(selectedPrizeItem.id);
 
       const lever = document.getElementById('crankLever');
@@ -849,29 +926,36 @@
         churnBallsPhysics();
       }, 220);
 
+      // 第 5.0 秒停止手柄旋轉
       setTimeout(() => {
         clearInterval(stirTimer);
         lever.classList.remove('spinning-crank');
       }, 5000);
 
-      // 5.8 秒時扭蛋掉落出蛋口
+      // 第 5.8 秒時扭蛋掉落至出蛋口
       setTimeout(() => {
         const btn = document.getElementById('spinActionBtn');
         if (btn) btn.style.display = 'none';
+
+        // 停止轉動聲，立即無縫切換為 3 秒緊湊加速心跳大鼓聲！
+        Sound.stopDrum();
+        Sound.startTenseDrums();
 
         const droppedEgg = document.getElementById('droppedEgg');
         const ball = document.getElementById('droppedEggBall');
         const chuteStatusText = document.getElementById('chuteStatusText');
 
+        // 加上緊張微幅脈衝動畫
         ball.classList.remove('egg-cracking');
-        chuteStatusText.textContent = "準備開獎...";
+        ball.classList.add('tense-egg-pulse');
+        chuteStatusText.textContent = "🥁 準備揭曉中...";
         droppedEgg.classList.remove('hidden');
 
-        // 在出蛋口停頓 2 秒 (2000ms) 後停止轉動音效並破殼開獎
+        // 在出蛋口停頓 3 秒 (3000ms)，鼓聲漸快後破殼揭曉
         setTimeout(() => {
-          Sound.stopDrum();
+          Sound.stopTenseDrums();
           revealPrize(selectedPrizeItem.id);
-        }, 2000);
+        }, 3000);
 
       }, 5800);
     }
@@ -881,15 +965,17 @@
       const chuteStatusText = document.getElementById('chuteStatusText');
       const ball = document.getElementById('droppedEggBall');
 
-      chuteStatusText.textContent = "開獎中...";
+      // 停止緊張脈衝，啟動開蛋破殼閃光特效
+      ball.classList.remove('tense-egg-pulse');
       ball.classList.add('egg-cracking');
+      chuteStatusText.textContent = "開獎中...";
 
       setTimeout(() => {
         droppedEgg.classList.add('hidden');
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
-        // 播放開獎音效 win.mp3 (或自動備援號角)
+        // 破殼瞬間爆發播放 win.mp3
         Sound.playWin();
         fireConfettiCelebration();
 
@@ -1257,9 +1343,9 @@
       init3DGachapon();
       detectAssignedTicket();
 
-      // 使用者進入頁面點擊任意處時，先行解鎖 AudioContext
+      // 使用者進入頁面點擊任意處時，先行喚醒全域音訊環境
       document.body.addEventListener('click', () => {
-        getAudioContext();
+        Sound.unlock();
       }, { once: true });
 
       if (new URLSearchParams(window.location.search).get('admin') === '1') {
@@ -1276,8 +1362,9 @@
         soundIcon.setAttribute('data-lucide', isSoundMuted ? 'volume-x' : 'volume-2');
         if (isSoundMuted) {
           Sound.stopDrum();
+          Sound.stopTenseDrums();
         } else {
-          getAudioContext();
+          Sound.unlock();
         }
         if (window.lucide) lucide.createIcons();
       });
