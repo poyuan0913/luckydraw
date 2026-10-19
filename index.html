@@ -1136,7 +1136,7 @@
     }
 
     /* ============================================================
-       2. 音效系統 (Web Audio + 自訂 MP3)
+       2. 音效系統 (iOS/iPadOS 防中斷強化)
     ============================================================ */
     let isSoundMuted = false;
     let drum = null;
@@ -1155,7 +1155,7 @@
           audioCtx = new AudioCtxClass();
         }
         if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
+          audioCtx.resume().catch(()=>{});
         }
         return audioCtx;
       },
@@ -1174,7 +1174,7 @@
         try {
           const ctx = this.getCtx();
           if (ctx.state === 'suspended') {
-            ctx.resume();
+            ctx.resume().catch(()=>{});
           }
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
@@ -1187,39 +1187,39 @@
           if (!winSound) {
             winSound = new Audio('win.mp3');
             winSound.preload = 'auto';
-            winSound.load();
           }
-        } catch(e) {
-          console.warn("音訊通道解鎖警告:", e);
-        }
+        } catch(e) {}
       },
 
       playDrum(id) {
         if (isSoundMuted) return;
         this.unlock();
+        this.stopDrum();
 
         const soundId = (id >= 1 && id <= 30) ? id : 0;
         const targetSrc = `drum${soundId}.mp3`;
 
-        let audioToPlay = null;
-        if (preloadedAudios[soundId]) {
-          audioToPlay = preloadedAudios[soundId];
-          audioToPlay.currentTime = 0;
-        } else {
-          audioToPlay = new Audio(targetSrc);
-        }
+        try {
+          let audioToPlay = null;
+          if (preloadedAudios[soundId]) {
+            audioToPlay = preloadedAudios[soundId];
+            audioToPlay.currentTime = 0;
+          } else {
+            audioToPlay = new Audio(targetSrc);
+          }
 
-        audioToPlay.volume = 1.0;
-        const playPromise = audioToPlay.play();
-
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            drum = audioToPlay;
-          }).catch(err => {
-            console.warn(`外部 MP3 (${targetSrc}) 播放受限或不存在，立即啟動 Web Audio 萬能合成音:`, err);
+          audioToPlay.volume = 1.0;
+          const p = audioToPlay.play();
+          if (p !== undefined) {
+            p.then(() => {
+              drum = audioToPlay;
+            }).catch(() => {
+              Sound.playFallbackDrum();
+            });
+          } else {
             Sound.playFallbackDrum();
-          });
-        } else {
+          }
+        } catch(e) {
           Sound.playFallbackDrum();
         }
       },
@@ -1230,6 +1230,7 @@
             drum.pause();
             drum.currentTime = 0;
           } catch(e) {}
+          drum = null;
         }
       },
 
@@ -1307,7 +1308,6 @@
       hitTenseHeartbeatBeat(ctx, progress, isFinalRush) {
         try {
           const now = ctx.currentTime;
-
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
 
@@ -1341,21 +1341,6 @@
             secondGain.connect(ctx.destination);
             secondOsc.start(secondTime);
             secondOsc.stop(secondTime + 0.13);
-          } else {
-            const bufferSize = ctx.sampleRate * 0.04;
-            const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const output = noiseBuffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-              output[i] = Math.random() * 2 - 1;
-            }
-            const noise = ctx.createBufferSource();
-            noise.buffer = noiseBuffer;
-            const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.35, now);
-            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-            noise.connect(noiseGain);
-            noiseGain.connect(ctx.destination);
-            noise.start(now);
           }
         } catch(e){}
       },
@@ -1372,8 +1357,7 @@
           winSound.currentTime = 0;
           const p = winSound.play();
           if (p !== undefined) {
-            p.catch(err => {
-              console.warn("自訂 win.mp3 播放受阻，啟用號角合成備援音:", err);
+            p.catch(() => {
               Sound.playFallbackWin();
             });
           }
@@ -1422,31 +1406,6 @@
 
           osc.start(now);
           osc.stop(now + (isHeavy ? 0.52 : 0.38));
-
-          const bufferSize = ctx.sampleRate * (isHeavy ? 0.4 : 0.25);
-          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-          const output = noiseBuffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
-          }
-
-          const whiteNoise = ctx.createBufferSource();
-          whiteNoise.buffer = noiseBuffer;
-
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'bandpass';
-          filter.frequency.setValueAtTime(isHeavy ? 600 : (900 + Math.random() * 400), now);
-          filter.Q.setValueAtTime(1.8, now);
-
-          const noiseGain = ctx.createGain();
-          noiseGain.gain.setValueAtTime(isHeavy ? 0.55 : 0.35, now);
-          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + (isHeavy ? 0.38 : 0.22));
-
-          whiteNoise.connect(filter);
-          filter.connect(noiseGain);
-          noiseGain.connect(ctx.destination);
-
-          whiteNoise.start(now);
         } catch(e){}
       },
 
@@ -1723,7 +1682,7 @@
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (iPad Safari 特殊防護)
+       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (iOS/iPad 多次連續開獎修復)
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
@@ -1731,7 +1690,11 @@
     function spinGachapon() {
       if (isSpinning) return;
 
-      // iPad / iOS Safari 第一時間解鎖音訊上下文
+      // 每次按下抽獎前，徹底清空上一次未結束的煙火與音效計時器
+      stopGrandFireworksShow();
+      Sound.stopWin();
+
+      // iOS Safari 解鎖 AudioContext
       Sound.unlock();
 
       const availablePrizes = prizeList.filter(p => !drawnPrizeIds.includes(p.id));
@@ -1858,17 +1821,6 @@
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
-        // 觸發音效與煙火（內建 iPad 容錯安全機制）
-        try {
-          Sound.playWin();
-        } catch(e) {}
-        
-        try {
-          fireGrandFireworksShow();
-        } catch(e) {
-          console.warn("Fireworks skipped:", e);
-        }
-
         document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
         
         const titleContainer = document.getElementById('revealPrizeTitle');
@@ -1881,9 +1833,9 @@
 
         const modal = document.getElementById('revealModal');
         const card = document.getElementById('revealCard');
-        modal.classList.remove('hidden');
         
-        // 強制 WebKit 觸發 Reflow，避免 iPad 彈窗偶發性不渲染
+        // 確保彈窗顯示並觸發 WebKit 重繪
+        modal.classList.remove('hidden');
         void modal.offsetHeight;
 
         setTimeout(() => {
@@ -1893,76 +1845,74 @@
           adjustPrizeFontSize();
         }, 30);
 
+        // 獨立包覆執行，確保音效或特效失敗絕不卡死彈窗
+        try {
+          Sound.playWin();
+        } catch(e) {}
+        
+        try {
+          fireGrandFireworksShow();
+        } catch(e) {}
+
         isSpinning = false;
         updateDrawStatusUI();
       }, 550);
     }
 
-    /* iPad Safari 專用頂層 confetti 實例防呆 */
-    let customConfettiInstance = null;
-    function getSafeConfetti() {
-      if (typeof window.confetti !== 'function') return null;
-      if (!customConfettiInstance) {
-        try {
-          let cCanvas = document.getElementById('ipadConfettiCanvas');
-          if (!cCanvas) {
-            cCanvas = document.createElement('canvas');
-            cCanvas.id = 'ipadConfettiCanvas';
-            cCanvas.style.position = 'fixed';
-            cCanvas.style.top = '0';
-            cCanvas.style.left = '0';
-            cCanvas.style.width = '100vw';
-            cCanvas.style.height = '100vh';
-            cCanvas.style.pointerEvents = 'none';
-            cCanvas.style.zIndex = '100000';
-            document.body.appendChild(cCanvas);
-          }
-          customConfettiInstance = confetti.create(cCanvas, { resize: true, useWorker: false });
-        } catch(e) {
-          customConfettiInstance = window.confetti;
-        }
+    /* iOS/iPad 多次連續開獎防卡死煙火控制系統 */
+    let activeFireworkTimer = null;
+
+    function stopGrandFireworksShow() {
+      if (activeFireworkTimer) {
+        clearInterval(activeFireworkTimer);
+        activeFireworkTimer = null;
       }
-      return customConfettiInstance;
+      if (typeof window.confetti === 'function' && typeof window.confetti.reset === 'function') {
+        try {
+          window.confetti.reset();
+        } catch(e) {}
+      }
     }
 
     function fireGrandFireworksShow() {
-      const conf = getSafeConfetti();
+      stopGrandFireworksShow();
       Sound.playFireworkExplosion({ heavy: true });
-      if (!conf) return;
+
+      if (typeof window.confetti !== 'function') return;
 
       const fireworksDuration = 3200;
       const animationEnd = Date.now() + fireworksDuration;
       const festColors = ['#FFD700', '#FF0055', '#0044FF', '#00FF88', '#FFAA00', '#FFFFFF', '#9D4EDD'];
 
       try {
-        conf({
+        window.confetti({
           particleCount: 75,
           angle: 60,
           spread: 65,
           origin: { x: 0, y: 0.8 },
           colors: festColors,
-          zIndex: 100000
+          zIndex: 99999
         });
-        conf({
+        window.confetti({
           particleCount: 75,
           angle: 120,
           spread: 65,
           origin: { x: 1, y: 0.8 },
           colors: festColors,
-          zIndex: 100000
+          zIndex: 99999
         });
       } catch(e){}
 
-      const interval = setInterval(() => {
+      activeFireworkTimer = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
         if (timeLeft <= 0) {
-          clearInterval(interval);
+          stopGrandFireworksShow();
           return;
         }
 
         const particleCount = 35 * (timeLeft / fireworksDuration);
         try {
-          conf({
+          window.confetti({
             particleCount,
             startVelocity: 30,
             spread: 360,
@@ -1974,7 +1924,7 @@
             colors: festColors,
             shapes: ['circle', 'square'],
             scalar: Math.random() * 0.4 + 0.85,
-            zIndex: 100000
+            zIndex: 99999
           });
         } catch(e){}
 
@@ -2413,7 +2363,10 @@
       });
 
       document.getElementById('closeModalBtn').addEventListener('click', () => {
+        // 關閉時徹底終止煙火與中獎音效
+        stopGrandFireworksShow();
         Sound.stopWin();
+
         const modal = document.getElementById('revealModal');
         const card = document.getElementById('revealCard');
         card.classList.remove('scale-100');
