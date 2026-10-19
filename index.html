@@ -685,8 +685,8 @@
     </div>
   </main>
 
-  <!-- 開獎揭曉祝賀彈窗 -->
-  <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-lg hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
+  <!-- 開獎揭曉祝賀彈窗 (優化 iPad Webkit 圖層) -->
+  <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-lg hidden opacity-0 transition-opacity duration-300 overflow-y-auto" style="-webkit-transform: translateZ(0); transform: translateZ(0);">
     <div id="revealCard" class="relative w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center border-2 border-amber-400/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-300 my-auto max-h-[92vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
       
       <!-- Logo 樣式 -->
@@ -1173,6 +1173,9 @@
       unlock() {
         try {
           const ctx = this.getCtx();
+          if (ctx.state === 'suspended') {
+            ctx.resume();
+          }
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           gain.gain.value = 0.0001;
@@ -1720,13 +1723,16 @@
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (不重複抽出)
+       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (iPad Safari 特殊防護)
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
 
     function spinGachapon() {
       if (isSpinning) return;
+
+      // iPad / iOS Safari 第一時間解鎖音訊上下文
+      Sound.unlock();
 
       const availablePrizes = prizeList.filter(p => !drawnPrizeIds.includes(p.id));
 
@@ -1852,8 +1858,16 @@
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
-        Sound.playWin();
-        fireGrandFireworksShow();
+        // 觸發音效與煙火（內建 iPad 容錯安全機制）
+        try {
+          Sound.playWin();
+        } catch(e) {}
+        
+        try {
+          fireGrandFireworksShow();
+        } catch(e) {
+          console.warn("Fireworks skipped:", e);
+        }
 
         document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
         
@@ -1868,42 +1882,76 @@
         const modal = document.getElementById('revealModal');
         const card = document.getElementById('revealCard');
         modal.classList.remove('hidden');
+        
+        // 強制 WebKit 觸發 Reflow，避免 iPad 彈窗偶發性不渲染
+        void modal.offsetHeight;
+
         setTimeout(() => {
           modal.classList.remove('opacity-0');
           card.classList.remove('scale-90');
           card.classList.add('scale-100');
           adjustPrizeFontSize();
-        }, 20);
+        }, 30);
 
         isSpinning = false;
         updateDrawStatusUI();
       }, 550);
     }
 
-    function fireGrandFireworksShow() {
-      if (typeof confetti === 'undefined') return;
+    /* iPad Safari 專用頂層 confetti 實例防呆 */
+    let customConfettiInstance = null;
+    function getSafeConfetti() {
+      if (typeof window.confetti !== 'function') return null;
+      if (!customConfettiInstance) {
+        try {
+          let cCanvas = document.getElementById('ipadConfettiCanvas');
+          if (!cCanvas) {
+            cCanvas = document.createElement('canvas');
+            cCanvas.id = 'ipadConfettiCanvas';
+            cCanvas.style.position = 'fixed';
+            cCanvas.style.top = '0';
+            cCanvas.style.left = '0';
+            cCanvas.style.width = '100vw';
+            cCanvas.style.height = '100vh';
+            cCanvas.style.pointerEvents = 'none';
+            cCanvas.style.zIndex = '100000';
+            document.body.appendChild(cCanvas);
+          }
+          customConfettiInstance = confetti.create(cCanvas, { resize: true, useWorker: false });
+        } catch(e) {
+          customConfettiInstance = window.confetti;
+        }
+      }
+      return customConfettiInstance;
+    }
 
-      const fireworksDuration = 3600;
+    function fireGrandFireworksShow() {
+      const conf = getSafeConfetti();
+      Sound.playFireworkExplosion({ heavy: true });
+      if (!conf) return;
+
+      const fireworksDuration = 3200;
       const animationEnd = Date.now() + fireworksDuration;
       const festColors = ['#FFD700', '#FF0055', '#0044FF', '#00FF88', '#FFAA00', '#FFFFFF', '#9D4EDD'];
 
-      confetti({
-        particleCount: 85,
-        angle: 60,
-        spread: 65,
-        origin: { x: 0, y: 0.8 },
-        colors: festColors,
-        zIndex: 9999
-      });
-      confetti({
-        particleCount: 85,
-        angle: 120,
-        spread: 65,
-        origin: { x: 1, y: 0.8 },
-        colors: festColors,
-        zIndex: 9999
-      });
-      Sound.playFireworkExplosion({ heavy: true });
+      try {
+        conf({
+          particleCount: 75,
+          angle: 60,
+          spread: 65,
+          origin: { x: 0, y: 0.8 },
+          colors: festColors,
+          zIndex: 100000
+        });
+        conf({
+          particleCount: 75,
+          angle: 120,
+          spread: 65,
+          origin: { x: 1, y: 0.8 },
+          colors: festColors,
+          zIndex: 100000
+        });
+      } catch(e){}
 
       const interval = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
@@ -1912,46 +1960,26 @@
           return;
         }
 
-        const particleCount = 45 * (timeLeft / fireworksDuration);
-
-        confetti({
-          particleCount,
-          startVelocity: 35,
-          spread: 360,
-          ticks: 70,
-          origin: {
-            x: Math.random() * 0.7 + 0.15,
-            y: Math.random() * 0.45 + 0.1
-          },
-          colors: festColors,
-          shapes: ['circle', 'square'],
-          scalar: Math.random() * 0.4 + 0.9,
-          zIndex: 9999
-        });
-
-        Sound.playFireworkExplosion({ heavy: Math.random() > 0.6 });
-
-        if (Math.random() > 0.45) {
-          confetti({
-            particleCount: 25,
-            angle: 55 + Math.random() * 20,
-            spread: 55,
-            origin: { x: 0, y: 0.75 },
+        const particleCount = 35 * (timeLeft / fireworksDuration);
+        try {
+          conf({
+            particleCount,
+            startVelocity: 30,
+            spread: 360,
+            ticks: 60,
+            origin: {
+              x: Math.random() * 0.7 + 0.15,
+              y: Math.random() * 0.45 + 0.1
+            },
             colors: festColors,
-            zIndex: 9999
+            shapes: ['circle', 'square'],
+            scalar: Math.random() * 0.4 + 0.85,
+            zIndex: 100000
           });
-        }
-        if (Math.random() > 0.45) {
-          confetti({
-            particleCount: 25,
-            angle: 105 + Math.random() * 20,
-            spread: 55,
-            origin: { x: 1, y: 0.75 },
-            colors: festColors,
-            zIndex: 9999
-          });
-        }
-      }, 250);
+        } catch(e){}
+
+        Sound.playFireworkExplosion({ heavy: Math.random() > 0.65 });
+      }, 300);
     }
 
     /* ============================================================
