@@ -80,7 +80,7 @@
       animation: tense-heartbeat 0.38s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
     }
 
-    /* 吉祥小羊懸浮動畫 */
+    /* 吉祥小羊/羊駝懸浮動畫 */
     @keyframes sheep-float-motion {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
       25% { transform: translateY(-4px) rotate(-3deg); }
@@ -278,6 +278,48 @@
       animation: pop-box-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
+    /* ============================================================
+       開獎大框旁：戴眼鏡露齒笑羊駝開波動畫
+    ============================================================ */
+    @keyframes alpaca-happy-laugh {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg) scale(1);
+      }
+      15% {
+        transform: translateY(-8px) rotate(-6deg) scale(1.08);
+      }
+      30% {
+        transform: translateY(2px) rotate(4deg) scale(0.97);
+      }
+      45% {
+        transform: translateY(-10px) rotate(-4deg) scale(1.1);
+      }
+      60% {
+        transform: translateY(1px) rotate(3deg) scale(0.99);
+      }
+      75% {
+        transform: translateY(-5px) rotate(-2deg) scale(1.04);
+      }
+      90% {
+        transform: translateY(0px) rotate(1deg) scale(1);
+      }
+    }
+
+    .anim-alpaca-laugh {
+      animation: alpaca-happy-laugh 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      transform-origin: bottom center;
+      display: inline-block;
+      will-change: transform;
+    }
+
+    @keyframes glasses-glint {
+      0%, 80%, 100% { opacity: 0.15; transform: translateX(-15px) rotate(25deg); }
+      90% { opacity: 0.85; transform: translateX(25px) rotate(25deg); }
+    }
+    .anim-glasses-shine {
+      animation: glasses-glint 3.2s ease-in-out infinite;
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -370,7 +412,7 @@
     </div>
   </header>
 
-  <!-- 專屬提示橫幅：單行不換行，無多餘附註 -->
+  <!-- 專屬提示橫幅 -->
   <div id="exclusiveBanner" class="hidden relative z-20 bg-gradient-to-r from-blue-950 via-tkt-blue to-indigo-950 border-b border-blue-400/30 px-3 py-1.5 text-center shadow-md overflow-x-auto no-scrollbar">
     <div class="inline-flex items-center justify-center gap-2 whitespace-nowrap min-w-full text-xs sm:text-sm">
       <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
@@ -387,27 +429,14 @@
     <!-- 頂部招牌框 -->
     <div class="w-[22rem] sm:w-[26rem] bg-gradient-to-r from-tkt-dark via-tkt-blue to-blue-700 rounded-2xl py-2.5 px-3.5 sm:px-5 shadow-glow-blue border border-blue-300/40 text-center relative z-20 flex items-center justify-between mb-3 sm:mb-4 overflow-hidden">
       
-      <!-- 左側：吉祥小羊圖示 -->
-      <div class="anim-sheep-float w-12 h-12 sm:w-14 sm:h-14 bg-amber-400/15 rounded-2xl border border-amber-300/50 flex items-center justify-center shadow-lg hover:scale-110 transition-transform shrink-0" title="吉羊開泰">
-        <svg viewBox="0 0 64 64" class="w-9 h-9 sm:w-10 sm:h-10 drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M 22 22 C 14 10 3 20 12 30 C 16 34 22 28 22 24" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-          <path d="M 42 22 C 50 10 61 20 52 30 C 48 34 42 28 42 24" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-          <ellipse cx="32" cy="35" rx="14" ry="17" fill="#FFFFFF"/>
-          <ellipse cx="18" cy="30" rx="6" ry="3.5" transform="rotate(-25 18 30)" fill="#FEE2E2"/>
-          <ellipse cx="46" cy="30" rx="6" ry="3.5" transform="rotate(25 46 30)" fill="#FEE2E2"/>
-          <circle cx="27" cy="20" r="4.5" fill="#F8FAFC"/>
-          <circle cx="37" cy="20" r="4.5" fill="#F8FAFC"/>
-          <circle cx="32" cy="18" r="5" fill="#FFFFFF"/>
-          <ellipse cx="27" cy="33" rx="2" ry="2.8" fill="#1E293B"/>
-          <ellipse cx="37" cy="33" rx="2" ry="2.8" fill="#1E293B"/>
-          <circle cx="28" cy="32" r="0.8" fill="#FFFFFF"/>
-          <circle cx="38" cy="32" r="0.8" fill="#FFFFFF"/>
-          <ellipse cx="23" cy="39" rx="2.5" ry="1.5" fill="#FCA5A5" opacity="0.8"/>
-          <ellipse cx="41" cy="39" rx="2.5" ry="1.5" fill="#FCA5A5" opacity="0.8"/>
-          <path d="M 30 40 L 34 40 L 32 42 Z" fill="#F43F5E"/>
-          <path d="M 32 42 Q 32 46 34 46" stroke="#475569" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-          <path d="M 32 42 Q 32 46 30 46" stroke="#475569" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-        </svg>
+      <!-- 左側：吉祥羊駝圖示 (去背融入圓角框) -->
+      <div class="anim-sheep-float w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-400/25 via-yellow-300/10 to-transparent rounded-2xl border border-amber-300/60 flex items-center justify-center shadow-lg hover:scale-110 transition-transform shrink-0 overflow-hidden relative" title="吉羊開泰">
+        <img 
+          src="images.jpg" 
+          alt="Lucky Alpaca" 
+          class="w-full h-full object-cover filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.6)] mix-blend-multiply"
+          style="transform: scale(1.15) translateY(2px);"
+        >
       </div>
 
       <!-- 中間標題文字：喜氣紅色粗體流動光影 -->
@@ -551,7 +580,7 @@
 
   <!-- 開獎揭曉祝賀彈窗 -->
   <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-lg hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
-    <div id="revealCard" class="relative w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 text-center border-2 border-amber-400/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-300 my-auto max-h-[90vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
+    <div id="revealCard" class="relative w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center border-2 border-amber-400/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-300 my-auto max-h-[92vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
       
       <!-- Logo 樣式 -->
       <div class="w-14 sm:w-20 md:w-24 h-auto mx-auto mb-1 bg-white p-1 sm:p-1.5 rounded-xl shadow-[0_0_18px_rgba(255,255,255,0.35)] shrink-0">
@@ -572,42 +601,140 @@
         CONGRATULATIONS
       </div>
 
-      <h3 class="text-xs sm:text-sm md:text-base font-bold text-slate-100/90 mb-1 tracking-wider drop-shadow shrink-0">
+      <h3 class="text-xs sm:text-sm md:text-base font-bold text-slate-100/90 mb-1.5 tracking-wider drop-shadow shrink-0">
         🎉 恭喜幸運中獎！ 🎉
       </h3>
-      
-      <!-- 獎品內容框：深邃層次漸層 + 慢速絲滑流暢金光 -->
-      <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#0f1d4a] via-[#070e28] to-[#040616] border-2 border-amber-400/90 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 my-1.5 sm:my-2.5 shadow-2xl relative w-full max-w-sm sm:max-w-md mx-auto flex flex-col items-center justify-center min-h-[96px] sm:min-h-[110px] max-h-[24vh] overflow-hidden">
-        
-        <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/18 via-white/4 to-transparent pointer-events-none rounded-t-xl z-10"></div>
-        
-        <div class="prize-golden-shimmer-smooth"></div>
 
-        <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-3 left-6" style="animation-delay: 0s;"></div>
-        <div class="golden-dust-particle z-10 w-1 h-1 bottom-4 left-16" style="animation-delay: 1.8s;"></div>
-        <div class="golden-dust-particle z-10 w-2 h-2 top-4 right-10" style="animation-delay: 3.2s;"></div>
-        <div class="golden-dust-particle z-10 w-1 h-1 bottom-3 right-8" style="animation-delay: 0.9s;"></div>
-        <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/2 left-1/4" style="animation-delay: 4.5s;"></div>
-        <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/3 right-1/4" style="animation-delay: 2.7s;"></div>
-
-        <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-900/90 border border-blue-400/60 shadow-inner mb-1 shrink-0 relative z-20">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="text-[10px] sm:text-[11px] font-mono font-black text-blue-100 tracking-wider" id="revealTicketNo">幸運序號 #--</span>
-        </div>
-
-        <div class="w-full flex-1 flex flex-col items-center justify-center text-center px-1 overflow-hidden relative z-20">
-          <div id="revealPrizeTitle" class="font-black tracking-wide w-full flex flex-col items-center justify-center leading-snug">
-            大獎揭曉中...
-          </div>
+      <!-- 幸運序號標籤 -->
+      <div class="flex items-center justify-center mb-1.5 shrink-0">
+        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-900/90 border border-blue-400/70 shadow-md">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-xs sm:text-sm font-mono font-black text-blue-100 tracking-wider" id="revealTicketNo">幸運序號 #--</span>
         </div>
       </div>
+      
+      <!-- ========================================== -->
+      <!-- 獎品內容框容器（外掛露齒開心笑戴眼鏡羊駝動畫） -->
+      <!-- ========================================== -->
+      <div class="relative w-full max-w-sm sm:max-w-md mx-auto my-1.5">
 
-      <p class="text-[9px] sm:text-xs text-slate-300 opacity-90 mb-1.5 sm:mb-2.5 leading-relaxed font-medium shrink-0">
+        <!-- 戴眼鏡羊駝 露齒燦笑 動畫插畫 (定位於大框右上方浮動展示) -->
+        <div class="absolute -top-7 -right-3 sm:-top-9 sm:-right-7 z-30 pointer-events-none anim-alpaca-laugh select-none">
+          <div class="relative w-16 h-16 sm:w-20 sm:h-20 filter drop-shadow-[0_4px_12px_rgba(245,158,11,0.6)]">
+            <!-- 羊駝本體 SVG -->
+            <svg viewBox="0 0 120 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="alpacaWool" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFFFFF"/>
+                  <stop offset="60%" stop-color="#FFF8E7"/>
+                  <stop offset="100%" stop-color="#FDE68A"/>
+                </linearGradient>
+                <linearGradient id="glassesGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FDE047"/>
+                  <stop offset="50%" stop-color="#F59E0B"/>
+                  <stop offset="100%" stop-color="#D97706"/>
+                </linearGradient>
+              </defs>
+
+              <!-- 左耳朵與耳內粉紅 -->
+              <path d="M 32 40 C 22 24 28 8 36 12 C 43 15 42 32 40 40 Z" fill="#FFF8E7" stroke="#D97706" stroke-width="1.8"/>
+              <path d="M 32 34 C 26 24 29 14 34 16 C 38 18 38 28 36 34 Z" fill="#FCA5A5"/>
+
+              <!-- 右耳朵與耳內粉紅 -->
+              <path d="M 88 40 C 98 24 92 8 84 12 C 77 15 78 32 80 40 Z" fill="#FFF8E7" stroke="#D97706" stroke-width="1.8"/>
+              <path d="M 88 34 C 94 24 91 14 86 16 C 82 18 82 28 84 34 Z" fill="#FCA5A5"/>
+
+              <!-- 羊駝毛茸茸頭部主體 -->
+              <path d="M 34 50 Q 24 66 32 82 Q 40 98 60 98 Q 80 98 88 82 Q 96 66 86 50 Q 82 32 60 32 Q 38 32 34 50 Z" fill="url(#alpacaWool)" stroke="#F59E0B" stroke-width="2"/>
+
+              <!-- 頭頂軟萌羊毛球/瀏海 -->
+              <circle cx="48" cy="32" r="9" fill="#FFFFFF"/>
+              <circle cx="60" cy="27" r="10" fill="#FFFFFF"/>
+              <circle cx="72" cy="32" r="9" fill="#FFFFFF"/>
+              <circle cx="60" cy="35" r="8" fill="#FFFDF5"/>
+
+              <!-- 喜悅瞇瞇笑眼 (月牙彎彎開懷笑) -->
+              <path d="M 43 56 Q 48 50 53 56" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M 67 56 Q 72 50 77 56" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+
+              <!-- 超萌紅潤腮紅 -->
+              <ellipse cx="36" cy="67" rx="5" ry="3" fill="#FB7185" opacity="0.8"/>
+              <ellipse cx="84" cy="67" rx="5" ry="3" fill="#FB7185" opacity="0.8"/>
+
+              <!-- 嘴鼻白區域凸起 -->
+              <ellipse cx="60" cy="74" rx="17" ry="14" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1.5"/>
+
+              <!-- 逗趣粉紅小鼻子 -->
+              <path d="M 57 66 C 58 64 62 64 63 66 C 64 68 61 70 60 70 C 59 70 56 68 57 66 Z" fill="#F43F5E"/>
+
+              <!-- 露齒開心大笑 (嘴巴張開露出一整排乾淨白牙) -->
+              <g>
+                <!-- 大笑的嘴腔背景 (酒紅) -->
+                <path d="M 49 73 Q 60 71 71 73 Q 60 91 49 73 Z" fill="#991B1B" stroke="#7F1D1D" stroke-width="1"/>
+                <!-- 招牌潔白笑齒 (露出上排白牙) -->
+                <path d="M 50.5 73 Q 60 72 69.5 73 L 69 77 Q 60 78 51 77 Z" fill="#FFFFFF"/>
+                <line x1="56.5" y1="73" x2="56.5" y2="77" stroke="#CBD5E1" stroke-width="0.8"/>
+                <line x1="63.5" y1="73" x2="63.5" y2="77" stroke="#CBD5E1" stroke-width="0.8"/>
+                <!-- 俏皮舌頭 -->
+                <path d="M 54 84 Q 60 81 66 84 Q 60 90 54 84 Z" fill="#FB7185"/>
+              </g>
+
+              <!-- 經典金框大圓眼鏡 (附反光高光) -->
+              <g>
+                <!-- 鼻樑中梁連接 -->
+                <path d="M 53 57 Q 60 54 67 57" fill="none" stroke="url(#glassesGold)" stroke-width="2.4" stroke-linecap="round"/>
+                
+                <!-- 左鏡框與鏡片 -->
+                <circle cx="46" cy="58" r="11" fill="rgba(255,255,255,0.22)" stroke="url(#glassesGold)" stroke-width="2.6"/>
+                <line x1="35" y1="58" x2="28" y2="54" stroke="url(#glassesGold)" stroke-width="2" stroke-linecap="round"/>
+                
+                <!-- 右鏡框與鏡片 -->
+                <circle cx="74" cy="58" r="11" fill="rgba(255,255,255,0.22)" stroke="url(#glassesGold)" stroke-width="2.6"/>
+                <line x1="85" y1="58" x2="92" y2="54" stroke="url(#glassesGold)" stroke-width="2" stroke-linecap="round"/>
+
+                <!-- 鏡片反光高光 (流動動態) -->
+                <g class="anim-glasses-shine" opacity="0.6">
+                  <path d="M 40 52 L 44 48 L 47 52 L 43 56 Z" fill="#FFFFFF"/>
+                  <path d="M 68 52 L 72 48 L 75 52 L 71 56 Z" fill="#FFFFFF"/>
+                </g>
+              </g>
+
+              <!-- 金光歡呼小星芒 (羊駝旁閃耀開心中獎) -->
+              <path d="M 98 32 Q 102 32 102 28 Q 102 32 106 32 Q 102 32 102 36 Q 102 32 98 32 Z" fill="#FDE047"/>
+              <path d="M 18 42 Q 21 42 21 39 Q 21 42 24 42 Q 21 42 21 45 Q 21 42 18 42 Z" fill="#FDE047"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 獎品主框體 -->
+        <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#0f1d4a] via-[#070e28] to-[#040616] border-2 border-amber-400/90 rounded-xl sm:rounded-2xl py-3 px-3.5 shadow-2xl relative w-full flex flex-col items-center justify-center min-h-[90px] overflow-hidden">
+          
+          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/18 via-white/4 to-transparent pointer-events-none rounded-t-xl z-10"></div>
+          
+          <div class="prize-golden-shimmer-smooth"></div>
+
+          <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-3 left-6" style="animation-delay: 0s;"></div>
+          <div class="golden-dust-particle z-10 w-1 h-1 bottom-4 left-16" style="animation-delay: 1.8s;"></div>
+          <div class="golden-dust-particle z-10 w-2 h-2 top-4 right-10" style="animation-delay: 3.2s;"></div>
+          <div class="golden-dust-particle z-10 w-1 h-1 bottom-3 right-8" style="animation-delay: 0.9s;"></div>
+          <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/2 left-1/4" style="animation-delay: 4.5s;"></div>
+          <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/3 right-1/4" style="animation-delay: 2.7s;"></div>
+
+          <div class="w-full flex flex-col items-center justify-center text-center px-1 overflow-hidden relative z-20">
+            <div id="revealPrizeTitle" class="font-black tracking-wide w-full flex flex-col items-center justify-center leading-snug">
+              大獎揭曉中...
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="text-[9px] sm:text-xs text-slate-300 opacity-90 my-2 leading-relaxed font-medium shrink-0">
         請截圖此畫面至舞台領獎處兌獎<br>
         <span class="text-amber-300/90 font-bold">✨ 2027 TKT Year-end party by Po Yuan ✨</span>
       </p>
 
-      <button id="closeModalBtn" class="w-full py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs sm:text-sm tracking-wider hover:brightness-110 active:scale-95 transition shadow-md border border-amber-200/50 shrink-0">
+      <button id="closeModalBtn" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs sm:text-sm tracking-wider hover:brightness-110 active:scale-95 transition shadow-md border border-amber-200/50 shrink-0">
         收下幸運大獎 / 繼續體驗
       </button>
     </div>
@@ -848,12 +975,12 @@
     const qrDataURLs = {};
 
     /* ============================================================
-       2. 音效系統：深度升級心跳低音鼓 + 3秒懸疑爬升合成器 (Web Audio)
+       2. 音效系統 (Web Audio + 自訂 MP3)
     ============================================================ */
     let isSoundMuted = false;
     let drum = null;
     let winSound = null;
-    let winSoundTimer = null; // win.mp3 計時器
+    let winSoundTimer = null;
     let audioCtx = null;
     let tenseDrumTimer = null;
     let tenseRiserOsc = null;
@@ -905,7 +1032,6 @@
 
       playDrum(id) {
         if (isSoundMuted) return;
-
         this.unlock();
 
         const soundId = (id >= 1 && id <= 30) ? id : 0;
@@ -943,7 +1069,6 @@
         }
       },
 
-      /* 重點加強：超震撼心跳低頻 + 持續性 Shepard 爬升懸疑音 + 衝刺滾奏 */
       startTenseDrums() {
         if (isSoundMuted) return;
         Sound.stopTenseDrums();
@@ -952,7 +1077,6 @@
         const totalDuration = 3000;
         const startTime = Date.now();
 
-        // 1. 緊張感攀升音源 (Shepard Tone Riser)
         try {
           tenseRiserOsc = ctx.createOscillator();
           tenseRiserGain = ctx.createGain();
@@ -962,7 +1086,6 @@
           tenseRiserOsc.frequency.setValueAtTime(80, now);
           tenseRiserOsc.frequency.exponentialRampToValueAtTime(520, now + 3.0);
 
-          // 帶通濾波器創造空靈壓迫感
           const filter = ctx.createBiquadFilter();
           filter.type = 'bandpass';
           filter.frequency.setValueAtTime(220, now);
@@ -981,22 +1104,20 @@
           tenseRiserOsc.stop(now + 3.1);
         } catch(e){}
 
-        // 2. 加速度心跳低頻大鼓節拍
         function scheduleNextBeat() {
           const elapsed = Date.now() - startTime;
           if (elapsed >= totalDuration) return;
 
           const progress = Math.min(elapsed / totalDuration, 1);
-          const isFinalRush = elapsed > 2000; // 最後 1 秒進入狂風驟雨般的急促滾奏
+          const isFinalRush = elapsed > 2000;
 
           Sound.hitTenseHeartbeatBeat(ctx, progress, isFinalRush);
 
-          // 間隔由一開始的 380ms 逐漸加速縮短到 75ms
           let nextInterval;
           if (!isFinalRush) {
             nextInterval = 380 - progress * 240;
           } else {
-            nextInterval = 90 - (progress - 0.66) * 60; // 狂暴衝刺
+            nextInterval = 90 - (progress - 0.66) * 60;
           }
 
           tenseDrumTimer = setTimeout(scheduleNextBeat, Math.max(nextInterval, 65));
@@ -1019,12 +1140,10 @@
         }
       },
 
-      /* 雙重低頻音爆 (Double-Thump Sub Bass) */
       hitTenseHeartbeatBeat(ctx, progress, isFinalRush) {
         try {
           const now = ctx.currentTime;
 
-          // 主深沉低音鼓 (Sub Bass 40-160Hz)
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
 
@@ -1042,7 +1161,6 @@
           osc.start(now);
           osc.stop(now + 0.16);
 
-          // 撲通！雙心跳的第二個微回音 (Lub-Dub)
           if (!isFinalRush) {
             const secondOsc = ctx.createOscillator();
             const secondGain = ctx.createGain();
@@ -1060,7 +1178,6 @@
             secondOsc.start(secondTime);
             secondOsc.stop(secondTime + 0.13);
           } else {
-            // 最後衝刺階段加入金屬軍鼓清脆噪聲
             const bufferSize = ctx.sampleRate * 0.04;
             const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const output = noiseBuffer.getChannelData(0);
@@ -1079,7 +1196,6 @@
         } catch(e){}
       },
 
-      /* win.mp3 播放 7 秒自動停止 */
       playWin() {
         if (isSoundMuted) return;
         this.stopWin();
@@ -1098,7 +1214,6 @@
             });
           }
 
-          // 精準 7 秒後停止播放
           winSoundTimer = setTimeout(() => {
             Sound.stopWin();
           }, 7000);
@@ -1467,7 +1582,7 @@
         if (btn) btn.style.display = 'none';
 
         Sound.stopDrum();
-        Sound.startTenseDrums(); // 啟動加強版緊張感配樂
+        Sound.startTenseDrums();
 
         const droppedEgg = document.getElementById('droppedEgg');
         const ball = document.getElementById('droppedEggBall');
@@ -1496,19 +1611,17 @@
       if (!container || !textElem) return;
 
       const isMobile = window.innerWidth < 640;
-      let startSize = isMobile ? 22 : (window.innerWidth < 1024 ? 26 : 30);
-      const minSize = 11;
+      let startSize = isMobile ? 22 : (window.innerWidth < 1024 ? 26 : 28);
+      const minSize = 12;
 
       textElem.style.fontSize = `${startSize}px`;
 
       let currentSize = startSize;
-      const maxAvailableWidth = container.clientWidth - 28;
-      const maxAvailableHeight = container.clientHeight - 34;
+      const maxAvailableWidth = container.clientWidth - 24;
 
       while (
         currentSize > minSize &&
-        (textElem.scrollHeight > maxAvailableHeight ||
-         textElem.scrollWidth > maxAvailableWidth ||
+        (textElem.scrollWidth > maxAvailableWidth ||
          (enElem && enElem.scrollWidth > maxAvailableWidth))
       ) {
         currentSize -= 0.5;
@@ -1530,8 +1643,8 @@
 
       return `
         <div class="golden-prize-text font-black leading-tight drop-shadow mb-1">${zhPart}</div>
-        ${enPart ? `<div id="revealEnPart" class="prize-en-nowrap text-amber-100/95 font-semibold tracking-normal leading-tight opacity-95 text-[0.6em] sm:text-[0.66em] my-0.5">${enPart}</div>` : ''}
-        ${pricePart ? `<div class="text-amber-300 font-extrabold tracking-wider text-[0.72em] sm:text-[0.78em] mt-1 bg-amber-400/15 px-2.5 py-0.5 rounded-full border border-amber-400/35 inline-block drop-shadow">${pricePart}</div>` : ''}
+        ${enPart ? `<div id="revealEnPart" class="prize-en-nowrap text-amber-100/95 font-semibold tracking-normal leading-tight opacity-95 text-[0.62em] sm:text-[0.68em] my-0.5">${enPart}</div>` : ''}
+        ${pricePart ? `<div class="text-amber-300 font-extrabold tracking-wider text-[0.75em] sm:text-[0.8em] mt-1.5 bg-amber-400/15 px-3 py-0.5 rounded-full border border-amber-400/40 inline-block drop-shadow">${pricePart}</div>` : ''}
       `;
     }
 
@@ -1549,7 +1662,7 @@
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
-        Sound.playWin(); // 播放 7 秒自動停止
+        Sound.playWin();
         fireGrandFireworksShow();
 
         document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
@@ -1651,7 +1764,7 @@
     }
 
     /* ============================================================
-       6. 後台管理 (內嵌 Logo QR Code 繪製 + 尾牙摸彩券列印與下載)
+       6. 後台管理
     ============================================================ */
     function verifyAndOpenAdmin() {
       const isAuth = sessionStorage.getItem('admin_authenticated');
@@ -2028,7 +2141,7 @@
     }
 
     /* ============================================================
-       7. 頁面初始化與全通道音訊解鎖監聽
+       7. 頁面初始化與監聽
     ============================================================ */
     window.addEventListener('DOMContentLoaded', () => {
       function waitForLibraries() {
@@ -2064,7 +2177,7 @@
         if (isSoundMuted) {
           Sound.stopDrum();
           Sound.stopTenseDrums();
-          Sound.stopWin(); // 靜音時立即停止開獎音樂
+          Sound.stopWin();
         } else {
           Sound.unlock();
         }
@@ -2072,7 +2185,7 @@
       });
 
       document.getElementById('closeModalBtn').addEventListener('click', () => {
-        Sound.stopWin(); // 關閉彈窗時停止 win.mp3
+        Sound.stopWin();
         const modal = document.getElementById('revealModal');
         const card = document.getElementById('revealCard');
         card.classList.remove('scale-100');
