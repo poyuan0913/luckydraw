@@ -417,7 +417,7 @@
     <div class="inline-flex items-center justify-center gap-2 whitespace-nowrap min-w-full text-xs sm:text-sm">
       <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
       <span class="text-slate-100 whitespace-nowrap">已成功載入您的專屬盲盒：</span>
-      <strong class="text-amber-300 font-extrabold whitespace-nowrap tracking-wider bg-black/40 px-3 py-0.5 rounded-full border border-amber-400/50">
+      <strong id="exclusiveBannerText" class="text-amber-300 font-extrabold whitespace-nowrap tracking-wider bg-black/40 px-3 py-0.5 rounded-full border border-amber-400/50">
         ✨ 專屬神秘盲盒已就緒
       </strong>
     </div>
@@ -558,12 +558,20 @@
       <!-- 啟動按鈕 -->
       <button id="spinActionBtn" class="anim-btn-float mt-4 w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-tkt-blue to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base tracking-wider active:scale-[0.98] transition flex items-center justify-center gap-2 border border-blue-300/40 cursor-pointer">
         <i data-lucide="sparkles" class="w-4 h-4 text-amber-300 animate-pulse"></i>
-        <span>啟動 3D 扭蛋 (SPIN)</span>
+        <span id="spinBtnText">啟動 3D 扭蛋 (SPIN)</span>
       </button>
 
       <div class="w-full flex items-center justify-between mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] text-slate-400 px-1">
-        <span>全套 30 款盲盒驚喜</span>
+        <span id="remainingPrizeCounter" class="font-medium text-slate-300">剩餘獎項：30 / 30</span>
         <span id="activeTicketStatus" class="font-mono text-amber-400 font-bold">隨機幸運抽取模式</span>
+      </div>
+
+      <!-- 獎項全數開完重置快捷提示 -->
+      <div id="allDoneAlertBox" class="hidden w-full mt-2.5 p-2 rounded-xl bg-amber-500/15 border border-amber-400/40 text-center">
+        <p class="text-xs text-amber-300 font-bold">所有獎項已全數開完！</p>
+        <button onclick="verifyAndOpenAdmin()" class="mt-1 text-[11px] text-blue-300 hover:text-white underline">
+          前往管理後台「重置開獎紀錄」以重新開始
+        </button>
       </div>
 
       <!-- 抽獎前扭蛋機最底部署名 -->
@@ -798,7 +806,7 @@
           </div>
           <div>
             <h2 class="text-base sm:text-lg font-black text-white">⚙️ 30 獎項 QR Code & Excel 設定後台</h2>
-            <p class="text-xs text-slate-400">雙重自訂 MP3 + Web Audio 智能備援保證發聲</p>
+            <p class="text-xs text-slate-400">管理開獎紀錄 · 雙重自訂 MP3 + Web Audio 智能備援</p>
           </div>
         </div>
 
@@ -809,7 +817,7 @@
 
       <!-- 工具列 -->
       <div class="px-5 py-3.5 bg-slate-800/80 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3 text-xs no-print">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center flex-wrap gap-2">
           <label class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold cursor-pointer shadow transition">
             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
             <span>匯入 Excel 獎項 (.xlsx)</span>
@@ -821,8 +829,14 @@
             <span>下載標準 Excel 範本</span>
           </button>
 
+          <!-- 重置已開獎紀錄按鈕 -->
+          <button id="resetDrawHistoryBtn" class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition shadow">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>重置開獎紀錄（重新開始）</span>
+          </button>
+
           <button id="resetDefaultsBtn" class="text-slate-400 hover:text-rose-400 text-xs ml-1">
-            恢復預設值
+            恢復預設獎項
           </button>
         </div>
 
@@ -912,7 +926,7 @@
     cachedLogoImg.src = TKT_LOGO_DATA_URL;
 
     /* ============================================================
-       1. 預設 30 個獎項清單 (自動對應 drum{id}.mp3)
+       1. 預設 30 個獎項清單 & 已開獎紀錄系統
     ============================================================ */
     const DEFAULT_PRIZES = [];
     const prizeNames = [
@@ -957,6 +971,36 @@
     }
 
     let prizeList = [];
+    let drawnPrizeIds = []; // 已抽出的獎項 ID 列表
+
+    function loadDrawnHistory() {
+      const stored = localStorage.getItem('tkt_drawn_prize_ids');
+      if (stored) {
+        try {
+          drawnPrizeIds = JSON.parse(stored);
+        } catch(e) {
+          drawnPrizeIds = [];
+        }
+      } else {
+        drawnPrizeIds = [];
+      }
+    }
+
+    function saveDrawnHistory() {
+      localStorage.setItem('tkt_drawn_prize_ids', JSON.stringify(drawnPrizeIds));
+      updateDrawStatusUI();
+    }
+
+    function resetDrawHistory() {
+      drawnPrizeIds = [];
+      localStorage.removeItem('tkt_drawn_prize_ids');
+      updateDrawStatusUI();
+      if (typeof renderQRManager === 'function') {
+        renderQRManager();
+      }
+      alert("✅ 已成功清除所有開獎紀錄！獎項可重新開始抽取。");
+    }
+
     function loadPrizeData() {
       const stored = localStorage.getItem('tkt_custom_prizes');
       if (stored) {
@@ -968,11 +1012,53 @@
       } else {
         prizeList = JSON.parse(JSON.stringify(DEFAULT_PRIZES));
       }
+      loadDrawnHistory();
     }
     loadPrizeData();
 
     const ADMIN_PASSWORD = "tkt2027admin";
     const qrDataURLs = {};
+
+    /* ============================================================
+       更新抽獎按鈕與狀態 UI
+    ============================================================ */
+    function updateDrawStatusUI() {
+      const remainingCount = prizeList.length - drawnPrizeIds.length;
+      const counterElem = document.getElementById('remainingPrizeCounter');
+      const btn = document.getElementById('spinActionBtn');
+      const btnText = document.getElementById('spinBtnText');
+      const alertBox = document.getElementById('allDoneAlertBox');
+
+      if (counterElem) {
+        counterElem.textContent = `剩餘獎項：${remainingCount} / ${prizeList.length}`;
+      }
+
+      if (remainingCount <= 0) {
+        if (btn) {
+          btn.disabled = true;
+          btn.classList.remove('anim-btn-float', 'bg-gradient-to-r', 'from-blue-600', 'via-tkt-blue', 'to-indigo-600', 'cursor-pointer');
+          btn.classList.add('bg-slate-700', 'opacity-60', 'cursor-not-allowed');
+        }
+        if (btnText) {
+          btnText.textContent = "🎉 所有獎項已全數開完！";
+        }
+        if (alertBox) {
+          alertBox.classList.remove('hidden');
+        }
+      } else {
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.add('anim-btn-float', 'bg-gradient-to-r', 'from-blue-600', 'via-tkt-blue', 'to-indigo-600', 'cursor-pointer');
+          btn.classList.remove('bg-slate-700', 'opacity-60', 'cursor-not-allowed');
+        }
+        if (btnText) {
+          btnText.textContent = "啟動 3D 扭蛋 (SPIN)";
+        }
+        if (alertBox) {
+          alertBox.classList.add('hidden');
+        }
+      }
+    }
 
     /* ============================================================
        2. 音效系統 (Web Audio + 自訂 MP3)
@@ -1539,28 +1625,61 @@
         banner.classList.remove('hidden');
 
         const activeStatus = document.getElementById('activeTicketStatus');
-        activeStatus.textContent = `✨ 專屬幸運盲盒模式`;
-        activeStatus.classList.add('text-emerald-400');
-
-        Sound.preloadTrack(tid);
+        const bannerText = document.getElementById('exclusiveBannerText');
+        
+        // 檢查該專屬籤是否已被抽取過
+        if (drawnPrizeIds.includes(tid)) {
+          activeStatus.textContent = `⚠️ 專屬獎項 #${tid} 已被領取`;
+          activeStatus.classList.remove('text-emerald-400');
+          activeStatus.classList.add('text-rose-400');
+          if (bannerText) {
+            bannerText.textContent = `⚠️ 序號 #${tid} 獎項已於先前開出，請勿重複兌換！`;
+            bannerText.classList.remove('text-amber-300');
+            bannerText.classList.add('text-rose-300');
+          }
+        } else {
+          activeStatus.textContent = `✨ 專屬幸運盲盒 #${tid}`;
+          activeStatus.classList.add('text-emerald-400');
+          Sound.preloadTrack(tid);
+        }
       }
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎
+       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (不重複抽出)
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
 
     function spinGachapon() {
       if (isSpinning) return;
+
+      // 1. 取得尚未被抽出的獎項清單
+      const availablePrizes = prizeList.filter(p => !drawnPrizeIds.includes(p.id));
+
+      if (availablePrizes.length === 0) {
+        alert("🎉 所有獎項已經全數開完！如需重新開獎，請至後台點選「重置開獎紀錄」。");
+        return;
+      }
+
+      // 2. 判斷專屬獎或隨機獎
+      if (boundTicketId) {
+        if (drawnPrizeIds.includes(boundTicketId)) {
+          alert(`⚠️ 此專屬摸彩券 (序號 #${boundTicketId}) 已經開出過囉！無法重複領取。`);
+          return;
+        }
+        selectedPrizeItem = prizeList.find(p => p.id === boundTicketId) || availablePrizes[0];
+      } else {
+        const randIdx = Math.floor(Math.random() * availablePrizes.length);
+        selectedPrizeItem = availablePrizes[randIdx];
+      }
+
       isSpinning = true;
 
-      if (boundTicketId) {
-        selectedPrizeItem = prizeList.find(p => p.id === boundTicketId) || prizeList[0];
-      } else {
-        const randIdx = Math.floor(Math.random() * prizeList.length);
-        selectedPrizeItem = prizeList[randIdx];
+      // 3. 記錄抽出該獎項
+      if (!drawnPrizeIds.includes(selectedPrizeItem.id)) {
+        drawnPrizeIds.push(selectedPrizeItem.id);
+        saveDrawnHistory();
       }
 
       Sound.playDrum(selectedPrizeItem.id);
@@ -1686,6 +1805,7 @@
         }, 20);
 
         isSpinning = false;
+        updateDrawStatusUI();
       }, 550);
     }
 
@@ -1864,18 +1984,25 @@
         const ticketId = item.id;
         const key = btoa(ticketId.toString());
         const targetUrl = `${baseUrl}?key=${key}`;
+        const isDrawn = drawnPrizeIds.includes(ticketId);
 
         const card = document.createElement('div');
-        card.className = "ticket-print-card bg-slate-800/60 hover:bg-slate-800 border border-slate-700/80 rounded-2xl p-4 flex flex-col justify-between transition shadow-sm text-center";
+        card.className = `ticket-print-card ${isDrawn ? 'bg-slate-900/80 border-slate-800 opacity-60' : 'bg-slate-800/60 hover:bg-slate-800 border-slate-700/80'} border rounded-2xl p-4 flex flex-col justify-between transition shadow-sm text-center relative`;
 
         card.innerHTML = `
           <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-mono font-black bg-tkt-blue/30 text-blue-300 border border-tkt-blue/40 px-2 py-0.5 rounded-full">
+            <span class="text-xs font-mono font-black ${isDrawn ? 'bg-slate-700 text-slate-400' : 'bg-tkt-blue/30 text-blue-300 border-tkt-blue/40'} border px-2 py-0.5 rounded-full">
               Ticket #${String(ticketId).padStart(2, '0')}
             </span>
-            <span class="text-[10px] text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full hide-in-print">
-              🎵 drum${ticketId}.mp3
-            </span>
+            ${isDrawn ? `
+              <span class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-full font-bold">
+                ✓ 已開出
+              </span>
+            ` : `
+              <span class="text-[10px] text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full hide-in-print">
+                🎵 drum${ticketId}.mp3
+              </span>
+            `}
           </div>
 
           <p class="text-[11px] text-slate-300 line-clamp-2 h-8 my-1 leading-tight font-medium hide-in-print" title="${item.name.replace(/"/g, '&quot;')}">
@@ -1976,7 +2103,8 @@
 
             prizeList = parsedList;
             localStorage.setItem('tkt_custom_prizes', JSON.stringify(prizeList));
-            alert(`✅ 成功匯入 ${prizeList.length} 個獎項設定！`);
+            resetDrawHistory(); // 匯入新獎項時一併重置抽獎紀錄
+            alert(`✅ 成功匯入 ${prizeList.length} 個獎項設定，並已重置開獎紀錄！`);
             renderQRManager();
           } catch(err) {
             alert("解析 Excel 失敗，請確認檔案格式是否正確。");
@@ -2149,6 +2277,7 @@
           if (window.lucide) lucide.createIcons();
           init3DGachapon();
           detectAssignedTicket();
+          updateDrawStatusUI();
         } else {
           setTimeout(waitForLibraries, 40);
         }
@@ -2195,6 +2324,7 @@
           modal.classList.add('hidden');
           const btn = document.getElementById('spinActionBtn');
           if (btn) btn.style.display = 'flex';
+          updateDrawStatusUI();
         }, 250);
       });
 
@@ -2220,12 +2350,21 @@
 
       document.getElementById('excelFileInput').addEventListener('change', handleExcelUpload);
       document.getElementById('downloadTemplateBtn').addEventListener('click', downloadExcelTemplate);
+      
+      // 清除開獎紀錄監聽
+      document.getElementById('resetDrawHistoryBtn').addEventListener('click', () => {
+        if (confirm("確定要重置所有開獎紀錄嗎？\n重置後所有獎項將重新開放抽取！")) {
+          resetDrawHistory();
+        }
+      });
+
       document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
         if (confirm("確定要清除自訂設定，恢復預設 30 個獎項嗎？")) {
           localStorage.removeItem('tkt_custom_prizes');
           loadPrizeData();
+          resetDrawHistory();
           renderQRManager();
-          alert("已恢復預設獎項！");
+          alert("已恢復預設獎項並清除開獎紀錄！");
         }
       });
 
