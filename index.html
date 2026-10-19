@@ -36,7 +36,8 @@
             'glow-blue': '0 0 35px rgba(0, 0, 255, 0.45)',
             'glow-gold': '0 0 45px rgba(245, 158, 11, 0.65)',
             'glow-gold-lg': '0 0 70px rgba(245, 158, 11, 0.85), 0 0 100px rgba(0, 0, 255, 0.45)',
-            'neon-chute': 'inset 0 0 20px rgba(0,0,0,0.95), 0 0 15px rgba(0,0,255,0.35)'
+            'neon-chute': 'inset 0 0 20px rgba(0,0,0,0.95), 0 0 15px rgba(0,0,255,0.35)',
+            'neon-lunar': '0 0 22px rgba(239, 68, 68, 0.45), inset 0 0 12px rgba(245, 158, 11, 0.3)'
           }
         }
       }
@@ -130,6 +131,60 @@
       display: inline-block;
       filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.4))
               drop-shadow(0 1px 4px rgba(59, 130, 246, 0.5));
+    }
+
+    /* Happy • Lunar • New • Year 顯眼春節流動特效 */
+    @keyframes lunar-glow-flow {
+      0% { background-position: 0% center; filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.8)); }
+      50% { background-position: 100% center; filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.95)) drop-shadow(0 0 16px rgba(251, 191, 36, 0.9)); }
+      100% { background-position: 200% center; filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.8)); }
+    }
+    .anim-lunar-shimmer {
+      background: linear-gradient(
+        90deg,
+        #FDE047 0%,
+        #FF5252 25%,
+        #FFFFFF 50%,
+        #F59E0B 75%,
+        #FDE047 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: lunar-glow-flow 3.2s linear infinite;
+      display: inline-block;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    /* 紅燈籠左側搖擺動畫 */
+    @keyframes lantern-swing-l {
+      0%, 100% { transform: rotate(-8deg) translateY(0); }
+      50% { transform: rotate(9deg) translateY(-1px); }
+    }
+    .anim-lantern-swing-left {
+      animation: lantern-swing-l 2.8s ease-in-out infinite;
+      transform-origin: top center;
+    }
+
+    /* 紅燈籠右側搖擺動畫（反相位） */
+    @keyframes lantern-swing-r {
+      0%, 100% { transform: rotate(9deg) translateY(0); }
+      50% { transform: rotate(-8deg) translateY(-1px); }
+    }
+    .anim-lantern-swing-right {
+      animation: lantern-swing-r 3.1s ease-in-out infinite;
+      transform-origin: top center;
+    }
+
+    /* 春聯小標籤呼吸微動 */
+    @keyframes couplet-breath {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.5)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.85)); }
+    }
+    .anim-couplet-pulse {
+      animation: couplet-breath 2.4s ease-in-out infinite;
     }
 
     /* 喜慶紅色粗體流動光影效果 (2027 TKT Lucky Draw) */
@@ -278,9 +333,7 @@
       animation: pop-box-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
-    /* ============================================================
-       開獎大框旁：戴眼鏡露齒笑羊駝開波動畫
-    ============================================================ */
+    /* 開獎大框旁：戴眼鏡露齒笑羊駝開波動畫 */
     @keyframes alpaca-happy-laugh {
       0%, 100% {
         transform: translateY(0px) rotate(0deg) scale(1);
@@ -371,12 +424,14 @@
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
   </div>
 
-  <!-- 頂部導覽列 -->
+  <!-- 頂部導覽列：標題靠近 Logo，且「3D 擬真扭蛋盲盒」置中對齊「2027 TKT End Party」 -->
   <header class="relative z-30 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md px-4 py-3 sticky top-0 shadow-lg">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <!-- 左側 Logo 與標題緊密結合區域 -->
       <div class="flex items-center gap-3.5">
-        <!-- 調整放大後的 Logo 容器 (w-14 h-14 sm:w-16 sm:h-16) -->
-        <div class="bg-white p-1.5 rounded-xl shadow-md border border-white/20 flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 hover:scale-105 transition-transform duration-200 shrink-0">
+        <!-- Logo 容器 -->
+        <div class="bg-white p-1.5 rounded-xl shadow-md border border-white/20 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 hover:scale-105 transition-transform duration-200 shrink-0">
           <svg class="w-full h-full" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
             <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
             <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
@@ -389,19 +444,25 @@
 
         <div class="h-10 w-px bg-slate-800 hidden sm:block"></div>
 
-        <div>
-          <h1 class="text-base sm:text-xl font-black tracking-wider flex items-center gap-2">
+        <!-- 標題區域：「3D 擬真扭蛋盲盒」精準水平置中對齊「2027 TKT End Party」 -->
+        <div class="flex flex-col items-center justify-center text-center">
+          <h1 class="text-base sm:text-xl font-black tracking-wider flex items-center justify-center gap-2">
             <span class="anim-title-shimmer">2027 TKT End Party</span>
-            <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold hidden md:inline-block">
-              年度盛典
+            <!-- 加大並強化光芒的「年度盛典」徽章 -->
+            <span class="inline-flex items-center gap-1 text-xs sm:text-sm bg-gradient-to-r from-amber-500/25 via-yellow-400/30 to-amber-500/25 text-amber-200 border-2 border-amber-400/70 px-3 py-1 rounded-full font-black shadow-[0_0_14px_rgba(245,158,11,0.5)] tracking-wide shrink-0">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 animate-pulse"></i>
+              <span>年度盛典</span>
             </span>
           </h1>
-          <p class="text-[11px] text-slate-400 hidden sm:block">Technik • Kompetenz • Tradition | 3D 擬真扭蛋盲盒</p>
+          <p class="text-[11px] sm:text-xs text-slate-400 font-medium tracking-wider text-center w-full mt-0.5">
+            3D 擬真扭蛋盲盒
+          </p>
         </div>
       </div>
 
+      <!-- 右側功能按鈕 -->
       <div class="flex items-center gap-2">
-        <button id="soundToggleBtn" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 transition" title="開關音效">
+        <button id="soundToggleBtn" class="p-2 sm:p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 transition" title="開關音效">
           <i data-lucide="volume-2" class="w-4 h-4" id="soundIcon"></i>
         </button>
 
@@ -410,6 +471,7 @@
           <span>後台 QR 管理</span>
         </button>
       </div>
+
     </div>
   </header>
 
@@ -430,7 +492,7 @@
     <!-- 頂部招牌框 -->
     <div class="w-[22rem] sm:w-[26rem] bg-gradient-to-r from-tkt-dark via-tkt-blue to-blue-700 rounded-2xl py-2.5 px-3.5 sm:px-5 shadow-glow-blue border border-blue-300/40 text-center relative z-20 flex items-center justify-between mb-3 sm:mb-4 overflow-hidden">
       
-      <!-- 左側：吉祥羊駝圖示 (去背融入圓角框) -->
+      <!-- 左側：吉祥羊駝圖示 -->
       <div class="anim-sheep-float w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-400/25 via-yellow-300/10 to-transparent rounded-2xl border border-amber-300/60 flex items-center justify-center shadow-lg hover:scale-110 transition-transform shrink-0 overflow-hidden relative" title="吉羊開泰">
         <img 
           src="sheep.png" 
@@ -514,10 +576,63 @@
 
     <!-- 扭蛋機基座 & 出蛋口 & 旋鈕開關 -->
     <div class="w-80 sm:w-96 bg-gradient-to-b from-slate-900 via-slate-950 to-black rounded-b-3xl border-x-4 border-b-4 border-slate-800 p-4 sm:p-5 shadow-2xl relative -mt-3 z-10 flex flex-col items-center">
-      <div class="w-full flex justify-between items-center px-3 mb-3">
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399] animate-pulse"></span>
-        <span class="text-[10px] font-mono tracking-wider text-blue-300 font-bold">TECHNIK • KOMPETENZ • TRADITION</span>
-        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_#fbbf24] animate-pulse"></span>
+      
+      <!-- Happy • Lunar • New • Year 區塊：字體無遮擋 + 搖擺紅燈籠 + 春聯 -->
+      <div class="w-full relative flex items-center justify-between px-2 py-1.5 mb-3 bg-gradient-to-r from-red-950/80 via-amber-950/60 to-red-950/80 border border-amber-400/50 rounded-2xl shadow-neon-lunar">
+        
+        <!-- 左側：搖擺紅燈籠 + 迎春對聯 -->
+        <div class="flex items-center gap-1 shrink-0">
+          <div class="anim-lantern-swing-left w-4 h-6 sm:w-5 sm:h-7 drop-shadow-[0_0_8px_rgba(239,68,68,0.9)]">
+            <svg viewBox="0 0 32 44" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 16 0 L 16 5" stroke="#FBBF24" stroke-width="1.8"/>
+              <rect x="8" y="5" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
+              <ellipse cx="16" cy="20" rx="13" ry="12" fill="#DC2626"/>
+              <path d="M 8 20 C 8 11 24 11 24 20 C 24 29 8 29 8 20 Z" fill="#EF4444" opacity="0.85"/>
+              <path d="M 13 8 C 9 14 9 26 13 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
+              <path d="M 19 8 C 23 14 23 26 19 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
+              <line x1="16" y1="8" x2="16" y2="32" stroke="#FBBF24" stroke-width="1"/>
+              <rect x="8" y="32" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
+              <path d="M 16 35 L 16 43" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="16" cy="43" r="1.5" fill="#EF4444"/>
+            </svg>
+          </div>
+          <div class="anim-couplet-pulse bg-gradient-to-b from-red-600 to-red-800 border border-amber-300 text-amber-200 text-[8.5px] sm:text-[9.5px] font-black leading-none px-1 py-0.5 rounded shadow flex flex-col items-center">
+            <span>迎</span>
+            <span class="mt-0.5">春</span>
+          </div>
+        </div>
+
+        <!-- 中間：文字完整展示，彈性自適應尺寸並禁止隱藏截斷 -->
+        <div class="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 px-1 min-w-0">
+          <i data-lucide="sparkles" class="w-3 h-3 text-amber-300 animate-spin shrink-0 hidden sm:inline-block" style="animation-duration: 5s;"></i>
+          <span class="font-mono font-black anim-lunar-shimmer" style="font-size: clamp(9.5px, 2.7vw, 12px);">
+            Happy • Lunar • New • Year
+          </span>
+          <i data-lucide="sparkles" class="w-3 h-3 text-amber-300 animate-spin shrink-0 hidden sm:inline-block" style="animation-duration: 5s;"></i>
+        </div>
+
+        <!-- 右側：納福對聯 + 搖擺紅燈籠 -->
+        <div class="flex items-center gap-1 shrink-0">
+          <div class="anim-couplet-pulse bg-gradient-to-b from-red-600 to-red-800 border border-amber-300 text-amber-200 text-[8.5px] sm:text-[9.5px] font-black leading-none px-1 py-0.5 rounded shadow flex flex-col items-center">
+            <span>納</span>
+            <span class="mt-0.5">福</span>
+          </div>
+          <div class="anim-lantern-swing-right w-4 h-6 sm:w-5 sm:h-7 drop-shadow-[0_0_8px_rgba(239,68,68,0.9)]">
+            <svg viewBox="0 0 32 44" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 16 0 L 16 5" stroke="#FBBF24" stroke-width="1.8"/>
+              <rect x="8" y="5" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
+              <ellipse cx="16" cy="20" rx="13" ry="12" fill="#DC2626"/>
+              <path d="M 8 20 C 8 11 24 11 24 20 C 24 29 8 29 8 20 Z" fill="#EF4444" opacity="0.85"/>
+              <path d="M 13 8 C 9 14 9 26 13 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
+              <path d="M 19 8 C 23 14 23 26 19 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
+              <line x1="16" y1="8" x2="16" y2="32" stroke="#FBBF24" stroke-width="1"/>
+              <rect x="8" y="32" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
+              <path d="M 16 35 L 16 43" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="16" cy="43" r="1.5" fill="#EF4444"/>
+            </svg>
+          </div>
+        </div>
+
       </div>
 
       <div class="w-full grid grid-cols-2 gap-4 items-center">
@@ -622,15 +737,12 @@
         </div>
       </div>
       
-      <!-- ========================================== -->
-      <!-- 獎品內容框容器（外掛露齒開心笑戴眼鏡羊駝動畫） -->
-      <!-- ========================================== -->
+      <!-- 獎品內容框容器 -->
       <div class="relative w-full max-w-sm sm:max-w-md mx-auto my-1.5">
 
-        <!-- 戴眼鏡羊駝 露齒燦笑 動畫插畫 (定位於大框右上方浮動展示) -->
+        <!-- 戴眼鏡羊駝 露齒燦笑 動畫插畫 -->
         <div class="absolute -top-7 -right-3 sm:-top-9 sm:-right-7 z-30 pointer-events-none anim-alpaca-laugh select-none">
           <div class="relative w-16 h-16 sm:w-20 sm:h-20 filter drop-shadow-[0_4px_12px_rgba(245,158,11,0.6)]">
-            <!-- 羊駝本體 SVG -->
             <svg viewBox="0 0 120 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="alpacaWool" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -645,70 +757,50 @@
                 </linearGradient>
               </defs>
 
-              <!-- 左耳朵與耳內粉紅 -->
               <path d="M 32 40 C 22 24 28 8 36 12 C 43 15 42 32 40 40 Z" fill="#FFF8E7" stroke="#D97706" stroke-width="1.8"/>
               <path d="M 32 34 C 26 24 29 14 34 16 C 38 18 38 28 36 34 Z" fill="#FCA5A5"/>
 
-              <!-- 右耳朵與耳內粉紅 -->
               <path d="M 88 40 C 98 24 92 8 84 12 C 77 15 78 32 80 40 Z" fill="#FFF8E7" stroke="#D97706" stroke-width="1.8"/>
               <path d="M 88 34 C 94 24 91 14 86 16 C 82 18 82 28 84 34 Z" fill="#FCA5A5"/>
 
-              <!-- 羊駝毛茸茸頭部主體 -->
               <path d="M 34 50 Q 24 66 32 82 Q 40 98 60 98 Q 80 98 88 82 Q 96 66 86 50 Q 82 32 60 32 Q 38 32 34 50 Z" fill="url(#alpacaWool)" stroke="#F59E0B" stroke-width="2"/>
 
-              <!-- 頭頂軟萌羊毛球/瀏海 -->
               <circle cx="48" cy="32" r="9" fill="#FFFFFF"/>
               <circle cx="60" cy="27" r="10" fill="#FFFFFF"/>
               <circle cx="72" cy="32" r="9" fill="#FFFFFF"/>
               <circle cx="60" cy="35" r="8" fill="#FFFDF5"/>
 
-              <!-- 喜悅瞇瞇笑眼 (月牙彎彎開懷笑) -->
               <path d="M 43 56 Q 48 50 53 56" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
               <path d="M 67 56 Q 72 50 77 56" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
 
-              <!-- 超萌紅潤腮紅 -->
               <ellipse cx="36" cy="67" rx="5" ry="3" fill="#FB7185" opacity="0.8"/>
               <ellipse cx="84" cy="67" rx="5" ry="3" fill="#FB7185" opacity="0.8"/>
 
-              <!-- 嘴鼻白區域凸起 -->
               <ellipse cx="60" cy="74" rx="17" ry="14" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1.5"/>
-
-              <!-- 逗趣粉紅小鼻子 -->
               <path d="M 57 66 C 58 64 62 64 63 66 C 64 68 61 70 60 70 C 59 70 56 68 57 66 Z" fill="#F43F5E"/>
 
-              <!-- 露齒開心大笑 (嘴巴張開露出一整排乾淨白牙) -->
               <g>
-                <!-- 大笑的嘴腔背景 (酒紅) -->
                 <path d="M 49 73 Q 60 71 71 73 Q 60 91 49 73 Z" fill="#991B1B" stroke="#7F1D1D" stroke-width="1"/>
-                <!-- 招牌潔白笑齒 (露出上排白牙) -->
                 <path d="M 50.5 73 Q 60 72 69.5 73 L 69 77 Q 60 78 51 77 Z" fill="#FFFFFF"/>
                 <line x1="56.5" y1="73" x2="56.5" y2="77" stroke="#CBD5E1" stroke-width="0.8"/>
                 <line x1="63.5" y1="73" x2="63.5" y2="77" stroke="#CBD5E1" stroke-width="0.8"/>
-                <!-- 俏皮舌頭 -->
                 <path d="M 54 84 Q 60 81 66 84 Q 60 90 54 84 Z" fill="#FB7185"/>
               </g>
 
-              <!-- 經典金框大圓眼鏡 (附反光高光) -->
               <g>
-                <!-- 鼻樑中梁連接 -->
                 <path d="M 53 57 Q 60 54 67 57" fill="none" stroke="url(#glassesGold)" stroke-width="2.4" stroke-linecap="round"/>
-                
-                <!-- 左鏡框與鏡片 -->
                 <circle cx="46" cy="58" r="11" fill="rgba(255,255,255,0.22)" stroke="url(#glassesGold)" stroke-width="2.6"/>
                 <line x1="35" y1="58" x2="28" y2="54" stroke="url(#glassesGold)" stroke-width="2" stroke-linecap="round"/>
                 
-                <!-- 右鏡框與鏡片 -->
                 <circle cx="74" cy="58" r="11" fill="rgba(255,255,255,0.22)" stroke="url(#glassesGold)" stroke-width="2.6"/>
                 <line x1="85" y1="58" x2="92" y2="54" stroke="url(#glassesGold)" stroke-width="2" stroke-linecap="round"/>
 
-                <!-- 鏡片反光高光 (流動動態) -->
                 <g class="anim-glasses-shine" opacity="0.6">
                   <path d="M 40 52 L 44 48 L 47 52 L 43 56 Z" fill="#FFFFFF"/>
                   <path d="M 68 52 L 72 48 L 75 52 L 71 56 Z" fill="#FFFFFF"/>
                 </g>
               </g>
 
-              <!-- 金光歡呼小星芒 (羊駝旁閃耀開心中獎) -->
               <path d="M 98 32 Q 102 32 102 28 Q 102 32 106 32 Q 102 32 102 36 Q 102 32 98 32 Z" fill="#FDE047"/>
               <path d="M 18 42 Q 21 42 21 39 Q 21 42 24 42 Q 21 42 21 45 Q 21 42 18 42 Z" fill="#FDE047"/>
             </svg>
@@ -719,7 +811,6 @@
         <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#0f1d4a] via-[#070e28] to-[#040616] border-2 border-amber-400/90 rounded-xl sm:rounded-2xl py-3 px-3.5 shadow-2xl relative w-full flex flex-col items-center justify-center min-h-[90px] overflow-hidden">
           
           <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/18 via-white/4 to-transparent pointer-events-none rounded-t-xl z-10"></div>
-          
           <div class="prize-golden-shimmer-smooth"></div>
 
           <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-3 left-6" style="animation-delay: 0s;"></div>
@@ -2122,7 +2213,7 @@
 
         const ws = XLSX.utils.json_to_sheet(templateData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "獎項清單");
+        XLSX.utils.book_append_sheet(wb, "獎項清單");
         XLSX.writeFile(wb, "2027_TKT_抽獎獎項與轉動音效範本.xlsx");
       });
     }
