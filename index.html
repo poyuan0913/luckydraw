@@ -37,7 +37,7 @@
             'glow-gold': '0 0 45px rgba(245, 158, 11, 0.65)',
             'glow-gold-lg': '0 0 70px rgba(245, 158, 11, 0.85), 0 0 100px rgba(0, 0, 255, 0.45)',
             'neon-chute': 'inset 0 0 20px rgba(0,0,0,0.95), 0 0 15px rgba(0,0,255,0.35)',
-            'neon-lunar': '0 0 16px rgba(239, 68, 68, 0.35), inset 0 0 8px rgba(245, 158, 11, 0.25)'
+            'neon-lunar': '0 0 20px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(245, 158, 11, 0.3)'
           }
         }
       }
@@ -133,11 +133,11 @@
               drop-shadow(0 1px 4px rgba(59, 130, 246, 0.5));
     }
 
-    /* Happy • Lunar • New • Year 春節流動特效 */
+    /* Happy • Lunar • New • Year 顯眼春節流動特效 */
     @keyframes lunar-glow-flow {
-      0% { background-position: 0% center; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8)); }
-      50% { background-position: 100% center; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.9)) drop-shadow(0 0 12px rgba(251, 191, 36, 0.8)); }
-      100% { background-position: 200% center; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8)); }
+      0% { background-position: 0% center; filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.7)); }
+      50% { background-position: 100% center; filter: drop-shadow(0 0 14px rgba(239, 68, 68, 0.95)) drop-shadow(0 0 20px rgba(251, 191, 36, 0.9)); }
+      100% { background-position: 200% center; filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.7)); }
     }
     .anim-lunar-shimmer {
       background: linear-gradient(
@@ -154,35 +154,7 @@
       -webkit-text-fill-color: transparent;
       animation: lunar-glow-flow 3.2s linear infinite;
       display: inline-block;
-      white-space: nowrap;
-    }
-
-    /* 紅燈籠搖擺動畫 */
-    @keyframes lantern-swing-l {
-      0%, 100% { transform: rotate(-7deg) translateY(0); }
-      50% { transform: rotate(7deg) translateY(-1px); }
-    }
-    .anim-lantern-swing-left {
-      animation: lantern-swing-l 2.8s ease-in-out infinite;
-      transform-origin: top center;
-    }
-
-    @keyframes lantern-swing-r {
-      0%, 100% { transform: rotate(7deg) translateY(0); }
-      50% { transform: rotate(-7deg) translateY(-1px); }
-    }
-    .anim-lantern-swing-right {
-      animation: lantern-swing-r 3.1s ease-in-out infinite;
-      transform-origin: top center;
-    }
-
-    /* 春聯小標籤呼吸微動 */
-    @keyframes couplet-breath {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.5)); }
-      50% { transform: scale(1.05); filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.85)); }
-    }
-    .anim-couplet-pulse {
-      animation: couplet-breath 2.4s ease-in-out infinite;
+      letter-spacing: 0.18em;
     }
 
     /* 喜慶紅色粗體流動光影效果 (2027 TKT Lucky Draw) */
@@ -251,7 +223,7 @@
       transform: translateZ(0);
     }
 
-    /* 絲滑慢速光流動動畫 */
+    /* 絲滑慢速光流動動畫 (6.8 秒週期，長間隔高雅滑過) */
     @keyframes golden-continuous-flow-mobile {
       0% {
         transform: translate3d(-200%, 0, 0) rotate(20deg);
@@ -294,7 +266,7 @@
       -webkit-animation: golden-continuous-flow-mobile 6.8s cubic-bezier(0.33, 1, 0.68, 1) infinite;
     }
 
-    /* 金粉微粒漂浮 */
+    /* 金粉微粒漂浮（放慢至 6.5 秒） */
     @keyframes golden-dust-float {
       0%, 100% {
         transform: translate3d(0, 0, 0) scale(0.8);
@@ -331,16 +303,31 @@
       animation: pop-box-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
-    /* 開獎大框旁：羊駝動態 */
+    /* 開獎大框旁：戴眼鏡露齒笑羊駝開波動畫 */
     @keyframes alpaca-happy-laugh {
-      0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-      15% { transform: translateY(-8px) rotate(-6deg) scale(1.08); }
-      30% { transform: translateY(2px) rotate(4deg) scale(0.97); }
-      45% { transform: translateY(-10px) rotate(-4deg) scale(1.1); }
-      60% { transform: translateY(1px) rotate(3deg) scale(0.99); }
-      75% { transform: translateY(-5px) rotate(-2deg) scale(1.04); }
-      90% { transform: translateY(0px) rotate(1deg) scale(1); }
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg) scale(1);
+      }
+      15% {
+        transform: translateY(-8px) rotate(-6deg) scale(1.08);
+      }
+      30% {
+        transform: translateY(2px) rotate(4deg) scale(0.97);
+      }
+      45% {
+        transform: translateY(-10px) rotate(-4deg) scale(1.1);
+      }
+      60% {
+        transform: translateY(1px) rotate(3deg) scale(0.99);
+      }
+      75% {
+        transform: translateY(-5px) rotate(-2deg) scale(1.04);
+      }
+      90% {
+        transform: translateY(0px) rotate(1deg) scale(1);
+      }
     }
+
     .anim-alpaca-laugh {
       animation: alpaca-happy-laugh 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
       transform-origin: bottom center;
@@ -407,13 +394,12 @@
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
   </div>
 
-  <!-- 頂部導覽列：標題靠近 Logo，且「3D 擬真扭蛋盲盒」置中對齊「2027 TKT End Party」 -->
+  <!-- 頂部導覽列：置中對齊標題與副標題 -->
   <header class="relative z-30 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md px-4 py-3 sticky top-0 shadow-lg">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       
-      <!-- 左側 Logo 與標題緊密結合區域 -->
-      <div class="flex items-center gap-3.5">
-        <!-- Logo 容器 -->
+      <!-- 左側 Logo 區域 -->
+      <div class="flex items-center gap-3.5 shrink-0">
         <div class="bg-white p-1.5 rounded-xl shadow-md border border-white/20 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 hover:scale-105 transition-transform duration-200 shrink-0">
           <svg class="w-full h-full" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
             <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
@@ -424,34 +410,33 @@
             </text>
           </svg>
         </div>
+      </div>
 
-        <div class="h-10 w-px bg-slate-800 hidden sm:block"></div>
-
-        <!-- 標題區域 -->
-        <div class="flex flex-col items-center justify-center text-center">
-          <h1 class="text-base sm:text-xl font-black tracking-wider flex items-center justify-center gap-2">
-            <span class="anim-title-shimmer">2027 TKT End Party</span>
-            <!-- 加大並強化光芒的「年度盛典」徽章 -->
-            <span class="inline-flex items-center gap-1 text-xs sm:text-sm bg-gradient-to-r from-amber-500/25 via-yellow-400/30 to-amber-500/25 text-amber-200 border-2 border-amber-400/70 px-3 py-1 rounded-full font-black shadow-[0_0_14px_rgba(245,158,11,0.5)] tracking-wide shrink-0">
-              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 animate-pulse"></i>
-              <span>年度盛典</span>
-            </span>
-          </h1>
-          <p class="text-[11px] sm:text-xs text-slate-400 font-medium tracking-wider text-center w-full mt-0.5">
-            3D 擬真扭蛋盲盒
-          </p>
-        </div>
+      <!-- 中間：置中對齊主標題與 3D 擬真扭蛋盲盒副標題 -->
+      <div class="flex-1 flex flex-col items-center justify-center text-center px-2">
+        <h1 class="text-base sm:text-2xl font-black tracking-wider flex items-center justify-center gap-2">
+          <span class="anim-title-shimmer">2027 TKT End Party</span>
+          <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold hidden md:inline-block">
+            年度盛典
+          </span>
+        </h1>
+        <p class="text-[11px] sm:text-xs text-slate-300/80 font-medium tracking-widest mt-0.5 flex items-center justify-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+          <span>3D 擬真扭蛋盲盒</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+        </p>
       </div>
 
       <!-- 右側功能按鈕 -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 shrink-0">
         <button id="soundToggleBtn" class="p-2 sm:p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 transition" title="開關音效">
           <i data-lucide="volume-2" class="w-4 h-4" id="soundIcon"></i>
         </button>
 
-        <button id="toggleQRAdminBtn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-tkt-dark to-tkt-blue text-white text-xs sm:text-sm font-semibold border border-blue-400/40 shadow-glow-blue hover:brightness-110 active:scale-95 transition">
+        <button id="toggleQRAdminBtn" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-gradient-to-r from-tkt-dark to-tkt-blue text-white text-xs sm:text-sm font-semibold border border-blue-400/40 shadow-glow-blue hover:brightness-110 active:scale-95 transition">
           <i data-lucide="lock" class="w-4 h-4"></i>
-          <span>後台 QR 管理</span>
+          <span class="hidden sm:inline">後台 QR 管理</span>
+          <span class="sm:hidden">後台</span>
         </button>
       </div>
 
@@ -558,64 +543,19 @@
     </div>
 
     <!-- 扭蛋機基座 & 出蛋口 & 旋鈕開關 -->
-    <div class="w-80 sm:w-96 bg-gradient-to-b from-slate-900 via-slate-950 to-black rounded-b-3xl border-x-4 border-b-4 border-slate-800 p-3 sm:p-5 shadow-2xl relative -mt-3 z-10 flex flex-col items-center">
+    <div class="w-80 sm:w-96 bg-gradient-to-b from-slate-900 via-slate-950 to-black rounded-b-3xl border-x-4 border-b-4 border-slate-800 p-4 sm:p-5 shadow-2xl relative -mt-3 z-10 flex flex-col items-center">
       
-      <!-- ============================================================
-           Happy • Lunar • New • Year 區塊：手機完全不蓋字優化版
-      ============================================================ -->
-      <div class="w-full flex items-center justify-between px-1.5 py-1 sm:py-1.5 mb-3 bg-gradient-to-r from-red-950/80 via-amber-950/60 to-red-950/80 border border-amber-400/50 rounded-2xl shadow-neon-lunar gap-1">
-        
-        <!-- 左側：搖擺紅燈籠 + 迎春對聯 -->
-        <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
-          <div class="anim-lantern-swing-left w-3.5 h-5 sm:w-4 sm:h-6 drop-shadow-[0_0_6px_rgba(239,68,68,0.85)]">
-            <svg viewBox="0 0 32 44" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 16 0 L 16 5" stroke="#FBBF24" stroke-width="1.8"/>
-              <rect x="8" y="5" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
-              <ellipse cx="16" cy="20" rx="13" ry="12" fill="#DC2626"/>
-              <path d="M 8 20 C 8 11 24 11 24 20 C 24 29 8 29 8 20 Z" fill="#EF4444" opacity="0.85"/>
-              <path d="M 13 8 C 9 14 9 26 13 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
-              <path d="M 19 8 C 23 14 23 26 19 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
-              <line x1="16" y1="8" x2="16" y2="32" stroke="#FBBF24" stroke-width="1"/>
-              <rect x="8" y="32" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
-              <path d="M 16 35 L 16 43" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
-              <circle cx="16" cy="43" r="1.5" fill="#EF4444"/>
-            </svg>
-          </div>
-          <div class="anim-couplet-pulse bg-gradient-to-b from-red-600 to-red-800 border border-amber-300 text-amber-200 text-[8px] sm:text-[9.5px] font-black leading-none px-0.5 py-0.5 rounded shadow flex flex-col items-center shrink-0">
-            <span>迎</span>
-            <span class="mt-0.5">春</span>
-          </div>
-        </div>
-
-        <!-- 中間：文字完整彈性縮放，零裁切不換行 -->
-        <div class="flex-1 flex items-center justify-center min-w-0 px-0.5 overflow-visible">
-          <span class="font-mono font-black anim-lunar-shimmer tracking-tighter sm:tracking-normal text-center leading-none" style="font-size: clamp(8.5px, 2.6vw, 12px);">
+      <!-- Happy • Lunar • New • Year 顯眼春節特效橫幅 -->
+      <div class="w-full flex justify-between items-center px-3 py-1.5 mb-3 bg-gradient-to-r from-red-950/40 via-amber-950/50 to-red-950/40 border border-amber-400/40 rounded-full shadow-neon-lunar">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_12px_#fbbf24] animate-pulse"></span>
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 animate-spin" style="animation-duration: 4s;"></i>
+          <span class="text-[11px] sm:text-xs font-mono font-black anim-lunar-shimmer">
             Happy • Lunar • New • Year
           </span>
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 animate-spin" style="animation-duration: 4s;"></i>
         </div>
-
-        <!-- 右側：納福對聯 + 搖擺紅燈籠 -->
-        <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
-          <div class="anim-couplet-pulse bg-gradient-to-b from-red-600 to-red-800 border border-amber-300 text-amber-200 text-[8px] sm:text-[9.5px] font-black leading-none px-0.5 py-0.5 rounded shadow flex flex-col items-center shrink-0">
-            <span>納</span>
-            <span class="mt-0.5">福</span>
-          </div>
-          <div class="anim-lantern-swing-right w-3.5 h-5 sm:w-4 sm:h-6 drop-shadow-[0_0_6px_rgba(239,68,68,0.85)]">
-            <svg viewBox="0 0 32 44" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 16 0 L 16 5" stroke="#FBBF24" stroke-width="1.8"/>
-              <rect x="8" y="5" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
-              <ellipse cx="16" cy="20" rx="13" ry="12" fill="#DC2626"/>
-              <path d="M 8 20 C 8 11 24 11 24 20 C 24 29 8 29 8 20 Z" fill="#EF4444" opacity="0.85"/>
-              <path d="M 13 8 C 9 14 9 26 13 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
-              <path d="M 19 8 C 23 14 23 26 19 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
-              <line x1="16" y1="8" x2="16" y2="32" stroke="#FBBF24" stroke-width="1"/>
-              <rect x="8" y="32" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
-              <path d="M 16 35 L 16 43" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
-              <circle cx="16" cy="43" r="1.5" fill="#EF4444"/>
-            </svg>
-          </div>
-        </div>
-
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_12px_#f43f5e] animate-pulse"></span>
       </div>
 
       <div class="w-full grid grid-cols-2 gap-4 items-center">
@@ -685,8 +625,8 @@
     </div>
   </main>
 
-  <!-- 開獎揭曉祝賀彈窗 (優化 iPad Webkit 圖層) -->
-  <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-lg hidden opacity-0 transition-opacity duration-300 overflow-y-auto" style="-webkit-transform: translateZ(0); transform: translateZ(0);">
+  <!-- 開獎揭曉祝賀彈窗 -->
+  <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-lg hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
     <div id="revealCard" class="relative w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center border-2 border-amber-400/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-300 my-auto max-h-[92vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
       
       <!-- Logo 樣式 -->
@@ -1136,7 +1076,7 @@
     }
 
     /* ============================================================
-       2. 音效系統 (iOS/iPadOS 防中斷強化)
+       2. 音效系統 (Web Audio + 自訂 MP3)
     ============================================================ */
     let isSoundMuted = false;
     let drum = null;
@@ -1155,7 +1095,7 @@
           audioCtx = new AudioCtxClass();
         }
         if (audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(()=>{});
+          audioCtx.resume();
         }
         return audioCtx;
       },
@@ -1173,9 +1113,6 @@
       unlock() {
         try {
           const ctx = this.getCtx();
-          if (ctx.state === 'suspended') {
-            ctx.resume().catch(()=>{});
-          }
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           gain.gain.value = 0.0001;
@@ -1187,39 +1124,39 @@
           if (!winSound) {
             winSound = new Audio('win.mp3');
             winSound.preload = 'auto';
+            winSound.load();
           }
-        } catch(e) {}
+        } catch(e) {
+          console.warn("音訊通道解鎖警告:", e);
+        }
       },
 
       playDrum(id) {
         if (isSoundMuted) return;
         this.unlock();
-        this.stopDrum();
 
         const soundId = (id >= 1 && id <= 30) ? id : 0;
         const targetSrc = `drum${soundId}.mp3`;
 
-        try {
-          let audioToPlay = null;
-          if (preloadedAudios[soundId]) {
-            audioToPlay = preloadedAudios[soundId];
-            audioToPlay.currentTime = 0;
-          } else {
-            audioToPlay = new Audio(targetSrc);
-          }
+        let audioToPlay = null;
+        if (preloadedAudios[soundId]) {
+          audioToPlay = preloadedAudios[soundId];
+          audioToPlay.currentTime = 0;
+        } else {
+          audioToPlay = new Audio(targetSrc);
+        }
 
-          audioToPlay.volume = 1.0;
-          const p = audioToPlay.play();
-          if (p !== undefined) {
-            p.then(() => {
-              drum = audioToPlay;
-            }).catch(() => {
-              Sound.playFallbackDrum();
-            });
-          } else {
+        audioToPlay.volume = 1.0;
+        const playPromise = audioToPlay.play();
+
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            drum = audioToPlay;
+          }).catch(err => {
+            console.warn(`外部 MP3 (${targetSrc}) 播放受限或不存在，立即啟動 Web Audio 萬能合成音:`, err);
             Sound.playFallbackDrum();
-          }
-        } catch(e) {
+          });
+        } else {
           Sound.playFallbackDrum();
         }
       },
@@ -1230,7 +1167,6 @@
             drum.pause();
             drum.currentTime = 0;
           } catch(e) {}
-          drum = null;
         }
       },
 
@@ -1308,6 +1244,7 @@
       hitTenseHeartbeatBeat(ctx, progress, isFinalRush) {
         try {
           const now = ctx.currentTime;
+
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
 
@@ -1341,6 +1278,21 @@
             secondGain.connect(ctx.destination);
             secondOsc.start(secondTime);
             secondOsc.stop(secondTime + 0.13);
+          } else {
+            const bufferSize = ctx.sampleRate * 0.04;
+            const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+              output[i] = Math.random() * 2 - 1;
+            }
+            const noise = ctx.createBufferSource();
+            noise.buffer = noiseBuffer;
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.35, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+            noise.connect(noiseGain);
+            noiseGain.connect(ctx.destination);
+            noise.start(now);
           }
         } catch(e){}
       },
@@ -1357,7 +1309,8 @@
           winSound.currentTime = 0;
           const p = winSound.play();
           if (p !== undefined) {
-            p.catch(() => {
+            p.catch(err => {
+              console.warn("自訂 win.mp3 播放受阻，啟用號角合成備援音:", err);
               Sound.playFallbackWin();
             });
           }
@@ -1406,6 +1359,31 @@
 
           osc.start(now);
           osc.stop(now + (isHeavy ? 0.52 : 0.38));
+
+          const bufferSize = ctx.sampleRate * (isHeavy ? 0.4 : 0.25);
+          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+
+          const whiteNoise = ctx.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(isHeavy ? 600 : (900 + Math.random() * 400), now);
+          filter.Q.setValueAtTime(1.8, now);
+
+          const noiseGain = ctx.createGain();
+          noiseGain.gain.setValueAtTime(isHeavy ? 0.55 : 0.35, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + (isHeavy ? 0.38 : 0.22));
+
+          whiteNoise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(ctx.destination);
+
+          whiteNoise.start(now);
         } catch(e){}
       },
 
@@ -1682,20 +1660,13 @@
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (iOS/iPad 多次連續開獎修復)
+       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (不重複抽出)
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
 
     function spinGachapon() {
       if (isSpinning) return;
-
-      // 每次按下抽獎前，徹底清空上一次未結束的煙火與音效計時器
-      stopGrandFireworksShow();
-      Sound.stopWin();
-
-      // iOS Safari 解鎖 AudioContext
-      Sound.unlock();
 
       const availablePrizes = prizeList.filter(p => !drawnPrizeIds.includes(p.id));
 
@@ -1821,6 +1792,9 @@
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
+        Sound.playWin();
+        fireGrandFireworksShow();
+
         document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
         
         const titleContainer = document.getElementById('revealPrizeTitle');
@@ -1833,103 +1807,91 @@
 
         const modal = document.getElementById('revealModal');
         const card = document.getElementById('revealCard');
-        
-        // 確保彈窗顯示並觸發 WebKit 重繪
         modal.classList.remove('hidden');
-        void modal.offsetHeight;
-
         setTimeout(() => {
           modal.classList.remove('opacity-0');
           card.classList.remove('scale-90');
           card.classList.add('scale-100');
           adjustPrizeFontSize();
-        }, 30);
-
-        // 獨立包覆執行，確保音效或特效失敗絕不卡死彈窗
-        try {
-          Sound.playWin();
-        } catch(e) {}
-        
-        try {
-          fireGrandFireworksShow();
-        } catch(e) {}
+        }, 20);
 
         isSpinning = false;
         updateDrawStatusUI();
       }, 550);
     }
 
-    /* iOS/iPad 多次連續開獎防卡死煙火控制系統 */
-    let activeFireworkTimer = null;
-
-    function stopGrandFireworksShow() {
-      if (activeFireworkTimer) {
-        clearInterval(activeFireworkTimer);
-        activeFireworkTimer = null;
-      }
-      if (typeof window.confetti === 'function' && typeof window.confetti.reset === 'function') {
-        try {
-          window.confetti.reset();
-        } catch(e) {}
-      }
-    }
-
     function fireGrandFireworksShow() {
-      stopGrandFireworksShow();
-      Sound.playFireworkExplosion({ heavy: true });
+      if (typeof confetti === 'undefined') return;
 
-      if (typeof window.confetti !== 'function') return;
-
-      const fireworksDuration = 3200;
+      const fireworksDuration = 3600;
       const animationEnd = Date.now() + fireworksDuration;
       const festColors = ['#FFD700', '#FF0055', '#0044FF', '#00FF88', '#FFAA00', '#FFFFFF', '#9D4EDD'];
 
-      try {
-        window.confetti({
-          particleCount: 75,
-          angle: 60,
-          spread: 65,
-          origin: { x: 0, y: 0.8 },
-          colors: festColors,
-          zIndex: 99999
-        });
-        window.confetti({
-          particleCount: 75,
-          angle: 120,
-          spread: 65,
-          origin: { x: 1, y: 0.8 },
-          colors: festColors,
-          zIndex: 99999
-        });
-      } catch(e){}
+      confetti({
+        particleCount: 85,
+        angle: 60,
+        spread: 65,
+        origin: { x: 0, y: 0.8 },
+        colors: festColors,
+        zIndex: 9999
+      });
+      confetti({
+        particleCount: 85,
+        angle: 120,
+        spread: 65,
+        origin: { x: 1, y: 0.8 },
+        colors: festColors,
+        zIndex: 9999
+      });
+      Sound.playFireworkExplosion({ heavy: true });
 
-      activeFireworkTimer = setInterval(() => {
+      const interval = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
         if (timeLeft <= 0) {
-          stopGrandFireworksShow();
+          clearInterval(interval);
           return;
         }
 
-        const particleCount = 35 * (timeLeft / fireworksDuration);
-        try {
-          window.confetti({
-            particleCount,
-            startVelocity: 30,
-            spread: 360,
-            ticks: 60,
-            origin: {
-              x: Math.random() * 0.7 + 0.15,
-              y: Math.random() * 0.45 + 0.1
-            },
-            colors: festColors,
-            shapes: ['circle', 'square'],
-            scalar: Math.random() * 0.4 + 0.85,
-            zIndex: 99999
-          });
-        } catch(e){}
+        const particleCount = 45 * (timeLeft / fireworksDuration);
 
-        Sound.playFireworkExplosion({ heavy: Math.random() > 0.65 });
-      }, 300);
+        confetti({
+          particleCount,
+          startVelocity: 35,
+          spread: 360,
+          ticks: 70,
+          origin: {
+            x: Math.random() * 0.7 + 0.15,
+            y: Math.random() * 0.45 + 0.1
+          },
+          colors: festColors,
+          shapes: ['circle', 'square'],
+          scalar: Math.random() * 0.4 + 0.9,
+          zIndex: 9999
+        });
+
+        Sound.playFireworkExplosion({ heavy: Math.random() > 0.6 });
+
+        if (Math.random() > 0.45) {
+          confetti({
+            particleCount: 25,
+            angle: 55 + Math.random() * 20,
+            spread: 55,
+            origin: { x: 0, y: 0.75 },
+            colors: festColors,
+            zIndex: 9999
+          });
+        }
+        if (Math.random() > 0.45) {
+          confetti({
+            particleCount: 25,
+            angle: 105 + Math.random() * 20,
+            spread: 55,
+            origin: { x: 1, y: 0.75 },
+            colors: festColors,
+            zIndex: 9999
+          });
+        }
+      }, 250);
     }
 
     /* ============================================================
@@ -2363,10 +2325,7 @@
       });
 
       document.getElementById('closeModalBtn').addEventListener('click', () => {
-        // 關閉時徹底終止煙火與中獎音效
-        stopGrandFireworksShow();
         Sound.stopWin();
-
         const modal = document.getElementById('revealModal');
         const card = document.getElementById('revealCard');
         card.classList.remove('scale-100');
