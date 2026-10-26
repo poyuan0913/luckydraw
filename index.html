@@ -46,10 +46,11 @@
 
   <style>
     .glass-panel {
-      background: rgba(11, 19, 43, 0.94);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: linear-gradient(145deg, rgba(14, 25, 58, 0.96) 0%, rgba(6, 11, 28, 0.98) 100%);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(254, 240, 138, 0.35);
+      position: relative;
     }
 
     @keyframes crank-spin {
@@ -62,7 +63,7 @@
 
     @keyframes egg-crack-glow {
       0% { transform: scale(1); filter: brightness(1); }
-      50% { transform: scale(1.25); filter: brightness(2.2) drop-shadow(0 0 40px #EF4444); }
+      50% { transform: scale(1.28); filter: brightness(2.4) drop-shadow(0 0 45px #EF4444); }
       100% { transform: scale(0.9); filter: brightness(1.2); }
     }
     .egg-cracking {
@@ -105,7 +106,7 @@
       transform-origin: 50% 10%;
     }
 
-    /* 頂部「2027 TKT End Party」無框柔和流動光芒 */
+    /* 頂部標題流動光芒 */
     @keyframes title-shimmer-flow {
       0% { background-position: 200% center; }
       100% { background-position: -200% center; }
@@ -126,7 +127,6 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      color: transparent;
       animation: title-shimmer-flow 6s ease-in-out infinite;
       display: inline-block;
       filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.4))
@@ -157,7 +157,7 @@
       white-space: nowrap;
     }
 
-    /* 紅燈籠搖擺動畫 */
+    /* 紅燈籠搖擺 */
     @keyframes lantern-swing-l {
       0%, 100% { transform: rotate(-7deg) translateY(0); }
       50% { transform: rotate(7deg) translateY(-1px); }
@@ -176,7 +176,7 @@
       transform-origin: top center;
     }
 
-    /* 春聯小標籤呼吸微動 */
+    /* 春聯小標籤呼吸 */
     @keyframes couplet-breath {
       0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.5)); }
       50% { transform: scale(1.05); filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.85)); }
@@ -185,7 +185,7 @@
       animation: couplet-breath 2.4s ease-in-out infinite;
     }
 
-    /* 喜慶紅色粗體流動光影效果 (2027 TKT Lucky Draw) */
+    /* 喜慶紅色粗體流動光影效果 */
     @keyframes festive-red-shimmer-flow {
       0% { background-position: -250% center; }
       100% { background-position: 250% center; }
@@ -212,7 +212,7 @@
               drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85));
     }
 
-    /* 「啟動 3D 扭蛋」按鈕立體懸浮微動效果 */
+    /* 按鈕立體懸浮微動效果 */
     @keyframes btn-float-pulse {
       0%, 100% {
         transform: translateY(0px);
@@ -232,19 +232,19 @@
       transform: translateY(1px) scale(0.98);
     }
 
-    /* 慢速、柔和絲滑的框體外金光呼吸 (7.2 秒週期) */
+    /* 框體外金光呼吸 */
     @keyframes golden-ambient-pulse {
       0%, 100% {
-        box-shadow: 0 0 18px rgba(245, 158, 11, 0.28), inset 0 0 12px rgba(245, 158, 11, 0.16);
-        border-color: rgba(245, 158, 11, 0.82);
+        box-shadow: 0 0 24px rgba(245, 158, 11, 0.32), inset 0 0 16px rgba(245, 158, 11, 0.2);
+        border-color: rgba(245, 158, 11, 0.85);
       }
       50% {
-        box-shadow: 0 0 36px rgba(245, 158, 11, 0.62), inset 0 0 22px rgba(245, 158, 11, 0.32);
-        border-color: rgba(254, 240, 138, 0.95);
+        box-shadow: 0 0 46px rgba(245, 158, 11, 0.75), inset 0 0 26px rgba(245, 158, 11, 0.4);
+        border-color: rgba(254, 240, 138, 1);
       }
     }
     .prize-box-neon {
-      animation: golden-ambient-pulse 7.2s ease-in-out infinite;
+      animation: golden-ambient-pulse 5.5s ease-in-out infinite;
       position: relative;
       isolation: isolate;
       transform: translateZ(0);
@@ -257,8 +257,8 @@
         opacity: 0;
       }
       10% { opacity: 0; }
-      25% { opacity: 0.85; }
-      65% { opacity: 0.85; }
+      25% { opacity: 0.9; }
+      65% { opacity: 0.9; }
       80% { opacity: 0; }
       100% {
         transform: translate3d(200%, 0, 0) rotate(20deg);
@@ -275,18 +275,18 @@
       background: linear-gradient(
         90deg,
         transparent 0%,
-        rgba(251, 191, 36, 0) 32%,
-        rgba(254, 240, 138, 0.22) 46%,
-        rgba(255, 255, 255, 0.85) 50%,
-        rgba(245, 158, 11, 0.42) 54%,
-        rgba(251, 191, 36, 0) 68%,
+        rgba(251, 191, 36, 0) 30%,
+        rgba(254, 240, 138, 0.25) 45%,
+        rgba(255, 255, 255, 0.95) 50%,
+        rgba(245, 158, 11, 0.5) 55%,
+        rgba(251, 191, 36, 0) 70%,
         transparent 100%
       );
       pointer-events: none;
       z-index: 15;
       will-change: transform, opacity;
       backface-visibility: hidden;
-      animation: golden-continuous-flow-mobile 6.8s cubic-bezier(0.33, 1, 0.68, 1) infinite;
+      animation: golden-continuous-flow-mobile 5.8s cubic-bezier(0.33, 1, 0.68, 1) infinite;
     }
 
     /* 金粉微粒漂浮 */
@@ -296,37 +296,37 @@
         opacity: 0.2;
       }
       50% {
-        transform: translate3d(4px, -4px, 0) scale(1.15);
-        opacity: 0.85;
+        transform: translate3d(4px, -4px, 0) scale(1.2);
+        opacity: 0.9;
       }
     }
     .golden-dust-particle {
       position: absolute;
       border-radius: 9999px;
       background: #FDE047;
-      box-shadow: 0 0 6px #F59E0B;
+      box-shadow: 0 0 8px #F59E0B;
       pointer-events: none;
       will-change: transform, opacity;
-      animation: golden-dust-float 6.5s ease-in-out infinite;
+      animation: golden-dust-float 5s ease-in-out infinite;
     }
 
     .golden-prize-text {
-      background: linear-gradient(135deg, #FFFFFF 0%, #FFF3B0 25%, #F59E0B 55%, #FFF0BA 80%, #D97706 100%);
+      background: linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 25%, #FBBF24 50%, #FFF0BA 75%, #D97706 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 6px rgba(245, 158, 11, 0.45));
+      filter: drop-shadow(0 2px 10px rgba(245, 158, 11, 0.55));
     }
 
     @keyframes pop-box-in {
-      0% { transform: scale(0.85); opacity: 0; }
-      65% { transform: scale(1.02); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
+      0% { transform: scale(0.82) translateY(12px); opacity: 0; }
+      65% { transform: scale(1.03) translateY(-2px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
     }
     .prize-box-enter {
-      animation: pop-box-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation: pop-box-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
-    /* 開獎大框旁：羊駝動態 */
+    /* 羊駝動態 */
     @keyframes alpaca-happy-laugh {
       0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
       15% { transform: translateY(-8px) rotate(-6deg) scale(1.08); }
@@ -352,11 +352,71 @@
     }
 
     /* ============================================================
-       質感與儀式感升級特效 (效能優化無重繪負擔)
+       開獎後質感深度強化特效 (God Rays / 光環 / 震波 / 奢華邊框)
     ============================================================ */
+    /* 1. 背景慢速旋轉神聖放射光芒環 */
+    @keyframes sunburst-rotate {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    .modal-sunburst-halo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140vw;
+      height: 140vw;
+      max-width: 900px;
+      max-height: 900px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(59, 130, 246, 0.12) 35%, transparent 70%),
+                  conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.08) 15deg, transparent 30deg, rgba(251, 191, 36, 0.08) 45deg, transparent 60deg, rgba(251, 191, 36, 0.08) 75deg, transparent 90deg, rgba(251, 191, 36, 0.08) 105deg, transparent 120deg, rgba(251, 191, 36, 0.08) 135deg, transparent 150deg, rgba(251, 191, 36, 0.08) 165deg, transparent 180deg, rgba(251, 191, 36, 0.08) 195deg, transparent 210deg, rgba(251, 191, 36, 0.08) 225deg, transparent 240deg, rgba(251, 191, 36, 0.08) 255deg, transparent 270deg, rgba(251, 191, 36, 0.08) 285deg, transparent 300deg, rgba(251, 191, 36, 0.08) 315deg, transparent 330deg, rgba(251, 191, 36, 0.08) 345deg, transparent 360deg);
+      pointer-events: none;
+      z-index: 0;
+      animation: sunburst-rotate 38s linear infinite;
+      will-change: transform;
+    }
+
+    /* 2. 開獎瞬間金色震波擴散 */
+    @keyframes shockwave-out {
+      0% { transform: scale(0.65); opacity: 0.9; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .anim-shockwave {
+      animation: shockwave-out 1.1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+
+    /* 3. 獲獎金額發光標籤 */
+    .prize-amount-badge {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.38) 100%);
+      border: 1px solid rgba(254, 240, 138, 0.7);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4), inset 0 0 8px rgba(254, 240, 138, 0.3);
+      text-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+    }
+
+    /* 4. 按鈕奢華光帶掠過 */
+    @keyframes btn-shimmer-sweep {
+      0% { transform: translateX(-150%) skewX(-20deg); }
+      25%, 100% { transform: translateX(250%) skewX(-20deg); }
+    }
+    .btn-luxury-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-luxury-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+      animation: btn-shimmer-sweep 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* 舞台調光與物理落球 */
     .stage-focus-active {
-      transition: filter 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s ease;
-      filter: brightness(0.4) contrast(1.12);
+      transition: filter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: brightness(0.38) contrast(1.12);
     }
     .stage-spotlight {
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.6s ease;
@@ -567,7 +627,7 @@
 
     </div>
 
-    <!-- 3D 玻璃腔體 (升級菲涅爾邊光與外層水晶球光感) -->
+    <!-- 3D 玻璃腔體 -->
     <div class="relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 glass-sphere-container border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
       <div class="absolute -top-4 left-6 w-52 h-28 bg-gradient-to-b from-white/30 to-transparent rounded-full rotate-[-28deg] pointer-events-none z-10 blur-[1px]"></div>
       <div class="absolute inset-0 rounded-full ring-2 ring-inset ring-white/20 pointer-events-none z-10"></div>
@@ -655,7 +715,7 @@
           <span class="text-[11px] text-slate-400 mt-1.5 font-medium">點擊或轉動旋鈕</span>
         </div>
 
-        <!-- 3D 扭蛋出蛋口 (聚光燈目標) -->
+        <!-- 3D 扭蛋出蛋口 -->
         <div class="flex flex-col items-center">
           <div id="chuteContainer" class="w-28 h-20 rounded-2xl bg-black border-2 border-slate-800 shadow-neon-chute relative flex items-center justify-center overflow-hidden transition-all duration-500">
             <div class="absolute inset-x-2 top-0 h-1 bg-slate-800 rounded-b"></div>
@@ -707,12 +767,25 @@
     </div>
   </main>
 
-  <!-- 開獎揭曉祝賀彈窗 -->
-  <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-lg hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
-    <div id="revealCard" class="relative w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center border-2 border-amber-400/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-300 my-auto max-h-[92vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
+  <!-- ============================================================
+       開獎揭曉祝賀彈窗 (神聖光芒 + 震波光環 + 黑金奢華層次)
+  ============================================================ -->
+  <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/92 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 overflow-hidden">
+    
+    <!-- 背景旋轉神聖光輝環 (Sunburst Halo) -->
+    <div class="modal-sunburst-halo"></div>
+
+    <!-- 開獎瞬間金色能量擴散震波 -->
+    <div id="revealShockwave" class="hidden absolute w-80 h-80 sm:w-96 sm:h-96 rounded-full border-2 border-amber-400/80 pointer-events-none z-10 shadow-[0_0_50px_rgba(245,158,11,0.8)]"></div>
+
+    <!-- 主頒獎卡片 -->
+    <div id="revealCard" class="relative z-20 w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-center border-2 border-amber-300/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-500 my-auto max-h-[92vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
       
+      <!-- 卡片頂部細緻光緣 (Inner Highlight) -->
+      <div class="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-200 to-transparent"></div>
+
       <!-- Logo 樣式 -->
-      <div class="w-14 sm:w-20 md:w-24 h-auto mx-auto mb-1 bg-white p-1 sm:p-1.5 rounded-xl shadow-[0_0_18px_rgba(255,255,255,0.35)] shrink-0">
+      <div class="w-14 sm:w-20 md:w-24 h-auto mx-auto mb-1 bg-white p-1 sm:p-1.5 rounded-xl shadow-[0_0_22px_rgba(255,255,255,0.4)] shrink-0 border border-white/40">
         <svg class="w-full h-auto block" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
           <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
           <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
@@ -722,22 +795,22 @@
       </div>
 
       <!-- 獎盃圖示 -->
-      <div class="mx-auto w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.8)] mb-0.5 animate-bounce shrink-0">
-        <i data-lucide="trophy" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950"></i>
+      <div class="mx-auto w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-200 to-amber-600 flex items-center justify-center shadow-[0_0_22px_rgba(245,158,11,0.9)] mb-1 shrink-0 animate-bounce">
+        <i data-lucide="trophy" class="w-4 h-4 sm:w-5 sm:h-5 text-slate-950"></i>
       </div>
 
-      <div class="text-sm sm:text-base md:text-lg font-black text-amber-300 tracking-[0.28em] uppercase mb-0.5 drop-shadow-[0_2px_8px_rgba(245,158,11,0.6)] shrink-0">
+      <div class="text-sm sm:text-base md:text-lg font-black text-amber-300 tracking-[0.32em] uppercase mb-0.5 drop-shadow-[0_2px_12px_rgba(245,158,11,0.8)] shrink-0">
         CONGRATULATIONS
       </div>
 
-      <h3 class="text-xs sm:text-sm md:text-base font-bold text-slate-100/90 mb-1.5 tracking-wider drop-shadow shrink-0">
+      <h3 class="text-xs sm:text-sm md:text-base font-bold text-slate-100 mb-2 tracking-wider drop-shadow shrink-0">
         🎉 恭喜幸運中獎！ 🎉
       </h3>
 
-      <!-- 幸運序號標籤 -->
-      <div class="flex items-center justify-center mb-1.5 shrink-0">
-        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-900/90 border border-blue-400/70 shadow-md">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <!-- 幸運序號標籤 (更精細金屬鍍層) -->
+      <div class="flex items-center justify-center mb-2 shrink-0">
+        <div class="inline-flex items-center gap-1.5 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-blue-950 via-blue-900 to-blue-950 border border-blue-400/80 shadow-[0_0_12px_rgba(59,130,246,0.4)]">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
           <span class="text-xs sm:text-sm font-mono font-black text-blue-100 tracking-wider" id="revealTicketNo">幸運序號 #--</span>
         </div>
       </div>
@@ -745,9 +818,9 @@
       <!-- 獎品內容框容器 -->
       <div class="relative w-full max-w-sm sm:max-w-md mx-auto my-1.5">
 
-        <!-- 戴眼鏡羊駝 露齒燦笑 動畫插畫 -->
+        <!-- 戴眼鏡羊駝 燦笑插畫 -->
         <div class="absolute -top-7 -right-3 sm:-top-9 sm:-right-7 z-30 pointer-events-none anim-alpaca-laugh select-none">
-          <div class="relative w-16 h-16 sm:w-20 sm:h-20 filter drop-shadow-[0_4px_12px_rgba(245,158,11,0.6)]">
+          <div class="relative w-16 h-16 sm:w-20 sm:h-20 filter drop-shadow-[0_4px_16px_rgba(245,158,11,0.7)]">
             <svg viewBox="0 0 120 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="alpacaWool" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -812,10 +885,10 @@
           </div>
         </div>
 
-        <!-- 獎品主框體 -->
-        <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#0f1d4a] via-[#070e28] to-[#040616] border-2 border-amber-400/90 rounded-xl sm:rounded-2xl py-3 px-3.5 shadow-2xl relative w-full flex flex-col items-center justify-center min-h-[90px] overflow-hidden">
+        <!-- 獎品主框體 (黑金奢華暗色漸層 + 雙層流光) -->
+        <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#111f4d] via-[#091133] to-[#030614] border-2 border-amber-300 rounded-xl sm:rounded-2xl py-3 px-3.5 shadow-2xl relative w-full flex flex-col items-center justify-center min-h-[96px] overflow-hidden">
           
-          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/18 via-white/4 to-transparent pointer-events-none rounded-t-xl z-10"></div>
+          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 via-white/5 to-transparent pointer-events-none rounded-t-xl z-10"></div>
           <div class="prize-golden-shimmer-smooth"></div>
 
           <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-3 left-6" style="animation-delay: 0s;"></div>
@@ -834,12 +907,13 @@
 
       </div>
 
-      <p class="text-[9px] sm:text-xs text-slate-300 opacity-90 my-2 leading-relaxed font-medium shrink-0">
+      <p class="text-[9px] sm:text-xs text-slate-300/90 my-2 leading-relaxed font-medium shrink-0">
         請截圖此畫面至舞台領獎處兌獎<br>
-        <span class="text-amber-300/90 font-bold">✨ 2027 TKT Year-end party by Po Yuan ✨</span>
+        <span class="text-amber-300 font-bold drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">✨ 2027 TKT Year-end party by Po Yuan ✨</span>
       </p>
 
-      <button id="closeModalBtn" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs sm:text-sm tracking-wider hover:brightness-110 active:scale-95 transition shadow-md border border-amber-200/50 shrink-0">
+      <!-- 按鈕加入金色光流掠過 -->
+      <button id="closeModalBtn" class="btn-luxury-shimmer w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs sm:text-sm tracking-wider hover:brightness-110 active:scale-95 transition shadow-lg border border-amber-200/60 shrink-0">
         收下幸運大獎 / 繼續體驗
       </button>
     </div>
@@ -1519,7 +1593,7 @@
     };
 
     /* ============================================================
-       3. Three.js + Cannon.js 3D 滿裝扭蛋模擬 (PBR 高質感材質)
+       3. Three.js + Cannon.js 3D 滿裝扭蛋模擬
     ============================================================ */
     let scene, camera, renderer, world;
     let ballMeshes = [], ballBodies = [];
@@ -1559,7 +1633,6 @@
       world.broadphase = new CANNON.NaiveBroadphase();
       world.solver.iterations = 10;
 
-      // 壓克力水晶球外殼
       const glassGeo = new THREE.SphereGeometry(SPHERE_RADIUS, 36, 36);
       const glassMat = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
@@ -1760,7 +1833,7 @@
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (環境聚光燈 + 實體落球)
+       5. 轉動與開獎流程 (震波爆發 + 聖光光環加持)
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
@@ -1811,7 +1884,6 @@
         const btn = document.getElementById('spinActionBtn');
         if (btn) btn.style.display = 'none';
 
-        // 啟動聚光燈氛圍
         const mainStage = document.getElementById('draw-ui');
         const chuteBox = document.getElementById('chuteContainer');
         if (mainStage) mainStage.classList.add('stage-focus-active');
@@ -1826,7 +1898,7 @@
 
         droppedEgg.classList.remove('hidden', 'anim-egg-drop');
         void droppedEgg.offsetWidth;
-        droppedEgg.classList.add('anim-egg-drop'); // 逼真彈落
+        droppedEgg.classList.add('anim-egg-drop');
 
         ball.classList.remove('egg-cracking');
         ball.classList.add('tense-egg-pulse');
@@ -1883,10 +1955,21 @@
       }
 
       return `
-        <div class="golden-prize-text font-black leading-tight drop-shadow mb-1">${zhPart}</div>
-        ${enPart ? `<div id="revealEnPart" class="prize-en-nowrap text-amber-100/95 font-semibold tracking-normal leading-tight opacity-95 text-[0.62em] sm:text-[0.68em] my-0.5">${enPart}</div>` : ''}
-        ${pricePart ? `<div class="text-amber-300 font-extrabold tracking-wider text-[0.75em] sm:text-[0.8em] mt-1.5 bg-amber-400/15 px-3 py-0.5 rounded-full border border-amber-400/40 inline-block drop-shadow">${pricePart}</div>` : ''}
+        <div class="golden-prize-text font-black leading-tight drop-shadow mb-1 text-center">${zhPart}</div>
+        ${enPart ? `<div id="revealEnPart" class="prize-en-nowrap text-amber-100/90 font-semibold tracking-normal leading-tight text-[0.62em] sm:text-[0.68em] my-0.5 text-center">${enPart}</div>` : ''}
+        ${pricePart ? `<div class="prize-amount-badge text-amber-200 font-black tracking-widest text-[0.8em] sm:text-[0.88em] mt-2 px-4 py-1 rounded-full inline-block">${pricePart}</div>` : ''}
       `;
+    }
+
+    function triggerShockwaveEffect() {
+      const wave = document.getElementById('revealShockwave');
+      if (!wave) return;
+      wave.classList.remove('hidden', 'anim-shockwave');
+      void wave.offsetWidth;
+      wave.classList.add('anim-shockwave');
+      setTimeout(() => {
+        wave.classList.add('hidden');
+      }, 1100);
     }
 
     function revealPrize(id) {
@@ -1906,6 +1989,7 @@
 
         Sound.playWin();
         fireGrandFireworksShow();
+        triggerShockwaveEffect();
 
         document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
         
@@ -1932,14 +2016,14 @@
       }, 550);
     }
 
-    /* 雙層奢華香檳金 + 科技星藍加農砲彩帶 */
+    /* 雙層奢華香檳金 + 科技星藍彩帶加農砲 */
     function fireGrandFireworksShow() {
       if (typeof confetti === 'undefined') return;
 
       const festColors = ['#FFE875', '#F59E0B', '#D97706', '#FFFFFF', '#3B82F6', '#60A5FA', '#EC4899'];
 
       confetti({
-        particleCount: 95,
+        particleCount: 100,
         angle: 60,
         spread: 60,
         origin: { x: 0.05, y: 0.85 },
@@ -1949,7 +2033,7 @@
         zIndex: 9999
       });
       confetti({
-        particleCount: 95,
+        particleCount: 100,
         angle: 120,
         spread: 60,
         origin: { x: 0.95, y: 0.85 },
@@ -1960,15 +2044,14 @@
       });
       Sound.playFireworkExplosion({ heavy: true });
 
-      // 第二層高空漫天金箔細雪飄落
       setTimeout(() => {
         confetti({
-          particleCount: 75,
-          spread: 120,
+          particleCount: 80,
+          spread: 130,
           origin: { y: 0.1 },
-          gravity: 0.6,
+          gravity: 0.55,
           scalar: 0.85,
-          ticks: 320,
+          ticks: 340,
           colors: ['#FDE047', '#FFFBEB', '#93C5FD', '#FFFFFF'],
           zIndex: 9999
         });
@@ -1984,7 +2067,7 @@
           return;
         }
 
-        const particleCount = 38 * (timeLeft / fireworksDuration);
+        const particleCount = 40 * (timeLeft / fireworksDuration);
 
         confetti({
           particleCount,
