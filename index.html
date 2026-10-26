@@ -735,6 +735,94 @@
       #lanternField { display: none !important; }
     }
 
+
+    /* ============================================================
+       過年氣氛 v5：橫批 / 春聯 / 倒福 / 掛燈籠 / 梅花 / 花瓣
+    ============================================================ */
+    .cny-font { font-family: "BiauKai", "DFKai-SB", "標楷體", "Noto Serif TC", "PMingLiU", serif; }
+
+    /* 橫批 */
+    .hengpi { position: relative; z-index: 20; display: flex; align-items: center; }
+    .hengpi-text {
+      font-family: "BiauKai", "DFKai-SB", "標楷體", "Noto Serif TC", serif; font-weight: 900;
+      font-size: clamp(16px, 4.6vw, 22px); letter-spacing: 0.55em; padding: 4px 0.4em 4px 0.95em;
+      background: radial-gradient(circle at 50% 0%, #EF4444 0%, #B91C1C 55%, #7F1D1D 100%);
+      border-top: 2px solid #FBBF24; border-bottom: 2px solid #FBBF24;
+      box-shadow: 0 4px 14px rgba(185,28,28,0.55), inset 0 0 0 1px rgba(253,230,138,0.35);
+      color: #FDE68A; text-shadow: 0 1px 0 #7c2d12, 0 0 10px rgba(251,191,36,0.55);
+    }
+    .hengpi-cap { width: 12px; height: 34px; background: linear-gradient(180deg, #FBBF24, #B45309); border-radius: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+
+    /* 春聯（大螢幕才顯示） */
+    .couplet {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 5;
+      flex-direction: column; align-items: center; justify-content: space-around;
+      width: 64px; height: 92%; padding: 14px 0; border-radius: 6px;
+      background:
+        repeating-linear-gradient(45deg, rgba(253,224,71,0.06) 0 6px, transparent 6px 14px),
+        linear-gradient(180deg, #DC2626 0%, #B91C1C 50%, #991B1B 100%);
+      border: 2px solid #F59E0B; box-shadow: 0 10px 30px rgba(127,29,29,0.6), inset 0 0 0 3px rgba(127,29,29,0.9), inset 0 0 0 4px rgba(253,230,138,0.5);
+    }
+    .couplet span {
+      font-family: "BiauKai", "DFKai-SB", "標楷體", "Noto Serif TC", serif; font-weight: 900; font-size: 30px; line-height: 1;
+      background: linear-gradient(180deg, #FFFBEB 0%, #FCD34D 45%, #D97706 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5));
+    }
+    .couplet::before, .couplet::after { content: ''; position: absolute; left: 50%; width: 76px; height: 8px; margin-left: -38px; border-radius: 4px; background: linear-gradient(90deg, #92400E, #FBBF24, #92400E); }
+    .couplet::before { top: -6px; }
+    .couplet::after { bottom: -6px; }
+    .couplet-right-side { right: calc(100% + 3.5rem); }   /* 上聯：觀眾左側（橫批由左往右讀） */
+    .couplet-left-side  { left: calc(100% + 3.5rem); }
+
+    /* 倒福斗方 */
+    .fu-diamond {
+      position: absolute; z-index: 15; top: 6px; right: -6px; width: 46px; height: 46px;
+      background: linear-gradient(135deg, #EF4444, #B91C1C); border: 2px solid #FBBF24; border-radius: 4px;
+      transform: rotate(45deg); box-shadow: 0 4px 14px rgba(185,28,28,0.6);
+      display: flex; align-items: center; justify-content: center; pointer-events: none;
+      animation: fu-wobble 4s ease-in-out infinite;
+    }
+    .fu-diamond span {
+      transform: rotate(135deg); /* 45° 斗方 + 倒貼 180° */
+      font-family: "BiauKai", "DFKai-SB", "標楷體", "Noto Serif TC", serif; font-weight: 900; font-size: 26px; line-height: 1; color: #FDE68A;
+      text-shadow: 0 0 6px rgba(251,191,36,0.6);
+    }
+    @keyframes fu-wobble { 0%, 100% { transform: rotate(45deg) scale(1); } 50% { transform: rotate(39deg) scale(1.06); } }
+    @media (min-width: 640px) { .fu-diamond { width: 56px; height: 56px; top: 10px; right: -4px; } .fu-diamond span { font-size: 32px; } }
+
+    /* 頂部懸掛大燈籠（在主內容之後，只佔左右邊緣） */
+    .hang-lantern { position: fixed; top: 64px; z-index: 5; width: 38px; height: 76px; pointer-events: none; filter: drop-shadow(0 0 10px rgba(239,68,68,0.6)); }
+    .hang-left { left: 6px; }
+    .hang-right { right: 6px; }
+    @media (min-width: 640px) { .hang-lantern { top: 86px; width: 56px; height: 112px; } .hang-left { left: 4%; } .hang-right { right: 4%; } }
+    @media (min-width: 1280px) { .hang-left { left: 9%; } .hang-right { right: 9%; } }
+
+    /* 梅花枝 */
+    .plum-branch { position: absolute; width: min(42vw, 300px); height: min(32vw, 230px); opacity: 0.85; pointer-events: none; }
+    .plum-tl { top: 60px; left: 0; transform: scaleX(-1) rotate(180deg) translateY(-6%); transform-origin: center; }
+    .plum-br { bottom: 0; right: 0; }
+    @media (max-width: 639px) { .plum-branch { opacity: 0.55; } }
+
+    /* 飄落梅花花瓣 */
+    .petal { position: absolute; top: -20px; animation: petal-fall linear infinite; will-change: transform; }
+    .petal i { display: block; width: var(--s, 10px); height: calc(var(--s, 10px) * 0.8);
+      background: radial-gradient(circle at 30% 30%, #FFE4F0 0%, #F9A8D4 55%, #EC4899 100%);
+      border-radius: 70% 0 70% 0; animation: petal-spin ease-in-out infinite; will-change: transform; }
+    @keyframes petal-fall { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(var(--dx, 60px), 112vh, 0); } }
+    @keyframes petal-spin {
+      0%, 100% { transform: rotate(0deg) translateX(0) scaleX(1); }
+      25% { transform: rotate(90deg) translateX(14px) scaleX(0.5); }
+      50% { transform: rotate(180deg) translateX(0) scaleX(1); }
+      75% { transform: rotate(270deg) translateX(-14px) scaleX(0.5); }
+    }
+
+    body.modal-open #petalField *, body.modal-open .hang-lantern, body.modal-open .fu-diamond { animation-play-state: paused !important; }
+    @media (prefers-reduced-motion: reduce) {
+      #petalField { display: none !important; }
+      .fu-diamond, .hang-lantern { animation: none !important; }
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -793,6 +881,10 @@
     <div class="aurora-blob aurora-d"></div>
     <div id="starField" class="absolute inset-0"></div>
     <div id="lanternField" class="absolute inset-0"></div>
+    <div id="petalField" class="absolute inset-0"></div>
+    <!-- 角落梅花枝 -->
+    <div class="plum-branch plum-tl"><svg viewBox="0 0 260 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" fill="none"><path d="M-10 190 C 40 170 70 150 100 120 C 125 95 150 85 190 70 C 215 60 240 40 262 20" stroke="#5B3A29" stroke-width="7" stroke-linecap="round"/><path d="M100 120 C 110 90 105 70 120 45" stroke="#5B3A29" stroke-width="4" stroke-linecap="round"/><path d="M160 82 C 170 100 185 110 205 112" stroke="#5B3A29" stroke-width="3.5" stroke-linecap="round"/><path d="M45 165 C 50 145 45 130 55 115" stroke="#5B3A29" stroke-width="3" stroke-linecap="round"/><g><circle cx="120.0" cy="36.9" r="6.8" fill="#F9A8D4"/><circle cx="127.7" cy="42.5" r="6.8" fill="#F9A8D4"/><circle cx="124.7" cy="51.5" r="6.8" fill="#F9A8D4"/><circle cx="115.3" cy="51.5" r="6.8" fill="#F9A8D4"/><circle cx="112.3" cy="42.5" r="6.8" fill="#F9A8D4"/><circle cx="120" cy="45" r="3.9" fill="#FDE047"/></g><g><circle cx="100.0" cy="111.2" r="5.7" fill="#F472B6"/><circle cx="106.5" cy="115.9" r="5.7" fill="#F472B6"/><circle cx="104.0" cy="123.5" r="5.7" fill="#F472B6"/><circle cx="96.0" cy="123.5" r="5.7" fill="#F472B6"/><circle cx="93.5" cy="115.9" r="5.7" fill="#F472B6"/><circle cx="100" cy="118" r="3.3" fill="#FDE047"/></g><g><circle cx="190.0" cy="62.6" r="6.2" fill="#F9A8D4"/><circle cx="197.1" cy="67.7" r="6.2" fill="#F9A8D4"/><circle cx="194.4" cy="76.0" r="6.2" fill="#F9A8D4"/><circle cx="185.6" cy="76.0" r="6.2" fill="#F9A8D4"/><circle cx="182.9" cy="67.7" r="6.2" fill="#F9A8D4"/><circle cx="190" cy="70" r="3.6" fill="#FDE047"/></g><g><circle cx="205.0" cy="105.8" r="5.2" fill="#FBCFE8"/><circle cx="210.9" cy="110.1" r="5.2" fill="#FBCFE8"/><circle cx="208.6" cy="117.0" r="5.2" fill="#FBCFE8"/><circle cx="201.4" cy="117.0" r="5.2" fill="#FBCFE8"/><circle cx="199.1" cy="110.1" r="5.2" fill="#FBCFE8"/><circle cx="205" cy="112" r="3.0" fill="#FDE047"/></g><g><circle cx="55.0" cy="108.8" r="5.2" fill="#F472B6"/><circle cx="60.9" cy="113.1" r="5.2" fill="#F472B6"/><circle cx="58.6" cy="120.0" r="5.2" fill="#F472B6"/><circle cx="51.4" cy="120.0" r="5.2" fill="#F472B6"/><circle cx="49.1" cy="113.1" r="5.2" fill="#F472B6"/><circle cx="55" cy="115" r="3.0" fill="#FDE047"/></g><g><circle cx="150.0" cy="81.0" r="4.2" fill="#FBCFE8"/><circle cx="154.7" cy="84.5" r="4.2" fill="#FBCFE8"/><circle cx="152.9" cy="90.0" r="4.2" fill="#FBCFE8"/><circle cx="147.1" cy="90.0" r="4.2" fill="#FBCFE8"/><circle cx="145.3" cy="84.5" r="4.2" fill="#FBCFE8"/><circle cx="150" cy="86" r="2.4" fill="#FDE047"/></g><g><circle cx="240.0" cy="31.2" r="5.7" fill="#F9A8D4"/><circle cx="246.5" cy="35.9" r="5.7" fill="#F9A8D4"/><circle cx="244.0" cy="43.5" r="5.7" fill="#F9A8D4"/><circle cx="236.0" cy="43.5" r="5.7" fill="#F9A8D4"/><circle cx="233.5" cy="35.9" r="5.7" fill="#F9A8D4"/><circle cx="240" cy="38" r="3.3" fill="#FDE047"/></g><g><circle cx="70.0" cy="149.4" r="4.7" fill="#F9A8D4"/><circle cx="75.3" cy="153.3" r="4.7" fill="#F9A8D4"/><circle cx="73.3" cy="159.5" r="4.7" fill="#F9A8D4"/><circle cx="66.7" cy="159.5" r="4.7" fill="#F9A8D4"/><circle cx="64.7" cy="153.3" r="4.7" fill="#F9A8D4"/><circle cx="70" cy="155" r="2.7" fill="#FDE047"/></g><circle cx="132" cy="62" r="4" fill="#F472B6"/><circle cx="225" cy="55" r="3.5" fill="#F9A8D4"/><circle cx="85" cy="135" r="3.5" fill="#FBCFE8"/></svg></div>
+    <div class="plum-branch plum-br"><svg viewBox="0 0 260 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" fill="none"><path d="M-10 190 C 40 170 70 150 100 120 C 125 95 150 85 190 70 C 215 60 240 40 262 20" stroke="#5B3A29" stroke-width="7" stroke-linecap="round"/><path d="M100 120 C 110 90 105 70 120 45" stroke="#5B3A29" stroke-width="4" stroke-linecap="round"/><path d="M160 82 C 170 100 185 110 205 112" stroke="#5B3A29" stroke-width="3.5" stroke-linecap="round"/><path d="M45 165 C 50 145 45 130 55 115" stroke="#5B3A29" stroke-width="3" stroke-linecap="round"/><g><circle cx="120.0" cy="36.9" r="6.8" fill="#F9A8D4"/><circle cx="127.7" cy="42.5" r="6.8" fill="#F9A8D4"/><circle cx="124.7" cy="51.5" r="6.8" fill="#F9A8D4"/><circle cx="115.3" cy="51.5" r="6.8" fill="#F9A8D4"/><circle cx="112.3" cy="42.5" r="6.8" fill="#F9A8D4"/><circle cx="120" cy="45" r="3.9" fill="#FDE047"/></g><g><circle cx="100.0" cy="111.2" r="5.7" fill="#F472B6"/><circle cx="106.5" cy="115.9" r="5.7" fill="#F472B6"/><circle cx="104.0" cy="123.5" r="5.7" fill="#F472B6"/><circle cx="96.0" cy="123.5" r="5.7" fill="#F472B6"/><circle cx="93.5" cy="115.9" r="5.7" fill="#F472B6"/><circle cx="100" cy="118" r="3.3" fill="#FDE047"/></g><g><circle cx="190.0" cy="62.6" r="6.2" fill="#F9A8D4"/><circle cx="197.1" cy="67.7" r="6.2" fill="#F9A8D4"/><circle cx="194.4" cy="76.0" r="6.2" fill="#F9A8D4"/><circle cx="185.6" cy="76.0" r="6.2" fill="#F9A8D4"/><circle cx="182.9" cy="67.7" r="6.2" fill="#F9A8D4"/><circle cx="190" cy="70" r="3.6" fill="#FDE047"/></g><g><circle cx="205.0" cy="105.8" r="5.2" fill="#FBCFE8"/><circle cx="210.9" cy="110.1" r="5.2" fill="#FBCFE8"/><circle cx="208.6" cy="117.0" r="5.2" fill="#FBCFE8"/><circle cx="201.4" cy="117.0" r="5.2" fill="#FBCFE8"/><circle cx="199.1" cy="110.1" r="5.2" fill="#FBCFE8"/><circle cx="205" cy="112" r="3.0" fill="#FDE047"/></g><g><circle cx="55.0" cy="108.8" r="5.2" fill="#F472B6"/><circle cx="60.9" cy="113.1" r="5.2" fill="#F472B6"/><circle cx="58.6" cy="120.0" r="5.2" fill="#F472B6"/><circle cx="51.4" cy="120.0" r="5.2" fill="#F472B6"/><circle cx="49.1" cy="113.1" r="5.2" fill="#F472B6"/><circle cx="55" cy="115" r="3.0" fill="#FDE047"/></g><g><circle cx="150.0" cy="81.0" r="4.2" fill="#FBCFE8"/><circle cx="154.7" cy="84.5" r="4.2" fill="#FBCFE8"/><circle cx="152.9" cy="90.0" r="4.2" fill="#FBCFE8"/><circle cx="147.1" cy="90.0" r="4.2" fill="#FBCFE8"/><circle cx="145.3" cy="84.5" r="4.2" fill="#FBCFE8"/><circle cx="150" cy="86" r="2.4" fill="#FDE047"/></g><g><circle cx="240.0" cy="31.2" r="5.7" fill="#F9A8D4"/><circle cx="246.5" cy="35.9" r="5.7" fill="#F9A8D4"/><circle cx="244.0" cy="43.5" r="5.7" fill="#F9A8D4"/><circle cx="236.0" cy="43.5" r="5.7" fill="#F9A8D4"/><circle cx="233.5" cy="35.9" r="5.7" fill="#F9A8D4"/><circle cx="240" cy="38" r="3.3" fill="#FDE047"/></g><g><circle cx="70.0" cy="149.4" r="4.7" fill="#F9A8D4"/><circle cx="75.3" cy="153.3" r="4.7" fill="#F9A8D4"/><circle cx="73.3" cy="159.5" r="4.7" fill="#F9A8D4"/><circle cx="66.7" cy="159.5" r="4.7" fill="#F9A8D4"/><circle cx="64.7" cy="153.3" r="4.7" fill="#F9A8D4"/><circle cx="70" cy="155" r="2.7" fill="#FDE047"/></g><circle cx="132" cy="62" r="4" fill="#F472B6"/><circle cx="225" cy="55" r="3.5" fill="#F9A8D4"/><circle cx="85" cy="135" r="3.5" fill="#FBCFE8"/></svg></div>
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
   </div>
 
@@ -857,7 +949,18 @@
   </div>
 
   <!-- 主互動區：3D 滿裝扭蛋舞台 -->
+  <!-- 頂部懸掛大紅燈籠 -->
+  <div class="hang-lantern hang-left anim-lantern-swing-left" aria-hidden="true"><svg viewBox="0 0 60 120" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" fill="none"><path d="M30 0V16" stroke="#B45309" stroke-width="2"/><rect x="17" y="14" width="26" height="6" rx="2" fill="#F59E0B"/><ellipse cx="30" cy="48" rx="26" ry="28" fill="#DC2626"/><path d="M14 48C14 26 46 26 46 48C46 70 14 70 14 48Z" fill="#EF4444"/><path d="M22 21C14 34 14 62 22 75M38 21C46 34 46 62 38 75M30 20V76" stroke="#FCD34D" stroke-width="1.2" opacity="0.8"/><circle cx="30" cy="48" r="13" fill="#FEF3C7" opacity="0.9"/><text x="30" y="54" text-anchor="middle" font-size="17" font-weight="900" fill="#B91C1C" font-family="BiauKai,DFKai-SB,'標楷體',serif">春</text><rect x="17" y="74" width="26" height="6" rx="2" fill="#F59E0B"/><path d="M30 80V88" stroke="#F59E0B" stroke-width="2"/><path d="M24 88H36L34 118H26Z" fill="#DC2626"/><path d="M26 88V117M30 88V118M34 88V117" stroke="#FCA5A5" stroke-width="0.8"/><rect x="23" y="86" width="14" height="4" rx="1.5" fill="#FBBF24"/></svg></div>
+  <div class="hang-lantern hang-right anim-lantern-swing-right" aria-hidden="true"><svg viewBox="0 0 60 120" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" fill="none"><path d="M30 0V16" stroke="#B45309" stroke-width="2"/><rect x="17" y="14" width="26" height="6" rx="2" fill="#F59E0B"/><ellipse cx="30" cy="48" rx="26" ry="28" fill="#DC2626"/><path d="M14 48C14 26 46 26 46 48C46 70 14 70 14 48Z" fill="#EF4444"/><path d="M22 21C14 34 14 62 22 75M38 21C46 34 46 62 38 75M30 20V76" stroke="#FCD34D" stroke-width="1.2" opacity="0.8"/><circle cx="30" cy="48" r="13" fill="#FEF3C7" opacity="0.9"/><text x="30" y="54" text-anchor="middle" font-size="17" font-weight="900" fill="#B91C1C" font-family="BiauKai,DFKai-SB,'標楷體',serif">福</text><rect x="17" y="74" width="26" height="6" rx="2" fill="#F59E0B"/><path d="M30 80V88" stroke="#F59E0B" stroke-width="2"/><path d="M24 88H36L34 118H26Z" fill="#DC2626"/><path d="M26 88V117M30 88V118M34 88V117" stroke="#FCA5A5" stroke-width="0.8"/><rect x="23" y="86" width="14" height="4" rx="1.5" fill="#FBBF24"/></svg></div>
+
   <main id="draw-ui" class="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center transition-all duration-700">
+
+    <!-- 橫批：吉羊開泰 -->
+    <div class="hengpi mb-2.5" aria-label="吉羊開泰">
+      <span class="hengpi-cap"></span>
+      <span class="hengpi-text">吉羊開泰</span>
+      <span class="hengpi-cap"></span>
+    </div>
 
     <!-- 頂部招牌框 -->
     <div id="signBoard" class="w-[22rem] sm:w-[26rem] bg-gradient-to-r from-tkt-dark via-tkt-blue to-blue-700 rounded-2xl py-2.5 px-3.5 sm:px-5 shadow-glow-blue border border-blue-300/40 text-center relative z-20 flex items-center justify-between mb-3 sm:mb-4 overflow-hidden">
@@ -930,17 +1033,27 @@
 
     </div>
 
-    <!-- 3D 玻璃腔體 -->
-    <div id="glassSphere" class="relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 glass-sphere-container border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
-      <div class="absolute -top-4 left-6 w-52 h-28 bg-gradient-to-b from-white/30 to-transparent rounded-full rotate-[-28deg] pointer-events-none z-10 blur-[1px]"></div>
-      <div class="absolute inset-0 rounded-full ring-2 ring-inset ring-white/20 pointer-events-none z-10"></div>
-      
-      <div id="threeContainer" class="w-full h-full rounded-full overflow-hidden cursor-grab active:cursor-grabbing"></div>
+    <!-- 3D 玻璃腔體（外層加上春聯與福字斗方） -->
+    <div class="relative">
+      <div class="couplet couplet-right-side hidden lg:flex" aria-label="上聯">
+        <span>金</span><span>羊</span><span>獻</span><span>瑞</span><span>迎</span><span>新</span><span>歲</span>
+      </div>
+      <div class="couplet couplet-left-side hidden lg:flex" aria-label="下聯">
+        <span>玉</span><span>燕</span><span>報</span><span>春</span><span>開</span><span>泰</span><span>運</span>
+      </div>
+      <div class="fu-diamond" aria-label="福到了"><span>福</span></div>
+      <!-- 3D 玻璃腔體 -->
+      <div id="glassSphere" class="relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 glass-sphere-container border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
+        <div class="absolute -top-4 left-6 w-52 h-28 bg-gradient-to-b from-white/30 to-transparent rounded-full rotate-[-28deg] pointer-events-none z-10 blur-[1px]"></div>
+        <div class="absolute inset-0 rounded-full ring-2 ring-inset ring-white/20 pointer-events-none z-10"></div>
+        
+        <div id="threeContainer" class="w-full h-full rounded-full overflow-hidden cursor-grab active:cursor-grabbing"></div>
 
-      <div class="absolute bottom-2 inset-x-0 text-center pointer-events-none z-10">
-        <span class="text-[9px] text-slate-300 bg-slate-950/70 px-2.5 py-0.5 rounded-full border border-white/10">
-          滑鼠拖曳可旋轉 3D 視角檢視
-        </span>
+        <div class="absolute bottom-2 inset-x-0 text-center pointer-events-none z-10">
+          <span class="text-[9px] text-slate-300 bg-slate-950/70 px-2.5 py-0.5 rounded-full border border-white/10">
+            滑鼠拖曳可旋轉 3D 視角檢視
+          </span>
+        </div>
       </div>
     </div>
 
@@ -3142,6 +3255,23 @@
           d.innerHTML = LANTERN_SVG;
           lanterns.appendChild(d);
         }
+      }
+
+      // 飄落梅花花瓣
+      const petals = document.getElementById('petalField');
+      if (petals) {
+        const n = lowPower ? 8 : (mobile ? 10 : 18);
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < n; i++) {
+          const wrap = document.createElement('span');
+          wrap.className = 'petal';
+          wrap.style.cssText = `left:${rnd(-5, 100)}%;animation-duration:${rnd(11, 20)}s;animation-delay:${-rnd(0, 20)}s;--dx:${rnd(-40, 140)}px`;
+          const leaf = document.createElement('i');
+          leaf.style.cssText = `--s:${rnd(7, 14).toFixed(1)}px;animation-duration:${rnd(3, 6)}s;opacity:${rnd(0.55, 0.95).toFixed(2)}`;
+          wrap.appendChild(leaf);
+          frag.appendChild(wrap);
+        }
+        petals.appendChild(frag);
       }
 
       // 招牌四周跑馬燈泡（以百分比定位，螢幕尺寸改變也不會跑位）
