@@ -71,10 +71,10 @@
 
     /* 加強版心跳搏動緊張視覺 */
     @keyframes tense-heartbeat {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(239,68,68,0.5)); }
-      15% { transform: scale(1.18); filter: drop-shadow(0 0 25px rgba(245,158,11,0.9)); }
-      30% { transform: scale(0.96); }
-      45% { transform: scale(1.12); filter: drop-shadow(0 0 20px rgba(239,68,68,0.85)); }
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(239,68,68,0.7)); }
+      15% { transform: scale(1.22); filter: drop-shadow(0 0 28px rgba(245,158,11,0.95)); }
+      30% { transform: scale(0.94); }
+      45% { transform: scale(1.15); filter: drop-shadow(0 0 22px rgba(239,68,68,0.9)); }
       60% { transform: scale(1); }
     }
     .tense-egg-pulse {
@@ -247,7 +247,6 @@
       animation: golden-ambient-pulse 7.2s ease-in-out infinite;
       position: relative;
       isolation: isolate;
-      -webkit-transform: translateZ(0);
       transform: translateZ(0);
     }
 
@@ -255,7 +254,6 @@
     @keyframes golden-continuous-flow-mobile {
       0% {
         transform: translate3d(-200%, 0, 0) rotate(20deg);
-        -webkit-transform: translate3d(-200%, 0, 0) rotate(20deg);
         opacity: 0;
       }
       10% { opacity: 0; }
@@ -264,7 +262,6 @@
       80% { opacity: 0; }
       100% {
         transform: translate3d(200%, 0, 0) rotate(20deg);
-        -webkit-transform: translate3d(200%, 0, 0) rotate(20deg);
         opacity: 0;
       }
     }
@@ -288,10 +285,8 @@
       pointer-events: none;
       z-index: 15;
       will-change: transform, opacity;
-      -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
       animation: golden-continuous-flow-mobile 6.8s cubic-bezier(0.33, 1, 0.68, 1) infinite;
-      -webkit-animation: golden-continuous-flow-mobile 6.8s cubic-bezier(0.33, 1, 0.68, 1) infinite;
     }
 
     /* 金粉微粒漂浮 */
@@ -356,6 +351,37 @@
       animation: glasses-glint 3.2s ease-in-out infinite;
     }
 
+    /* ============================================================
+       質感與儀式感升級特效 (效能優化無重繪負擔)
+    ============================================================ */
+    .stage-focus-active {
+      transition: filter 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s ease;
+      filter: brightness(0.4) contrast(1.12);
+    }
+    .stage-spotlight {
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.6s ease;
+      z-index: 40 !important;
+      box-shadow: 0 0 55px rgba(245, 158, 11, 0.8), 0 0 90px rgba(59, 130, 246, 0.6) !important;
+    }
+
+    @keyframes egg-drop-bounce {
+      0% { transform: translateY(-40px) scale(0.65) rotate(-20deg); opacity: 0; }
+      60% { transform: translateY(0px) scale(1.12, 0.88) rotate(4deg); opacity: 1; }
+      80% { transform: translateY(-6px) scale(0.96, 1.04) rotate(-2deg); }
+      100% { transform: translateY(0) scale(1, 1) rotate(0deg); opacity: 1; }
+    }
+    .anim-egg-drop {
+      animation: egg-drop-bounce 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .glass-sphere-container {
+      box-shadow: 
+        inset 0 10px 24px rgba(255, 255, 255, 0.32),
+        inset 0 -14px 28px rgba(0, 0, 0, 0.65),
+        0 15px 35px rgba(0, 0, 0, 0.8),
+        0 0 35px rgba(59, 130, 246, 0.3);
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -407,13 +433,12 @@
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
   </div>
 
-  <!-- 頂部導覽列：標題靠近 Logo，且「3D 擬真扭蛋盲盒」置中對齊「2027 TKT End Party」 -->
+  <!-- 頂部導覽列 -->
   <header class="relative z-30 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md px-4 py-3 sticky top-0 shadow-lg">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       
       <!-- 左側 Logo 與標題緊密結合區域 -->
       <div class="flex items-center gap-3.5">
-        <!-- Logo 容器 -->
         <div class="bg-white p-1.5 rounded-xl shadow-md border border-white/20 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 hover:scale-105 transition-transform duration-200 shrink-0">
           <svg class="w-full h-full" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
             <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
@@ -431,7 +456,6 @@
         <div class="flex flex-col items-center justify-center text-center">
           <h1 class="text-base sm:text-xl font-black tracking-wider flex items-center justify-center gap-2">
             <span class="anim-title-shimmer">2027 TKT End Party</span>
-            <!-- 加大並強化光芒的「年度盛典」徽章 -->
             <span class="inline-flex items-center gap-1 text-xs sm:text-sm bg-gradient-to-r from-amber-500/25 via-yellow-400/30 to-amber-500/25 text-amber-200 border-2 border-amber-400/70 px-3 py-1 rounded-full font-black shadow-[0_0_14px_rgba(245,158,11,0.5)] tracking-wide shrink-0">
               <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 animate-pulse"></i>
               <span>年度盛典</span>
@@ -470,7 +494,7 @@
   </div>
 
   <!-- 主互動區：3D 滿裝扭蛋舞台 -->
-  <main id="draw-ui" class="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center">
+  <main id="draw-ui" class="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center transition-all duration-700">
 
     <!-- 頂部招牌框 -->
     <div class="w-[22rem] sm:w-[26rem] bg-gradient-to-r from-tkt-dark via-tkt-blue to-blue-700 rounded-2xl py-2.5 px-3.5 sm:px-5 shadow-glow-blue border border-blue-300/40 text-center relative z-20 flex items-center justify-between mb-3 sm:mb-4 overflow-hidden">
@@ -543,10 +567,10 @@
 
     </div>
 
-    <!-- 3D 玻璃腔體 -->
-    <div class="relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 shadow-2xl border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
-      <div class="absolute -top-4 left-6 w-52 h-28 bg-gradient-to-b from-white/20 to-transparent rounded-full rotate-[-28deg] pointer-events-none z-10 blur-[1px]"></div>
-      <div class="absolute inset-0 rounded-full ring-2 ring-inset ring-white/10 pointer-events-none z-10"></div>
+    <!-- 3D 玻璃腔體 (升級菲涅爾邊光與外層水晶球光感) -->
+    <div class="relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 glass-sphere-container border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
+      <div class="absolute -top-4 left-6 w-52 h-28 bg-gradient-to-b from-white/30 to-transparent rounded-full rotate-[-28deg] pointer-events-none z-10 blur-[1px]"></div>
+      <div class="absolute inset-0 rounded-full ring-2 ring-inset ring-white/20 pointer-events-none z-10"></div>
       
       <div id="threeContainer" class="w-full h-full rounded-full overflow-hidden cursor-grab active:cursor-grabbing"></div>
 
@@ -560,9 +584,7 @@
     <!-- 扭蛋機基座 & 出蛋口 & 旋鈕開關 -->
     <div class="w-80 sm:w-96 bg-gradient-to-b from-slate-900 via-slate-950 to-black rounded-b-3xl border-x-4 border-b-4 border-slate-800 p-3 sm:p-5 shadow-2xl relative -mt-3 z-10 flex flex-col items-center">
       
-      <!-- ============================================================
-           Happy • Lunar • New • Year 區塊：手機完全不蓋字優化版
-      ============================================================ -->
+      <!-- Happy • Lunar • New • Year 區塊 -->
       <div class="w-full flex items-center justify-between px-1.5 py-1 sm:py-1.5 mb-3 bg-gradient-to-r from-red-950/80 via-amber-950/60 to-red-950/80 border border-amber-400/50 rounded-2xl shadow-neon-lunar gap-1">
         
         <!-- 左側：搖擺紅燈籠 + 迎春對聯 -->
@@ -587,7 +609,7 @@
           </div>
         </div>
 
-        <!-- 中間：文字完整彈性縮放，零裁切不換行 -->
+        <!-- 中間：文字完整彈性縮放 -->
         <div class="flex-1 flex items-center justify-center min-w-0 px-0.5 overflow-visible">
           <span class="font-mono font-black anim-lunar-shimmer tracking-tighter sm:tracking-normal text-center leading-none" style="font-size: clamp(8.5px, 2.6vw, 12px);">
             Happy • Lunar • New • Year
@@ -633,9 +655,9 @@
           <span class="text-[11px] text-slate-400 mt-1.5 font-medium">點擊或轉動旋鈕</span>
         </div>
 
-        <!-- 3D 扭蛋出蛋口 -->
+        <!-- 3D 扭蛋出蛋口 (聚光燈目標) -->
         <div class="flex flex-col items-center">
-          <div class="w-28 h-20 rounded-2xl bg-black border-2 border-slate-800 shadow-neon-chute relative flex items-center justify-center overflow-hidden">
+          <div id="chuteContainer" class="w-28 h-20 rounded-2xl bg-black border-2 border-slate-800 shadow-neon-chute relative flex items-center justify-center overflow-hidden transition-all duration-500">
             <div class="absolute inset-x-2 top-0 h-1 bg-slate-800 rounded-b"></div>
             
             <div id="droppedEgg" class="hidden absolute flex flex-col items-center transform hover:scale-110 transition">
@@ -1497,7 +1519,7 @@
     };
 
     /* ============================================================
-       3. Three.js + Cannon.js 3D 滿裝扭蛋模擬
+       3. Three.js + Cannon.js 3D 滿裝扭蛋模擬 (PBR 高質感材質)
     ============================================================ */
     let scene, camera, renderer, world;
     let ballMeshes = [], ballBodies = [];
@@ -1523,24 +1545,34 @@
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       container.appendChild(renderer.domElement);
 
-      scene.add(new THREE.AmbientLight(0xffffff, 0.78));
-      const mainLight = new THREE.DirectionalLight(0xffffff, 1.25);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+      const mainLight = new THREE.DirectionalLight(0xffffff, 1.35);
       mainLight.position.set(5, 8, 6);
       scene.add(mainLight);
+
+      const rimLight = new THREE.DirectionalLight(0x60a5fa, 0.65);
+      rimLight.position.set(-5, -4, -4);
+      scene.add(rimLight);
 
       world = new CANNON.World();
       world.gravity.set(0, -9.82 * 1.5, 0);
       world.broadphase = new CANNON.NaiveBroadphase();
       world.solver.iterations = 10;
 
+      // 壓克力水晶球外殼
       const glassGeo = new THREE.SphereGeometry(SPHERE_RADIUS, 36, 36);
       const glassMat = new THREE.MeshPhysicalMaterial({
-        color: 0xbedaff,
+        color: 0xffffff,
         transparent: true,
-        opacity: 0.22,
-        roughness: 0.08,
-        transmission: 0.85,
-        side: THREE.DoubleSide,
+        opacity: 0.18,
+        roughness: 0.05,
+        metalness: 0.08,
+        transmission: 0.92,
+        ior: 1.45,
+        reflectivity: 0.6,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.06,
+        side: THREE.FrontSide,
         depthWrite: false
       });
       scene.add(new THREE.Mesh(glassGeo, glassMat));
@@ -1569,12 +1601,20 @@
       for (let i = 0; i < NUM_CAPSULES; i++) {
         const group = new THREE.Group();
         const topMesh = new THREE.Mesh(
-          new THREE.SphereGeometry(CAPSULE_RADIUS, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2),
-          new THREE.MeshStandardMaterial({ color: CAPSULE_COLORS[i % CAPSULE_COLORS.length], roughness: 0.25 })
+          new THREE.SphereGeometry(CAPSULE_RADIUS, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+          new THREE.MeshStandardMaterial({ 
+            color: CAPSULE_COLORS[i % CAPSULE_COLORS.length], 
+            roughness: 0.18, 
+            metalness: 0.32 
+          })
         );
         const bottomMesh = new THREE.Mesh(
-          new THREE.SphereGeometry(CAPSULE_RADIUS, 14, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
-          new THREE.MeshStandardMaterial({ color: 0xF8FAFC, roughness: 0.3 })
+          new THREE.SphereGeometry(CAPSULE_RADIUS, 16, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+          new THREE.MeshStandardMaterial({ 
+            color: 0xF8FAFC, 
+            roughness: 0.25, 
+            metalness: 0.15 
+          })
         );
         group.add(topMesh);
         group.add(bottomMesh);
@@ -1602,7 +1642,7 @@
 
       mixerRotorMesh = new THREE.Mesh(
         new THREE.BoxGeometry(2.6, 0.22, 0.32),
-        new THREE.MeshStandardMaterial({ color: 0xF59E0B, metalness: 0.8, roughness: 0.2 })
+        new THREE.MeshStandardMaterial({ color: 0xF59E0B, metalness: 0.85, roughness: 0.15 })
       );
       scene.add(mixerRotorMesh);
 
@@ -1720,7 +1760,7 @@
     }
 
     /* ============================================================
-       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (不重複抽出)
+       5. 5.8 秒轉動 + 停頓 3 秒緊湊開獎 (環境聚光燈 + 實體落球)
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
@@ -1771,6 +1811,12 @@
         const btn = document.getElementById('spinActionBtn');
         if (btn) btn.style.display = 'none';
 
+        // 啟動聚光燈氛圍
+        const mainStage = document.getElementById('draw-ui');
+        const chuteBox = document.getElementById('chuteContainer');
+        if (mainStage) mainStage.classList.add('stage-focus-active');
+        if (chuteBox) chuteBox.classList.add('stage-spotlight');
+
         Sound.stopDrum();
         Sound.startTenseDrums();
 
@@ -1778,13 +1824,18 @@
         const ball = document.getElementById('droppedEggBall');
         const chuteStatusText = document.getElementById('chuteStatusText');
 
+        droppedEgg.classList.remove('hidden', 'anim-egg-drop');
+        void droppedEgg.offsetWidth;
+        droppedEgg.classList.add('anim-egg-drop'); // 逼真彈落
+
         ball.classList.remove('egg-cracking');
         ball.classList.add('tense-egg-pulse');
         chuteStatusText.textContent = "🥁 準備揭曉中...";
-        droppedEgg.classList.remove('hidden');
 
         setTimeout(() => {
           Sound.stopTenseDrums();
+          if (mainStage) mainStage.classList.remove('stage-focus-active');
+          if (chuteBox) chuteBox.classList.remove('stage-spotlight');
           revealPrize(selectedPrizeItem.id);
         }, 3000);
 
@@ -1849,6 +1900,7 @@
 
       setTimeout(() => {
         droppedEgg.classList.add('hidden');
+        droppedEgg.classList.remove('anim-egg-drop');
         ball.classList.remove('egg-cracking');
         chuteStatusText.textContent = "WAITING...";
 
@@ -1880,30 +1932,50 @@
       }, 550);
     }
 
+    /* 雙層奢華香檳金 + 科技星藍加農砲彩帶 */
     function fireGrandFireworksShow() {
       if (typeof confetti === 'undefined') return;
 
-      const fireworksDuration = 3600;
-      const animationEnd = Date.now() + fireworksDuration;
-      const festColors = ['#FFD700', '#FF0055', '#0044FF', '#00FF88', '#FFAA00', '#FFFFFF', '#9D4EDD'];
+      const festColors = ['#FFE875', '#F59E0B', '#D97706', '#FFFFFF', '#3B82F6', '#60A5FA', '#EC4899'];
 
       confetti({
-        particleCount: 85,
+        particleCount: 95,
         angle: 60,
-        spread: 65,
-        origin: { x: 0, y: 0.8 },
+        spread: 60,
+        origin: { x: 0.05, y: 0.85 },
         colors: festColors,
+        scalar: 1.15,
+        drift: 0.1,
         zIndex: 9999
       });
       confetti({
-        particleCount: 85,
+        particleCount: 95,
         angle: 120,
-        spread: 65,
-        origin: { x: 1, y: 0.8 },
+        spread: 60,
+        origin: { x: 0.95, y: 0.85 },
         colors: festColors,
+        scalar: 1.15,
+        drift: -0.1,
         zIndex: 9999
       });
       Sound.playFireworkExplosion({ heavy: true });
+
+      // 第二層高空漫天金箔細雪飄落
+      setTimeout(() => {
+        confetti({
+          particleCount: 75,
+          spread: 120,
+          origin: { y: 0.1 },
+          gravity: 0.6,
+          scalar: 0.85,
+          ticks: 320,
+          colors: ['#FDE047', '#FFFBEB', '#93C5FD', '#FFFFFF'],
+          zIndex: 9999
+        });
+      }, 350);
+
+      const fireworksDuration = 3200;
+      const animationEnd = Date.now() + fireworksDuration;
 
       const interval = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
@@ -1912,11 +1984,11 @@
           return;
         }
 
-        const particleCount = 45 * (timeLeft / fireworksDuration);
+        const particleCount = 38 * (timeLeft / fireworksDuration);
 
         confetti({
           particleCount,
-          startVelocity: 35,
+          startVelocity: 32,
           spread: 360,
           ticks: 70,
           origin: {
@@ -1929,29 +2001,8 @@
           zIndex: 9999
         });
 
-        Sound.playFireworkExplosion({ heavy: Math.random() > 0.6 });
-
-        if (Math.random() > 0.45) {
-          confetti({
-            particleCount: 25,
-            angle: 55 + Math.random() * 20,
-            spread: 55,
-            origin: { x: 0, y: 0.75 },
-            colors: festColors,
-            zIndex: 9999
-          });
-        }
-        if (Math.random() > 0.45) {
-          confetti({
-            particleCount: 25,
-            angle: 105 + Math.random() * 20,
-            spread: 55,
-            origin: { x: 1, y: 0.75 },
-            colors: festColors,
-            zIndex: 9999
-          });
-        }
-      }, 250);
+        Sound.playFireworkExplosion({ heavy: Math.random() > 0.65 });
+      }, 280);
     }
 
     /* ============================================================
