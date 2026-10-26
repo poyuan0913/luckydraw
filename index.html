@@ -395,6 +395,58 @@
         display: block !important;
       }
     }
+
+    /* ===== 質感升級 FX ===== */
+    .chamber-aura { transition: box-shadow .8s ease, border-color .8s ease; }
+    .chamber-aura.is-spinning {
+      border-color: rgba(251,191,36,.85) !important;
+      box-shadow: 0 0 50px rgba(245,158,11,.45), 0 0 110px rgba(59,130,246,.35), inset 0 0 40px rgba(245,158,11,.18) !important;
+    }
+    .chamber-aura.is-suspense {
+      border-color: rgba(248,113,113,.95) !important;
+      box-shadow: 0 0 60px rgba(239,68,68,.65), 0 0 130px rgba(245,158,11,.5), inset 0 0 50px rgba(239,68,68,.28) !important;
+    }
+    @keyframes chamber-shake { 0%,100%{transform:translate(0,0)} 25%{transform:translate(-1.5px,1px)} 50%{transform:translate(1.5px,-1px)} 75%{transform:translate(-1px,-1.5px)} }
+    .chamber-shake { animation: chamber-shake .14s linear infinite; }
+
+    #spinFx { position: fixed; inset: 0; z-index: 45; pointer-events: none; opacity: 0; transition: opacity .6s ease; }
+    #spinFx.on { opacity: 1; }
+    .spin-vignette { position: absolute; inset: 0; background: radial-gradient(circle at 50% 45%, transparent 28%, rgba(2,4,20,.88) 85%); animation: vignette-beat .9s ease-in-out infinite; }
+    @keyframes vignette-beat { 0%,100%{opacity:.8} 50%{opacity:1} }
+    .cd-num { position: absolute; left: 50%; top: 45%; transform: translate(-50%,-50%); font-size: clamp(110px, 34vw, 220px); font-weight: 900; line-height: 1;
+      background: linear-gradient(180deg,#fff 0%,#FDE047 45%,#F59E0B 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 18px rgba(245,158,11,.9)) drop-shadow(0 0 50px rgba(239,68,68,.6)); opacity: 0; }
+    .cd-num.cd-pop { animation: cd-pop 1s cubic-bezier(.2,.9,.3,1) forwards; }
+    @keyframes cd-pop { 0%{opacity:0;transform:translate(-50%,-50%) scale(1.9)} 22%{opacity:1;transform:translate(-50%,-50%) scale(1)} 80%{opacity:.9} 100%{opacity:0;transform:translate(-50%,-50%) scale(.82)} }
+
+    #flashFx { position: fixed; inset: 0; z-index: 9998; pointer-events: none; opacity: 0; background: radial-gradient(circle, #fff 0%, rgba(255,236,170,.85) 35%, transparent 75%); }
+    #flashFx.go { animation: flash-burst 1s ease-out forwards; }
+    @keyframes flash-burst { 0%{opacity:1} 100%{opacity:0} }
+    .shockwave-ring { position: fixed; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; z-index: 9997; pointer-events: none;
+      border: 3px solid rgba(253,224,71,.95); box-shadow: 0 0 30px rgba(245,158,11,.9), inset 0 0 20px rgba(245,158,11,.6); animation: shock-out 1.1s cubic-bezier(.15,.7,.2,1) forwards; }
+    @keyframes shock-out { 0%{transform:scale(.2);opacity:1} 100%{transform:scale(34);opacity:0} }
+
+    .reveal-rays { position: fixed; left: 50%; top: 50%; width: 170vmax; height: 170vmax; margin: -85vmax 0 0 -85vmax; pointer-events: none; opacity: 0; transition: opacity 1s ease .2s;
+      background: repeating-conic-gradient(from 0deg, rgba(251,191,36,.26) 0deg 5deg, transparent 5deg 15deg);
+      -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 52%); mask-image: radial-gradient(circle, #000 0%, transparent 52%);
+      animation: rays-spin 26s linear infinite; }
+    #revealModal:not(.opacity-0) .reveal-rays { opacity: 1; }
+    @keyframes rays-spin { to { transform: rotate(360deg); } }
+
+    #revealPrizeTitle > * { animation: prize-rise .8s cubic-bezier(.2,.8,.2,1) backwards; }
+    #revealPrizeTitle > *:nth-child(1) { animation-delay: .25s; }
+    #revealPrizeTitle > *:nth-child(2) { animation-delay: .6s; }
+    #revealPrizeTitle > *:nth-child(3) { animation-delay: .95s; }
+    @keyframes prize-rise { from { opacity: 0; transform: translateY(14px) scale(.96); filter: blur(8px); } }
+
+    .anim-btn-float { position: relative; overflow: hidden; }
+    .anim-btn-float::after { content: ""; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent); transform: skewX(-20deg); animation: btn-sheen 4.2s ease-in-out infinite; }
+    @keyframes btn-sheen { 0%,55%{left:-60%} 100%{left:140%} }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal-rays, .chamber-shake, .anim-btn-float::after, .spin-vignette { animation: none !important; }
+    }
   </style>
 </head>
 <body class="bg-tkt-bg text-slate-100 min-h-screen flex flex-col font-sans select-none overflow-x-hidden relative">
@@ -544,7 +596,7 @@
     </div>
 
     <!-- 3D 玻璃腔體 -->
-    <div class="relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 shadow-2xl border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
+    <div id="glassChamber" class="chamber-aura relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 shadow-2xl border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
       <div class="absolute -top-4 left-6 w-52 h-28 bg-gradient-to-b from-white/20 to-transparent rounded-full rotate-[-28deg] pointer-events-none z-10 blur-[1px]"></div>
       <div class="absolute inset-0 rounded-full ring-2 ring-inset ring-white/10 pointer-events-none z-10"></div>
       
@@ -685,8 +737,12 @@
     </div>
   </main>
 
+  <div id="spinFx"><div class="spin-vignette"></div><div id="cdNum" class="cd-num"></div></div>
+  <div id="flashFx"></div>
+
   <!-- 開獎揭曉祝賀彈窗 -->
   <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-lg hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
+    <div class="reveal-rays"></div>
     <div id="revealCard" class="relative w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center border-2 border-amber-400/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-300 my-auto max-h-[92vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
       
       <!-- Logo 樣式 -->
@@ -1499,7 +1555,7 @@
     /* ============================================================
        3. Three.js + Cannon.js 3D 滿裝扭蛋模擬
     ============================================================ */
-    let scene, camera, renderer, world;
+    let scene, camera, renderer, world, glowLight, glowTarget = 0;
     let ballMeshes = [], ballBodies = [];
     let mixerRotorMesh, mixerRotorBody;
     const SPHERE_RADIUS = 3.6;
@@ -1527,6 +1583,9 @@
       const mainLight = new THREE.DirectionalLight(0xffffff, 1.25);
       mainLight.position.set(5, 8, 6);
       scene.add(mainLight);
+      glowLight = new THREE.PointLight(0xffb020, 0, 16);
+      glowLight.position.set(0, 0, 2.5);
+      scene.add(glowLight);
 
       world = new CANNON.World();
       world.gravity.set(0, -9.82 * 1.5, 0);
@@ -1672,6 +1731,7 @@
       mixerRotorMesh.position.copy(mixerRotorBody.position);
       mixerRotorMesh.quaternion.copy(mixerRotorBody.quaternion);
       mixerRotorBody.angularVelocity.scale(0.95, mixerRotorBody.angularVelocity);
+      if (glowLight) glowLight.intensity += (glowTarget - glowLight.intensity) * 0.06;
       renderer.render(scene, camera);
     }
 
@@ -1757,6 +1817,7 @@
 
       const lever = document.getElementById('crankLever');
       lever.classList.add('spinning-crank');
+      FX.spinStart();
 
       let stirTimer = setInterval(() => {
         churnBallsPhysics();
@@ -1765,6 +1826,7 @@
       setTimeout(() => {
         clearInterval(stirTimer);
         lever.classList.remove('spinning-crank');
+        FX.spinCalm();
       }, 5000);
 
       setTimeout(() => {
@@ -1773,6 +1835,7 @@
 
         Sound.stopDrum();
         Sound.startTenseDrums();
+        FX.suspense(3000);
 
         const droppedEgg = document.getElementById('droppedEgg');
         const ball = document.getElementById('droppedEggBall');
@@ -1853,7 +1916,7 @@
         chuteStatusText.textContent = "WAITING...";
 
         Sound.playWin();
-        fireGrandFireworksShow();
+        FX.reveal();
 
         document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
         
@@ -1880,7 +1943,7 @@
       }, 550);
     }
 
-    function fireGrandFireworksShow() {
+    function fireGrandFireworksShowClassic() {
       if (typeof confetti === 'undefined') return;
 
       const fireworksDuration = 3600;
@@ -2340,6 +2403,126 @@
     }
 
     /* ============================================================
+       FX：氛圍粒子 / 緊張倒數 / 揭曉光效
+    ============================================================ */
+    const FX = (() => {
+      const $ = id => document.getElementById(id);
+      const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const GOLDS = ['#FFD700', '#FFF3B0', '#F59E0B', '#FFFFFF', '#FBBF24'];
+      let timers = [], rain = null;
+      const later = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
+      const clearAll = () => { timers.forEach(clearTimeout); timers = []; if (rain) { clearInterval(rain); rain = null; } };
+
+      function chamber(cls, on) { const c = $('glassChamber'); if (c) c.classList.toggle(cls, on); }
+
+      function initAmbient() {
+        if (reduce) return;
+        const cv = document.createElement('canvas');
+        cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none';
+        document.body.prepend(cv);
+        const ctx = cv.getContext('2d');
+        let W, H, dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        const N = window.innerWidth < 640 ? 38 : 70;
+        const ps = [];
+        const resize = () => { W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr; };
+        resize(); addEventListener('resize', resize);
+        for (let i = 0; i < N; i++) ps.push({
+          x: Math.random(), y: Math.random(), r: (Math.random() * 1.6 + .5) * dpr,
+          vy: (Math.random() * .00009 + .00003), vx: (Math.random() - .5) * .00004,
+          ph: Math.random() * 6.28, sp: Math.random() * 1.6 + .6,
+          c: Math.random() > .22 ? '253,224,71' : '96,165,250'
+        });
+        (function loop(t) {
+          requestAnimationFrame(loop);
+          if (document.hidden) return;
+          ctx.clearRect(0, 0, W, H);
+          for (const p of ps) {
+            p.y -= p.vy * 16; p.x += p.vx * 16;
+            if (p.y < -.02) { p.y = 1.02; p.x = Math.random(); }
+            const a = .18 + .5 * Math.abs(Math.sin(t / 1000 * p.sp + p.ph));
+            const x = p.x * W, y = p.y * H;
+            const g = ctx.createRadialGradient(x, y, 0, x, y, p.r * 4);
+            g.addColorStop(0, `rgba(${p.c},${a})`); g.addColorStop(1, `rgba(${p.c},0)`);
+            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, p.r * 4, 0, 6.283); ctx.fill();
+          }
+        })(0);
+      }
+
+      function tick(step) {
+        if (isSoundMuted) return;
+        try {
+          const ctx = Sound.getCtx(), now = ctx.currentTime;
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type = 'sine'; o.frequency.setValueAtTime(520 + step * 200, now);
+          g.gain.setValueAtTime(0.0001, now);
+          g.gain.exponentialRampToValueAtTime(0.28, now + .02);
+          g.gain.exponentialRampToValueAtTime(0.001, now + .35);
+          o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now + .4);
+        } catch (e) {}
+      }
+
+      function spinStart() {
+        clearAll();
+        chamber('is-spinning', true); chamber('chamber-shake', true);
+        glowTarget = 2.2;
+      }
+      function spinCalm() { chamber('chamber-shake', false); }
+
+      function suspense(ms) {
+        const fx = $('spinFx'), cd = $('cdNum');
+        fx.classList.add('on');
+        chamber('is-suspense', true); chamber('chamber-shake', true);
+        glowTarget = 6;
+        const steps = Math.round(ms / 1000);
+        for (let i = 0; i < steps; i++) later(() => {
+          cd.textContent = steps - i;
+          cd.classList.remove('cd-pop'); void cd.offsetWidth; cd.classList.add('cd-pop');
+          tick(i);
+          if (navigator.vibrate) navigator.vibrate(40);
+        }, i * 1000);
+      }
+
+      function burst(x, y, big) {
+        confetti({
+          particleCount: big ? 130 : 70, spread: 360, startVelocity: big ? 48 : 34, ticks: 140,
+          gravity: .85, decay: .93, scalar: big ? 1.15 : .95, shapes: ['star', 'circle'],
+          origin: { x, y }, colors: GOLDS, zIndex: 9999
+        });
+      }
+
+      function reveal() {
+        clearAll();
+        $('spinFx').classList.remove('on');
+        chamber('is-spinning', false); chamber('is-suspense', false); chamber('chamber-shake', false);
+        glowTarget = 0;
+
+        const flash = $('flashFx'); flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
+        const ring = document.createElement('div'); ring.className = 'shockwave-ring';
+        document.body.appendChild(ring); setTimeout(() => ring.remove(), 1200);
+        if (navigator.vibrate) navigator.vibrate([80, 40, 160]);
+
+        if (typeof confetti === 'undefined') return;
+        Sound.playFireworkExplosion({ heavy: true });
+        burst(.5, .5, true);
+        later(() => { burst(.22, .38); Sound.playFireworkExplosion(); }, 450);
+        later(() => { burst(.78, .34); Sound.playFireworkExplosion(); }, 850);
+        later(() => { burst(.5, .26, true); Sound.playFireworkExplosion({ heavy: true }); }, 1350);
+
+        const end = Date.now() + 3600;
+        rain = setInterval(() => {
+          if (Date.now() > end) { clearInterval(rain); rain = null; return; }
+          confetti({
+            particleCount: 4, angle: 90, spread: 140, startVelocity: 10, gravity: .55, drift: (Math.random() - .5) * 1.2,
+            ticks: 320, scalar: .85, shapes: ['circle', 'star'], colors: GOLDS,
+            origin: { x: Math.random(), y: -0.05 }, zIndex: 9999
+          });
+        }, 90);
+      }
+
+      return { initAmbient, spinStart, spinCalm, suspense, reveal };
+    })();
+
+    /* ============================================================
        7. 頁面初始化與監聽
     ============================================================ */
     window.addEventListener('DOMContentLoaded', () => {
@@ -2354,6 +2537,7 @@
         }
       }
       waitForLibraries();
+      FX.initAmbient();
 
       const unlockAudio = () => {
         Sound.unlock();
