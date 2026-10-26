@@ -71,15 +71,18 @@
     }
 
     /* 加強版心跳搏動緊張視覺 */
+    /* 只動 transform，光暈改用靜態 box-shadow，避免每幀重繪 filter */
     @keyframes tense-heartbeat {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(239,68,68,0.7)); }
-      15% { transform: scale(1.22); filter: drop-shadow(0 0 28px rgba(245,158,11,0.95)); }
+      0%, 100% { transform: scale(1); }
+      15% { transform: scale(1.22); }
       30% { transform: scale(0.94); }
-      45% { transform: scale(1.15); filter: drop-shadow(0 0 22px rgba(239,68,68,0.9)); }
+      45% { transform: scale(1.15); }
       60% { transform: scale(1); }
     }
     .tense-egg-pulse {
       animation: tense-heartbeat 0.38s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+      box-shadow: 0 0 22px rgba(245,158,11,0.95), 0 0 40px rgba(239,68,68,0.55) !important;
+      will-change: transform;
     }
 
     /* 吉祥小羊/羊駝懸浮動畫 */
@@ -135,9 +138,8 @@
 
     /* Happy • Lunar • New • Year 春節流動特效 */
     @keyframes lunar-glow-flow {
-      0% { background-position: 0% center; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8)); }
-      50% { background-position: 100% center; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.9)) drop-shadow(0 0 12px rgba(251, 191, 36, 0.8)); }
-      100% { background-position: 200% center; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8)); }
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
     }
     .anim-lunar-shimmer {
       background: linear-gradient(
@@ -155,6 +157,7 @@
       animation: lunar-glow-flow 3.2s linear infinite;
       display: inline-block;
       white-space: nowrap;
+      filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.75));
     }
 
     /* 紅燈籠搖擺 */
@@ -178,11 +181,12 @@
 
     /* 春聯小標籤呼吸 */
     @keyframes couplet-breath {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.5)); }
-      50% { transform: scale(1.05); filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.85)); }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
     }
     .anim-couplet-pulse {
       animation: couplet-breath 2.4s ease-in-out infinite;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
     }
 
     /* 喜慶紅色粗體流動光影效果 */
@@ -442,6 +446,227 @@
         0 0 35px rgba(59, 130, 246, 0.3);
     }
 
+    /* ============================================================
+       質感強化 v2：舞台聚光 / 倒數 / 蛋殼裂開 / 金粉 / 效能保護
+    ============================================================ */
+    /* 背景金粉：純 transform + opacity，交給 GPU 合成 */
+    .ambient-dust { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .ambient-dust i {
+      position: absolute; bottom: -10px; width: 3px; height: 3px; border-radius: 50%;
+      background: #FDE68A; box-shadow: 0 0 6px 1px rgba(245,158,11,0.7);
+      opacity: 0; animation: dust-rise linear infinite; will-change: transform, opacity;
+    }
+    @keyframes dust-rise {
+      0% { transform: translate3d(0, 0, 0); opacity: 0; }
+      15% { opacity: 0.85; }
+      85% { opacity: 0.5; }
+      100% { transform: translate3d(var(--dx, 20px), -105vh, 0); opacity: 0; }
+    }
+
+    /* 開獎前舞台暗場 + 聚光燈（取代對整個舞台套 filter，省下大面積重繪） */
+    #stageVignette {
+      position: fixed; inset: 0; z-index: 35; pointer-events: none; opacity: 0;
+      transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      background: radial-gradient(circle at var(--sx, 50%) var(--sy, 70%), transparent 0, transparent 90px, rgba(2,4,14,0.55) 170px, rgba(2,4,14,0.9) 420px);
+    }
+    #stageVignette.on { opacity: 1; }
+
+    /* 倒數數字 */
+    #countdownOverlay {
+      position: fixed; inset: 0; z-index: 45; pointer-events: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .countdown-num {
+      font-size: clamp(96px, 28vw, 200px); font-weight: 900; line-height: 1;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FDE68A 40%, #F59E0B 75%, #B45309 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      text-shadow: none; filter: drop-shadow(0 0 24px rgba(245,158,11,0.75));
+      animation: count-pop 0.95s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+    }
+    @keyframes count-pop {
+      0% { transform: scale(2.2); opacity: 0; }
+      22% { transform: scale(1); opacity: 1; }
+      70% { transform: scale(0.92); opacity: 1; }
+      100% { transform: scale(0.6); opacity: 0; }
+    }
+
+    /* 扭蛋外殼裂開：上蓋飛起、下殼下沉、中心爆光 */
+    .egg-half { position: absolute; inset: 0; transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.55s ease; }
+    .egg-open .egg-top { transform: translate3d(-6px, -34px, 0) rotate(-38deg); opacity: 0; }
+    .egg-open .egg-bottom { transform: translate3d(4px, 22px, 0) rotate(14deg); opacity: 0; }
+    .egg-burst {
+      position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px;
+      border-radius: 50%; background: radial-gradient(circle, #fff 0%, #FDE68A 35%, rgba(245,158,11,0) 70%);
+      transform: scale(0); opacity: 0; pointer-events: none;
+    }
+    .egg-open .egg-seam { opacity: 0; }
+    .egg-open #droppedEggBall, #droppedEggBall.egg-open { box-shadow: none !important; }
+    .egg-open .egg-burst { animation: egg-burst 0.55s ease-out forwards; }
+    @keyframes egg-burst {
+      0% { transform: scale(0); opacity: 1; }
+      60% { transform: scale(9); opacity: 0.9; }
+      100% { transform: scale(13); opacity: 0; }
+    }
+
+    /* 全螢幕白金閃光（開獎瞬間一次性） */
+    #revealFlash {
+      position: fixed; inset: 0; z-index: 48; pointer-events: none; opacity: 0;
+      background: radial-gradient(circle at 50% 55%, rgba(255,255,255,0.95) 0%, rgba(253,230,138,0.6) 30%, rgba(245,158,11,0) 70%);
+    }
+    #revealFlash.fire { animation: flash-fire 0.7s ease-out forwards; }
+    @keyframes flash-fire { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+
+    /* 開獎卡片：3D 翻入 */
+    @keyframes card-flip-in {
+      0% { transform: perspective(900px) rotateX(28deg) translateY(40px) scale(0.86); opacity: 0; }
+      60% { transform: perspective(900px) rotateX(-4deg) translateY(-4px) scale(1.02); opacity: 1; }
+      100% { transform: perspective(900px) rotateX(0) translateY(0) scale(1); opacity: 1; }
+    }
+    .card-flip-in { animation: card-flip-in 0.8s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+
+    /* 卡片四角金屬飾邊 */
+    .corner-ornament { position: absolute; width: 22px; height: 22px; border-color: rgba(253,230,138,0.9); pointer-events: none; }
+    .corner-ornament.tl { top: 10px; left: 10px; border-top: 2px solid; border-left: 2px solid; border-top-left-radius: 8px; }
+    .corner-ornament.tr { top: 10px; right: 10px; border-top: 2px solid; border-right: 2px solid; border-top-right-radius: 8px; }
+    .corner-ornament.bl { bottom: 10px; left: 10px; border-bottom: 2px solid; border-left: 2px solid; border-bottom-left-radius: 8px; }
+    .corner-ornament.br { bottom: 10px; right: 10px; border-bottom: 2px solid; border-right: 2px solid; border-bottom-right-radius: 8px; }
+
+    /* 金額數字滾動時用等寬數字，避免抖動 */
+    .tabular-num { font-variant-numeric: tabular-nums; }
+
+    /* 轉動中玻璃球外圈發光 */
+    .sphere-spinning { box-shadow: inset 0 10px 24px rgba(255,255,255,0.32), inset 0 -14px 28px rgba(0,0,0,0.65), 0 0 45px rgba(245,158,11,0.55), 0 0 90px rgba(59,130,246,0.45) !important; transition: box-shadow 0.5s ease; }
+
+    /* 彈窗開啟時暫停背景無限動畫，把 GPU 留給開獎特效 */
+    body.modal-open #draw-ui *, body.modal-open header *, body.modal-open .ambient-dust i { animation-play-state: paused !important; }
+
+    /* 尊重「減少動態效果」設定 */
+    @media (prefers-reduced-motion: reduce) {
+      .ambient-dust, .modal-sunburst-halo, .prize-golden-shimmer-smooth, .golden-dust-particle { display: none !important; }
+      .anim-btn-float, .anim-sheep-float, .anim-cracker-swing, .anim-lantern-swing-left, .anim-lantern-swing-right, .anim-couplet-pulse { animation: none !important; }
+    }
+
+
+    /* ============================================================
+       開獎後背景特效 v3
+    ============================================================ */
+    .reveal-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; --px: 0px; --py: 0px; }
+    .rb-layer { position: absolute; inset: 0; will-change: transform; transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.3, 1); }
+    .rb-depth-far  { transform: translate3d(calc(var(--px) * 0.35), calc(var(--py) * 0.35), 0); }
+    .rb-depth-mid  { transform: translate3d(calc(var(--px) * 0.7),  calc(var(--py) * 0.7),  0); }
+    .rb-depth-near { transform: translate3d(var(--px), var(--py), 0); }
+
+    /* 中央呼吸光暈 */
+    .rb-glow {
+      position: absolute; left: 50%; top: 48%; width: min(130vmax, 1200px); height: min(130vmax, 1200px);
+      margin: calc(min(130vmax, 1200px) / -2) 0 0 calc(min(130vmax, 1200px) / -2);
+      background: radial-gradient(circle, rgba(253,224,71,0.30) 0%, rgba(245,158,11,0.16) 18%, rgba(59,130,246,0.12) 38%, transparent 62%);
+      animation: rb-breathe 4.8s ease-in-out infinite; will-change: opacity, transform;
+    }
+    @keyframes rb-breathe { 0%,100% { opacity: 0.75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+
+    /* 放射光束（遮罩讓邊緣自然淡出，不會出現硬邊） */
+    .rb-enter-scale { position: absolute; left: 50%; top: 48%; width: 0; height: 0; animation: rb-rays-in 1.2s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+    .rb-enter-scale.rb-delay { animation-delay: 0.12s; }
+    @keyframes rb-rays-in { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .rb-rays {
+      position: absolute; width: min(170vmax, 1500px); height: min(170vmax, 1500px);
+      left: calc(min(170vmax, 1500px) / -2); top: calc(min(170vmax, 1500px) / -2);
+      border-radius: 50%; will-change: transform;
+      -webkit-mask-image: radial-gradient(circle, #000 4%, rgba(0,0,0,0.55) 26%, transparent 58%);
+              mask-image: radial-gradient(circle, #000 4%, rgba(0,0,0,0.55) 26%, transparent 58%);
+    }
+    .rb-rays-a {
+      background: repeating-conic-gradient(from 0deg, rgba(253,224,71,0.16) 0deg 3.5deg, rgba(253,224,71,0) 6deg 15deg);
+      animation: rb-spin 70s linear infinite;
+    }
+    .rb-rays-b {
+      background: repeating-conic-gradient(from 7deg, rgba(191,219,254,0.16) 0deg 1.2deg, rgba(191,219,254,0) 2.4deg 22.5deg);
+      animation: rb-spin 110s linear infinite reverse;
+    }
+    @keyframes rb-spin { to { transform: rotate(360deg); } }
+
+    /* 底部升起的光柱 */
+    .rb-pillar {
+      position: absolute; left: 50%; bottom: -10%; width: min(70vw, 560px); height: 120%;
+      margin-left: calc(min(70vw, 560px) / -2);
+      background: radial-gradient(ellipse 50% 100% at 50% 100%, rgba(253,230,138,0.32) 0%, rgba(245,158,11,0.12) 35%, transparent 70%);
+      transform-origin: 50% 100%;
+      animation: rb-pillar-rise 1.1s cubic-bezier(0.2, 0.9, 0.3, 1) both, rb-pillar-flicker 3.6s ease-in-out 1.1s infinite;
+    }
+    @keyframes rb-pillar-rise { 0% { transform: scaleY(0); opacity: 0; } 100% { transform: scaleY(1); opacity: 1; } }
+    @keyframes rb-pillar-flicker { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+    /* 散景光斑（以漸層做柔邊，不用 filter: blur） */
+    .rb-bokeh-dot {
+      position: absolute; border-radius: 50%; opacity: 0;
+      animation: rb-bokeh-drift ease-in-out infinite; will-change: transform, opacity;
+    }
+    @keyframes rb-bokeh-drift {
+      0%   { transform: translate3d(0, 0, 0) scale(0.8); opacity: 0; }
+      20%  { opacity: var(--o, 0.6); }
+      80%  { opacity: var(--o, 0.6); }
+      100% { transform: translate3d(var(--dx, 30px), var(--dy, -60px), 0) scale(1.15); opacity: 0; }
+    }
+
+    /* 上升金粉 + 十字星閃 */
+    .rb-sparks { position: absolute; inset: 0; }
+    .rb-spark {
+      position: absolute; bottom: -8px; border-radius: 50%; background: #FEF3C7;
+      box-shadow: 0 0 6px 1px rgba(251,191,36,0.85); opacity: 0;
+      animation: rb-spark-rise linear infinite; will-change: transform, opacity;
+    }
+    @keyframes rb-spark-rise {
+      0% { transform: translate3d(0, 0, 0); opacity: 0; }
+      12% { opacity: 1; }
+      100% { transform: translate3d(var(--dx, 0px), -100vh, 0); opacity: 0; }
+    }
+    .rb-twinkle {
+      position: absolute; width: 18px; height: 18px; opacity: 0;
+      background: radial-gradient(circle, #fff 0%, #FDE68A 30%, rgba(253,230,138,0) 60%);
+      clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+      animation: rb-twinkle 2.6s ease-in-out infinite; will-change: transform, opacity;
+    }
+    @keyframes rb-twinkle {
+      0%, 100% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+      50% { transform: scale(1.3) rotate(45deg); opacity: 1; }
+    }
+
+    /* 翻轉落下的金幣 */
+    .rb-coin-fall { position: absolute; top: -40px; animation: rb-coin-fall linear infinite; will-change: transform; }
+    .rb-coin {
+      width: var(--s, 22px); height: var(--s, 22px); border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #FFFBEB 0%, #FCD34D 28%, #F59E0B 62%, #92400E 100%);
+      box-shadow: inset 0 0 0 2px rgba(254,243,199,0.7), 0 0 10px rgba(245,158,11,0.6);
+      animation: rb-coin-flip 1.4s linear infinite; will-change: transform;
+      display: flex; align-items: center; justify-content: center;
+      color: #92400E; font-weight: 900; font-size: calc(var(--s, 22px) * 0.5); line-height: 1;
+    }
+    @keyframes rb-coin-fall { 0% { transform: translate3d(0, 0, 0) rotate(0deg); } 100% { transform: translate3d(var(--dx, 0px), 115vh, 0) rotate(var(--rot, 120deg)); } }
+    @keyframes rb-coin-flip { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+
+    /* 外圍暗角，讓視線集中在獎卡 */
+    .rb-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 48%, transparent 45%, rgba(2,4,14,0.75) 100%); }
+
+    /* 三層震波 */
+    .shock-wrap { position: absolute; left: 50%; top: 48%; width: 0; height: 0; z-index: 10; pointer-events: none; }
+    .shock-ring {
+      position: absolute; left: -180px; top: -180px; width: 360px; height: 360px; border-radius: 50%;
+      opacity: 0; will-change: transform, opacity;
+    }
+    .shock-gold  { border: 3px solid rgba(251,191,36,0.95); box-shadow: 0 0 40px rgba(245,158,11,0.8), inset 0 0 30px rgba(245,158,11,0.5); }
+    .shock-white { border: 1.5px solid rgba(255,255,255,0.9); box-shadow: 0 0 20px rgba(255,255,255,0.6); }
+    .shock-blue  { border: 2px solid rgba(96,165,250,0.8); box-shadow: 0 0 34px rgba(59,130,246,0.7); }
+    .shock-wrap.play .shock-gold  { animation: shock-out 1.15s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
+    .shock-wrap.play .shock-white { animation: shock-out 1.0s cubic-bezier(0.1, 0.8, 0.3, 1) 0.14s forwards; }
+    .shock-wrap.play .shock-blue  { animation: shock-out 1.3s cubic-bezier(0.1, 0.8, 0.3, 1) 0.3s forwards; }
+    @keyframes shock-out { 0% { transform: scale(0.15); opacity: 1; } 100% { transform: scale(3.2); opacity: 0; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rb-rays, .rb-glow, .rb-pillar { animation: none !important; }
+      #revealBokeh, #revealCoins, .rb-sparks, .shock-wrap { display: none !important; }
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -484,6 +709,13 @@
   </style>
 </head>
 <body class="bg-tkt-bg text-slate-100 min-h-screen flex flex-col font-sans select-none overflow-x-hidden relative">
+
+  <!-- 背景漂浮金粉（由 JS 依裝置效能決定數量） -->
+  <div class="ambient-dust" id="ambientDust" aria-hidden="true"></div>
+  <!-- 開獎前聚光暗場 / 倒數 / 全螢幕閃光 -->
+  <div id="stageVignette" aria-hidden="true"></div>
+  <div id="countdownOverlay" aria-hidden="true"></div>
+  <div id="revealFlash" aria-hidden="true"></div>
 
   <!-- 背景金藍光暈 -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -628,7 +860,7 @@
     </div>
 
     <!-- 3D 玻璃腔體 -->
-    <div class="relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 glass-sphere-container border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
+    <div id="glassSphere" class="relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 glass-sphere-container border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
       <div class="absolute -top-4 left-6 w-52 h-28 bg-gradient-to-b from-white/30 to-transparent rounded-full rotate-[-28deg] pointer-events-none z-10 blur-[1px]"></div>
       <div class="absolute inset-0 rounded-full ring-2 ring-inset ring-white/20 pointer-events-none z-10"></div>
       
@@ -721,10 +953,17 @@
             <div class="absolute inset-x-2 top-0 h-1 bg-slate-800 rounded-b"></div>
             
             <div id="droppedEgg" class="hidden absolute flex flex-col items-center transform hover:scale-110 transition">
-              <div id="droppedEggBall" class="w-12 h-12 rounded-full border-2 border-white/90 shadow-[0_0_20px_rgba(245,158,11,0.85)] flex items-center justify-center text-sm font-black text-white relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-b from-rose-500 from-50% to-white to-50%"></div>
-                <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[3px] bg-slate-900/60 z-10"></div>
-                <span class="relative z-20 drop-shadow">🎁</span>
+              <div id="droppedEggBall" class="w-12 h-12 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.85)] flex items-center justify-center text-sm font-black text-white relative">
+                <!-- 下殼 -->
+                <div class="egg-half egg-bottom rounded-full overflow-hidden border-2 border-white/90" style="clip-path: inset(50% 0 0 0);">
+                  <div class="absolute inset-0" style="background: radial-gradient(circle at 35% 30%, #ffffff 0%, #e2e8f0 60%, #94a3b8 100%);"></div>
+                </div>
+                <!-- 上蓋（顏色由 JS 隨機對應 3D 扭蛋顏色） -->
+                <div class="egg-half egg-top rounded-full overflow-hidden border-2 border-white/90" style="clip-path: inset(0 0 50% 0);">
+                  <div id="eggTopColor" class="absolute inset-0" style="background: radial-gradient(circle at 35% 25%, #ffffff 0%, #f43f5e 28%, #9f1239 100%);"></div>
+                </div>
+                <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] bg-slate-900/50 z-10 egg-seam transition-opacity duration-200"></div>
+                <div class="egg-burst z-30"></div>
               </div>
             </div>
 
@@ -770,17 +1009,35 @@
   <!-- ============================================================
        開獎揭曉祝賀彈窗 (神聖光芒 + 震波光環 + 黑金奢華層次)
   ============================================================ -->
-  <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/92 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 overflow-hidden">
+  <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-[radial-gradient(circle_at_50%_45%,rgba(30,27,75,0.93)_0%,rgba(2,4,14,0.97)_70%)] hidden opacity-0 transition-opacity duration-300 overflow-hidden">
     
-    <!-- 背景旋轉神聖光輝環 (Sunburst Halo) -->
-    <div class="modal-sunburst-halo"></div>
+    <!-- 開獎背景特效層（全部只用 transform / opacity 動畫） -->
+    <div id="revealBg" class="reveal-bg" aria-hidden="true">
+      <div class="rb-glow"></div>
+      <div class="rb-layer rb-depth-far">
+        <div class="rb-enter-scale"><div class="rb-rays rb-rays-a"></div></div>
+      </div>
+      <div class="rb-layer rb-depth-mid">
+        <div class="rb-enter-scale rb-delay"><div class="rb-rays rb-rays-b"></div></div>
+      </div>
+      <div class="rb-pillar"></div>
+      <div class="rb-layer rb-depth-mid" id="revealBokeh"></div>
+      <div class="rb-layer rb-depth-near" id="revealCoins"></div>
+      <div id="revealSparks" class="rb-sparks"></div>
+      <div class="rb-vignette"></div>
+    </div>
 
-    <!-- 開獎瞬間金色能量擴散震波 -->
-    <div id="revealShockwave" class="hidden absolute w-80 h-80 sm:w-96 sm:h-96 rounded-full border-2 border-amber-400/80 pointer-events-none z-10 shadow-[0_0_50px_rgba(245,158,11,0.8)]"></div>
+    <!-- 開獎瞬間三層能量震波 -->
+    <div id="revealShockwave" class="shock-wrap hidden" aria-hidden="true">
+      <span class="shock-ring shock-gold"></span>
+      <span class="shock-ring shock-white"></span>
+      <span class="shock-ring shock-blue"></span>
+    </div>
 
     <!-- 主頒獎卡片 -->
     <div id="revealCard" class="relative z-20 w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-center border-2 border-amber-300/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-500 my-auto max-h-[92vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
       
+      <span class="corner-ornament tl"></span><span class="corner-ornament tr"></span><span class="corner-ornament bl"></span><span class="corner-ornament br"></span>
       <!-- 卡片頂部細緻光緣 (Inner Highlight) -->
       <div class="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-200 to-transparent"></div>
 
@@ -1039,7 +1296,7 @@
   </div>
 
   <!-- 單張 QR Code 放大預覽 Modal -->
-  <div id="singleQRModal" class="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden">
+  <div id="singleQRModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden">
     <div class="relative w-full max-w-sm bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl flex flex-col items-center">
       <button id="closeSingleQRBtn" class="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
         <i data-lucide="x" class="w-5 h-5"></i>
@@ -1516,15 +1773,16 @@
           osc.start(now);
           osc.stop(now + (isHeavy ? 0.52 : 0.38));
 
-          const bufferSize = ctx.sampleRate * (isHeavy ? 0.4 : 0.25);
-          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-          const output = noiseBuffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
+          // 白噪音緩衝只產生一次並重複使用（原本每響都重新生成約 1.7 萬筆亂數）
+          if (!this._noiseBuffer) {
+            const len = Math.floor(ctx.sampleRate * 0.4);
+            this._noiseBuffer = ctx.createBuffer(1, len, ctx.sampleRate);
+            const out = this._noiseBuffer.getChannelData(0);
+            for (let i = 0; i < len; i++) out[i] = Math.random() * 2 - 1;
           }
 
           const whiteNoise = ctx.createBufferSource();
-          whiteNoise.buffer = noiseBuffer;
+          whiteNoise.buffer = this._noiseBuffer;
 
           const filter = ctx.createBiquadFilter();
           filter.type = 'bandpass';
@@ -1593,67 +1851,132 @@
     };
 
     /* ============================================================
-       3. Three.js + Cannon.js 3D 滿裝扭蛋模擬
+       3. Three.js + Cannon.js 3D 滿裝扭蛋模擬（效能強化版）
+       - InstancedMesh：85 顆扭蛋 × 3 部件，從 255 次繪製降到 3 次
+       - 程序化環境反射貼圖：一次性產生，金屬/玻璃質感大幅提升
+       - 物理休眠 + SAP 寬相：靜止時幾乎零 CPU
+       - 自適應幀率：閒置 30fps、轉動 60fps、彈窗/背景分頁時停止渲染
     ============================================================ */
     let scene, camera, renderer, world;
-    let ballMeshes = [], ballBodies = [];
-    let mixerRotorMesh, mixerRotorBody;
+    let capsuleTopIM, capsuleBottomIM, capsuleRingIM;
+    let ballBodies = [];
+    let mixerRotorMesh, mixerRotorBody, spinLight, glassMesh;
+    let _dummy = null;
     const SPHERE_RADIUS = 3.6;
     const CAPSULE_RADIUS = 0.52;
     const NUM_CAPSULES = 85;
-    const CAPSULE_COLORS = [0x0000FF, 0xEF4444, 0xF59E0B, 0x10B981, 0x8B5CF6, 0xEC4899, 0x06B6D4];
+    const CAPSULE_COLORS = [0x2563EB, 0xEF4444, 0xF59E0B, 0x10B981, 0x8B5CF6, 0xEC4899, 0x06B6D4];
+    const CAM_BASE_DIST = 9.2;
+
+    let spinEnergy = 0;          // 目前轉動能量 (0~1)，驅動燈光/鏡頭
+    let spinEnergyTarget = 0;
+    let isDraggingView = false;
+    let lastInteractAt = 0;
+    const camState = { theta: 0, phi: 0.06, dist: CAM_BASE_DIST };
+
+    function buildEnvironmentMap(renderer) {
+      // 以 Canvas 畫一張「攝影棚」等距柱狀貼圖：頂部柔光箱 + 金色地光 + 藍色輪廓光
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 256;
+      const g = c.getContext('2d');
+      const bg = g.createLinearGradient(0, 0, 0, 256);
+      bg.addColorStop(0, '#2b3a6b');
+      bg.addColorStop(0.45, '#0b1230');
+      bg.addColorStop(0.75, '#2a1a08');
+      bg.addColorStop(1, '#7a4a10');
+      g.fillStyle = bg; g.fillRect(0, 0, 512, 256);
+      // 柔光箱
+      g.fillStyle = 'rgba(255,255,255,0.95)';
+      g.fillRect(70, 34, 120, 26);
+      g.fillRect(300, 26, 150, 20);
+      g.fillStyle = 'rgba(255,240,200,0.7)';
+      g.fillRect(210, 70, 60, 12);
+      // 藍色輪廓光
+      const rim = g.createRadialGradient(440, 120, 0, 440, 120, 70);
+      rim.addColorStop(0, 'rgba(96,165,250,0.9)'); rim.addColorStop(1, 'rgba(96,165,250,0)');
+      g.fillStyle = rim; g.fillRect(360, 40, 160, 160);
+      // 金色地光
+      const gold = g.createRadialGradient(140, 230, 0, 140, 230, 110);
+      gold.addColorStop(0, 'rgba(253,200,80,0.9)'); gold.addColorStop(1, 'rgba(253,200,80,0)');
+      g.fillStyle = gold; g.fillRect(20, 120, 260, 136);
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      tex.encoding = THREE.sRGBEncoding;
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      const env = pmrem.fromEquirectangular(tex).texture;
+      tex.dispose();
+      pmrem.dispose();
+      return env;
+    }
 
     function init3DGachapon() {
       const container = document.getElementById('threeContainer');
       const width = container.clientWidth || 320;
       const height = container.clientHeight || 320;
+      _dummy = new THREE.Object3D();
 
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-      camera.position.set(0, 0.6, 9.2);
+      camera.position.set(0, 0.6, CAM_BASE_DIST);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+      const lowPower = (navigator.hardwareConcurrency || 4) <= 4;
+      renderer = new THREE.WebGLRenderer({ antialias: !lowPower, alpha: true, powerPreference: "high-performance" });
       renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1.25 : 1.75));
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      renderer.shadowMap.enabled = false; // 場景沒有投影需求，關閉省效能
       container.appendChild(renderer.domElement);
 
-      scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-      const mainLight = new THREE.DirectionalLight(0xffffff, 1.35);
-      mainLight.position.set(5, 8, 6);
-      scene.add(mainLight);
+      const envMap = buildEnvironmentMap(renderer);
+      scene.environment = envMap;
 
-      const rimLight = new THREE.DirectionalLight(0x60a5fa, 0.65);
-      rimLight.position.set(-5, -4, -4);
+      scene.add(new THREE.HemisphereLight(0xdbeafe, 0x3b2506, 0.55));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+      keyLight.position.set(5, 8, 6);
+      scene.add(keyLight);
+      const rimLight = new THREE.DirectionalLight(0x60a5fa, 0.9);
+      rimLight.position.set(-5, -3, -5);
       scene.add(rimLight);
+      // 轉動時從底部亮起的金色能量光
+      spinLight = new THREE.PointLight(0xffb020, 0, 9, 2);
+      spinLight.position.set(0, -2.6, 0.6);
+      scene.add(spinLight);
 
       world = new CANNON.World();
       world.gravity.set(0, -9.82 * 1.5, 0);
-      world.broadphase = new CANNON.NaiveBroadphase();
-      world.solver.iterations = 10;
+      world.broadphase = new CANNON.SAPBroadphase(world);
+      world.allowSleep = true;
+      world.solver.iterations = 8;
 
-      const glassGeo = new THREE.SphereGeometry(SPHERE_RADIUS, 36, 36);
-      const glassMat = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.18,
-        roughness: 0.05,
-        metalness: 0.08,
-        transmission: 0.92,
-        ior: 1.45,
-        reflectivity: 0.6,
-        clearcoat: 1.0,
-        clearcoatRoughness: 0.06,
-        side: THREE.FrontSide,
-        depthWrite: false
-      });
-      scene.add(new THREE.Mesh(glassGeo, glassMat));
+      // 玻璃球：不使用 transmission（會多一次整個場景的渲染），改用清漆 + 環境反射
+      glassMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(SPHERE_RADIUS, 48, 32),
+        new THREE.MeshPhysicalMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.14,
+          roughness: 0.04,
+          metalness: 0.0,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.04,
+          envMapIntensity: 1.6,
+          side: THREE.FrontSide,
+          depthWrite: false
+        })
+      );
+      glassMesh.renderOrder = 10;
+      scene.add(glassMesh);
 
       const boundaryMat = new CANNON.Material("boundary");
+      const capsuleMat = new CANNON.Material("capsuleMat");
+      world.addContactMaterial(new CANNON.ContactMaterial(capsuleMat, capsuleMat, { friction: 0.08, restitution: 0.42 }));
+      world.addContactMaterial(new CANNON.ContactMaterial(capsuleMat, boundaryMat, { friction: 0.1, restitution: 0.5 }));
+
       const wallThickness = 1.0;
       const r = SPHERE_RADIUS * 0.90;
-
       const walls = [
         { size: [r * 2, wallThickness, r * 2], pos: [0, -r - wallThickness, 0] },
         { size: [r * 2, wallThickness, r * 2], pos: [0, r + wallThickness + 0.3, 0] },
@@ -1662,7 +1985,6 @@
         { size: [r * 2, r * 2, wallThickness], pos: [0, 0, -r - wallThickness] },
         { size: [r * 2, r * 2, wallThickness], pos: [0, 0, r + wallThickness] }
       ];
-
       walls.forEach(w => {
         const body = new CANNON.Body({ mass: 0, material: boundaryMat });
         body.addShape(new CANNON.Box(new CANNON.Vec3(w.size[0] / 2, w.size[1] / 2, w.size[2] / 2)));
@@ -1670,36 +1992,39 @@
         world.addBody(body);
       });
 
-      const sphereMat = new CANNON.Material("capsuleMat");
+      // === 扭蛋：共用幾何 + 共用材質 + Instancing ===
+      const topGeo = new THREE.SphereGeometry(CAPSULE_RADIUS, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2);
+      const bottomGeo = new THREE.SphereGeometry(CAPSULE_RADIUS * 0.985, 20, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+      const ringGeo = new THREE.TorusGeometry(CAPSULE_RADIUS * 0.995, 0.03, 6, 28);
+      ringGeo.rotateX(Math.PI / 2);
+
+      const topMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.16, metalness: 0.05, clearcoat: 1.0, clearcoatRoughness: 0.08, envMapIntensity: 1.2 });
+      const bottomMat = new THREE.MeshStandardMaterial({ color: 0xF1F5F9, roughness: 0.32, metalness: 0.05, envMapIntensity: 0.9 });
+      const ringMat = new THREE.MeshStandardMaterial({ color: 0xF5C451, roughness: 0.25, metalness: 1.0, envMapIntensity: 1.4 });
+
+      capsuleTopIM = new THREE.InstancedMesh(topGeo, topMat, NUM_CAPSULES);
+      capsuleBottomIM = new THREE.InstancedMesh(bottomGeo, bottomMat, NUM_CAPSULES);
+      capsuleRingIM = new THREE.InstancedMesh(ringGeo, ringMat, NUM_CAPSULES);
+      [capsuleTopIM, capsuleBottomIM, capsuleRingIM].forEach(im => {
+        im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        im.frustumCulled = false;
+        scene.add(im);
+      });
+
+      const tmpColor = new THREE.Color();
       for (let i = 0; i < NUM_CAPSULES; i++) {
-        const group = new THREE.Group();
-        const topMesh = new THREE.Mesh(
-          new THREE.SphereGeometry(CAPSULE_RADIUS, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2),
-          new THREE.MeshStandardMaterial({ 
-            color: CAPSULE_COLORS[i % CAPSULE_COLORS.length], 
-            roughness: 0.18, 
-            metalness: 0.32 
-          })
-        );
-        const bottomMesh = new THREE.Mesh(
-          new THREE.SphereGeometry(CAPSULE_RADIUS, 16, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
-          new THREE.MeshStandardMaterial({ 
-            color: 0xF8FAFC, 
-            roughness: 0.25, 
-            metalness: 0.15 
-          })
-        );
-        group.add(topMesh);
-        group.add(bottomMesh);
-        scene.add(group);
-        ballMeshes.push(group);
+        tmpColor.setHex(CAPSULE_COLORS[i % CAPSULE_COLORS.length]);
+        capsuleTopIM.setColorAt(i, tmpColor);
 
         const sphereBody = new CANNON.Body({
           mass: 0.28,
           shape: new CANNON.Sphere(CAPSULE_RADIUS),
-          material: sphereMat,
+          material: capsuleMat,
           linearDamping: 0.28,
-          angularDamping: 0.35
+          angularDamping: 0.35,
+          allowSleep: true,
+          sleepSpeedLimit: 0.18,
+          sleepTimeLimit: 0.5
         });
 
         const layerRatio = i / NUM_CAPSULES;
@@ -1707,57 +2032,103 @@
         const currentMaxR = Math.sqrt(Math.max(0.05, 1 - Math.pow((layerRatio * 2 - 1), 2))) * (SPHERE_RADIUS * 0.65);
         const rPos = Math.random() * currentMaxR;
         const y = -1.9 + layerRatio * 3.6;
-
         sphereBody.position.set(Math.cos(theta) * rPos, y, Math.sin(theta) * rPos);
+        sphereBody.quaternion.setFromEuler(Math.random() * 6.28, Math.random() * 6.28, Math.random() * 6.28);
         world.addBody(sphereBody);
         ballBodies.push(sphereBody);
       }
+      if (capsuleTopIM.instanceColor) capsuleTopIM.instanceColor.needsUpdate = true;
+      syncCapsuleInstances(true);
 
       mixerRotorMesh = new THREE.Mesh(
         new THREE.BoxGeometry(2.6, 0.22, 0.32),
-        new THREE.MeshStandardMaterial({ color: 0xF59E0B, metalness: 0.85, roughness: 0.15 })
+        new THREE.MeshStandardMaterial({ color: 0xF59E0B, metalness: 1.0, roughness: 0.18, emissive: 0x7a3d00, emissiveIntensity: 0 })
       );
       scene.add(mixerRotorMesh);
 
       mixerRotorBody = new CANNON.Body({
         mass: 0,
         type: CANNON.Body.KINEMATIC,
+        allowSleep: false,
         position: new CANNON.Vec3(0, -SPHERE_RADIUS * 0.74, 0)
       });
       mixerRotorBody.addShape(new CANNON.Box(new CANNON.Vec3(1.3, 0.11, 0.16)));
       world.addBody(mixerRotorBody);
 
       setupOrbitControl(container);
-      animate3D();
+      applyCamera(0);
+      requestAnimationFrame(animate3D);
+    }
+
+    function syncCapsuleInstances(force) {
+      let changed = !!force;
+      for (let i = 0; i < ballBodies.length; i++) {
+        const b = ballBodies[i];
+        if (!force && b.sleepState === CANNON.Body.SLEEPING) continue;
+        changed = true;
+        _dummy.position.copy(b.position);
+        _dummy.quaternion.copy(b.quaternion);
+        _dummy.updateMatrix();
+        capsuleTopIM.setMatrixAt(i, _dummy.matrix);
+        capsuleBottomIM.setMatrixAt(i, _dummy.matrix);
+        capsuleRingIM.setMatrixAt(i, _dummy.matrix);
+      }
+      if (changed) {
+        capsuleTopIM.instanceMatrix.needsUpdate = true;
+        capsuleBottomIM.instanceMatrix.needsUpdate = true;
+        capsuleRingIM.instanceMatrix.needsUpdate = true;
+      }
+      return changed;
     }
 
     function setupOrbitControl(dom) {
-      let isDragging = false;
-      let prevPos = { x: 0, y: 0 };
-      let angle = { theta: 0, phi: 0 };
-
-      dom.addEventListener('mousedown', (e) => { isDragging = true; prevPos = { x: e.clientX, y: e.clientY }; });
-      window.addEventListener('mouseup', () => { isDragging = false; });
-      window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        const dx = e.clientX - prevPos.x;
-        const dy = e.clientY - prevPos.y;
-        prevPos = { x: e.clientX, y: e.clientY };
-
-        angle.theta -= dx * 0.007;
-        angle.phi = Math.max(-0.6, Math.min(0.6, angle.phi + dy * 0.007));
-
-        const dist = 9.2;
-        camera.position.x = dist * Math.sin(angle.theta) * Math.cos(angle.phi);
-        camera.position.z = dist * Math.cos(angle.theta) * Math.cos(angle.phi);
-        camera.position.y = dist * Math.sin(angle.phi) + 0.6;
-        camera.lookAt(0, 0, 0);
+      // Pointer Events：滑鼠、觸控、觸控筆通用。觸控時保留頁面上下捲動
+      dom.style.touchAction = 'pan-y';
+      let prev = null;
+      dom.addEventListener('pointerdown', (e) => {
+        isDraggingView = true;
+        prev = { x: e.clientX, y: e.clientY };
+        lastInteractAt = performance.now();
+        try { dom.setPointerCapture(e.pointerId); } catch (_) {}
       });
+      dom.addEventListener('pointermove', (e) => {
+        if (!isDraggingView || !prev) return;
+        const dx = e.clientX - prev.x;
+        const dy = e.clientY - prev.y;
+        prev = { x: e.clientX, y: e.clientY };
+        camState.theta -= dx * 0.007;
+        if (e.pointerType === 'mouse') {
+          camState.phi = Math.max(-0.6, Math.min(0.6, camState.phi + dy * 0.007));
+        }
+        lastInteractAt = performance.now();
+      });
+      const end = () => { isDraggingView = false; prev = null; lastInteractAt = performance.now(); };
+      dom.addEventListener('pointerup', end);
+      dom.addEventListener('pointercancel', end);
+    }
+
+    function applyCamera(time) {
+      const dist = camState.dist;
+      // 轉動時輕微鏡頭震動，增加臨場感
+      const shake = spinEnergy * 0.045;
+      const sx = shake ? Math.sin(time * 0.047) * shake : 0;
+      const sy = shake ? Math.cos(time * 0.061) * shake : 0;
+      camera.position.x = dist * Math.sin(camState.theta) * Math.cos(camState.phi) + sx;
+      camera.position.z = dist * Math.cos(camState.theta) * Math.cos(camState.phi);
+      camera.position.y = dist * Math.sin(camState.phi) + 0.6 + sy;
+      camera.lookAt(0, 0, 0);
+    }
+
+    function setSpinEnergy(target) {
+      spinEnergyTarget = target;
+      const sphere = document.getElementById('glassSphere');
+      if (sphere) sphere.classList.toggle('sphere-spinning', target > 0);
     }
 
     function churnBallsPhysics() {
       mixerRotorBody.angularVelocity.set(0, 22, 0);
       ballBodies.forEach(body => {
+        body.wakeUp();
         body.velocity.y = 6.8 + Math.random() * 6.5;
         body.velocity.x += (Math.random() - 0.5) * 4.5;
         body.velocity.z += (Math.random() - 0.5) * 4.5;
@@ -1770,24 +2141,53 @@
     }
 
     let lastTime = performance.now();
-    function animate3D() {
+    let lastRenderAt = 0;
+    function animate3D(time) {
       requestAnimationFrame(animate3D);
-      const time = performance.now();
+      if (!time) time = performance.now();
+
+      // 背景分頁或開獎彈窗開啟時：不跑物理也不渲染
+      if (document.hidden || document.body.classList.contains('modal-open')) {
+        lastTime = time;
+        return;
+      }
+
       const dt = Math.min((time - lastTime) / 1000, 0.033);
       lastTime = time;
 
-      world.step(1 / 60, dt, 4);
+      spinEnergy += (spinEnergyTarget - spinEnergy) * Math.min(1, dt * 4);
+      if (Math.abs(spinEnergy - spinEnergyTarget) < 0.002) spinEnergy = spinEnergyTarget;
 
-      for (let i = 0; i < ballMeshes.length; i++) {
-        ballMeshes[i].position.copy(ballBodies[i].position);
-        ballMeshes[i].quaternion.copy(ballBodies[i].quaternion);
+      const rotorActive = mixerRotorBody.angularVelocity.lengthSquared() > 0.01;
+      world.step(1 / 60, dt, 3);
+      mixerRotorBody.angularVelocity.scale(0.95, mixerRotorBody.angularVelocity);
+      const moved = syncCapsuleInstances(false);
+
+      const idle = !moved && !rotorActive && !isDraggingView && spinEnergy === 0;
+      // 閒置時自動緩慢環繞
+      if (!isDraggingView && time - lastInteractAt > 2500) {
+        camState.theta += dt * (0.12 + spinEnergy * 0.5);
       }
+      camState.dist = CAM_BASE_DIST - spinEnergy * 0.7;
+
+      // 閒置降到約 30fps
+      if (idle && time - lastRenderAt < 32) return;
+      lastRenderAt = time;
+
       mixerRotorMesh.position.copy(mixerRotorBody.position);
       mixerRotorMesh.quaternion.copy(mixerRotorBody.quaternion);
-      mixerRotorBody.angularVelocity.scale(0.95, mixerRotorBody.angularVelocity);
+
+      spinLight.intensity = spinEnergy * 2.6 * (0.85 + Math.sin(time * 0.02) * 0.15);
+      mixerRotorMesh.material.emissiveIntensity = spinEnergy * 1.2;
+
+      applyCamera(time);
       renderer.render(scene, camera);
     }
 
+    function randomCapsuleCss() {
+      const hex = CAPSULE_COLORS[Math.floor(Math.random() * CAPSULE_COLORS.length)];
+      return '#' + hex.toString(16).padStart(6, '0');
+    }
     /* ============================================================
        4. 專屬籤號檢測與即時音效預載
     ============================================================ */
@@ -1833,10 +2233,41 @@
     }
 
     /* ============================================================
-       5. 轉動與開獎流程 (震波爆發 + 聖光光環加持)
+       5. 轉動與開獎流程
+       時間軸：轉動 5s → 落蛋 + 聚光 + 3·2·1 倒數 3s → 蛋殼裂開 + 白金閃光 → 3D 翻入獎卡 + 金額滾動
     ============================================================ */
     let isSpinning = false;
     let selectedPrizeItem = null;
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    function focusSpotlightOn(el) {
+      const v = document.getElementById('stageVignette');
+      if (!v || !el) return;
+      const r = el.getBoundingClientRect();
+      v.style.setProperty('--sx', `${r.left + r.width / 2}px`);
+      v.style.setProperty('--sy', `${r.top + r.height / 2}px`);
+      v.classList.add('on');
+    }
+    function clearSpotlight() {
+      const v = document.getElementById('stageVignette');
+      if (v) v.classList.remove('on');
+    }
+
+    function runCountdown(totalMs) {
+      const overlay = document.getElementById('countdownOverlay');
+      if (!overlay) return;
+      const step = totalMs / 3;
+      [3, 2, 1].forEach((n, i) => {
+        setTimeout(() => {
+          overlay.innerHTML = `<span class="countdown-num">${n}</span>`;
+        }, i * step);
+      });
+      setTimeout(() => { overlay.innerHTML = ''; }, totalMs);
+    }
 
     function spinGachapon() {
       if (isSpinning) return;
@@ -1870,24 +2301,24 @@
 
       const lever = document.getElementById('crankLever');
       lever.classList.add('spinning-crank');
+      setSpinEnergy(1);
 
-      let stirTimer = setInterval(() => {
-        churnBallsPhysics();
-      }, 220);
+      churnBallsPhysics();
+      const stirTimer = setInterval(churnBallsPhysics, 220);
 
       setTimeout(() => {
         clearInterval(stirTimer);
         lever.classList.remove('spinning-crank');
+        setSpinEnergy(0.3);
       }, 5000);
 
       setTimeout(() => {
         const btn = document.getElementById('spinActionBtn');
         if (btn) btn.style.display = 'none';
 
-        const mainStage = document.getElementById('draw-ui');
         const chuteBox = document.getElementById('chuteContainer');
-        if (mainStage) mainStage.classList.add('stage-focus-active');
         if (chuteBox) chuteBox.classList.add('stage-spotlight');
+        focusSpotlightOn(chuteBox);
 
         Sound.stopDrum();
         Sound.startTenseDrums();
@@ -1895,18 +2326,26 @@
         const droppedEgg = document.getElementById('droppedEgg');
         const ball = document.getElementById('droppedEggBall');
         const chuteStatusText = document.getElementById('chuteStatusText');
+        const topColor = document.getElementById('eggTopColor');
+        if (topColor) {
+          const c = randomCapsuleCss();
+          topColor.style.background = `radial-gradient(circle at 35% 25%, #ffffff 0%, ${c} 30%, ${c} 70%, rgba(0,0,0,0.45) 100%)`;
+        }
 
+        ball.classList.remove('egg-cracking', 'egg-open');
         droppedEgg.classList.remove('hidden', 'anim-egg-drop');
         void droppedEgg.offsetWidth;
         droppedEgg.classList.add('anim-egg-drop');
 
-        ball.classList.remove('egg-cracking');
         ball.classList.add('tense-egg-pulse');
-        chuteStatusText.textContent = "🥁 準備揭曉中...";
+        chuteStatusText.textContent = "";
+
+        if (!prefersReducedMotion) runCountdown(3000);
 
         setTimeout(() => {
           Sound.stopTenseDrums();
-          if (mainStage) mainStage.classList.remove('stage-focus-active');
+          clearSpotlight();
+          setSpinEnergy(0);
           if (chuteBox) chuteBox.classList.remove('stage-spotlight');
           revealPrize(selectedPrizeItem.id);
         }, 3000);
@@ -1924,21 +2363,23 @@
       if (!container || !textElem) return;
 
       const isMobile = window.innerWidth < 640;
-      let startSize = isMobile ? 22 : (window.innerWidth < 1024 ? 26 : 28);
+      const startSize = isMobile ? 22 : (window.innerWidth < 1024 ? 26 : 28);
       const minSize = 12;
-
-      textElem.style.fontSize = `${startSize}px`;
-
-      let currentSize = startSize;
       const maxAvailableWidth = container.clientWidth - 24;
 
-      while (
-        currentSize > minSize &&
-        (textElem.scrollWidth > maxAvailableWidth ||
-         (enElem && enElem.scrollWidth > maxAvailableWidth))
-      ) {
-        currentSize -= 0.5;
-        textElem.style.fontSize = `${currentSize}px`;
+      // 先用比例一次估算，再微調，避免逐 0.5px 迴圈造成大量 reflow
+      textElem.style.fontSize = `${startSize}px`;
+      const widest = Math.max(textElem.scrollWidth, enElem ? enElem.scrollWidth : 0);
+      let size = startSize;
+      if (widest > maxAvailableWidth) {
+        size = Math.max(minSize, Math.floor(startSize * maxAvailableWidth / widest * 2) / 2);
+        textElem.style.fontSize = `${size}px`;
+      }
+      let guard = 0;
+      while (size > minSize && guard++ < 6 &&
+             (textElem.scrollWidth > maxAvailableWidth || (enElem && enElem.scrollWidth > maxAvailableWidth))) {
+        size -= 0.5;
+        textElem.style.fontSize = `${size}px`;
       }
     }
 
@@ -1954,22 +2395,151 @@
         pricePart = ': ' + parts[1].trim();
       }
 
+      // 金額拆成「前綴 + 可滾動數字」
+      let priceHtml = '';
+      if (pricePart) {
+        const m = pricePart.match(/^(.*?)([\d,]+)(\D*)$/);
+        if (m) {
+          const target = parseInt(m[2].replace(/,/g, ''), 10);
+          priceHtml = `${escapeHtml(m[1])}<span id="revealAmount" class="tabular-num" data-target="${target}">${prefersReducedMotion ? m[2] : '0'}</span>${escapeHtml(m[3])}`;
+        } else {
+          priceHtml = escapeHtml(pricePart);
+        }
+      }
+
       return `
-        <div class="golden-prize-text font-black leading-tight drop-shadow mb-1 text-center">${zhPart}</div>
-        ${enPart ? `<div id="revealEnPart" class="prize-en-nowrap text-amber-100/90 font-semibold tracking-normal leading-tight text-[0.62em] sm:text-[0.68em] my-0.5 text-center">${enPart}</div>` : ''}
-        ${pricePart ? `<div class="prize-amount-badge text-amber-200 font-black tracking-widest text-[0.8em] sm:text-[0.88em] mt-2 px-4 py-1 rounded-full inline-block">${pricePart}</div>` : ''}
+        <div class="golden-prize-text font-black leading-tight drop-shadow mb-1 text-center">${escapeHtml(zhPart)}</div>
+        ${enPart ? `<div id="revealEnPart" class="prize-en-nowrap text-amber-100/90 font-semibold tracking-normal leading-tight text-[0.62em] sm:text-[0.68em] my-0.5 text-center">${escapeHtml(enPart)}</div>` : ''}
+        ${priceHtml ? `<div class="prize-amount-badge text-amber-200 font-black tracking-widest text-[0.8em] sm:text-[0.88em] mt-2 px-4 py-1 rounded-full inline-block">${priceHtml}</div>` : ''}
       `;
+    }
+
+    function animatePrizeAmount() {
+      const el = document.getElementById('revealAmount');
+      if (!el || prefersReducedMotion) return;
+      const target = parseInt(el.dataset.target, 10);
+      if (!target) return;
+      const duration = 1500;
+      const start = performance.now();
+      const fmt = new Intl.NumberFormat('en-US');
+      function tick(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 4);
+        el.textContent = fmt.format(Math.round(target * eased));
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
     }
 
     function triggerShockwaveEffect() {
       const wave = document.getElementById('revealShockwave');
       if (!wave) return;
-      wave.classList.remove('hidden', 'anim-shockwave');
+      wave.classList.remove('hidden', 'play');
       void wave.offsetWidth;
-      wave.classList.add('anim-shockwave');
-      setTimeout(() => {
-        wave.classList.add('hidden');
-      }, 1100);
+      wave.classList.add('play');
+      clearTimeout(wave._t);
+      wave._t = setTimeout(() => { wave.classList.add('hidden'); wave.classList.remove('play'); }, 1700);
+    }
+
+    /* 開獎背景粒子：第一次開獎時才建立，之後重複使用；彈窗隱藏時 display:none 自動停止動畫 */
+    let revealBgBuilt = false;
+    function buildRevealBackground() {
+      if (revealBgBuilt || prefersReducedMotion) return;
+      revealBgBuilt = true;
+      const lowPower = (navigator.hardwareConcurrency || 4) <= 4;
+      const mobile = window.innerWidth < 640;
+      const rnd = (a, b) => a + Math.random() * (b - a);
+
+      // 散景光斑
+      const bokeh = document.getElementById('revealBokeh');
+      const bokehColors = ['253,224,71', '251,191,36', '147,197,253', '255,255,255', '244,114,182'];
+      const nBokeh = lowPower ? 7 : (mobile ? 9 : 14);
+      for (let i = 0; i < nBokeh; i++) {
+        const d = document.createElement('span');
+        const size = rnd(40, mobile ? 120 : 180);
+        const c = bokehColors[i % bokehColors.length];
+        d.className = 'rb-bokeh-dot';
+        d.style.cssText = `left:${rnd(-5, 95)}%;top:${rnd(0, 90)}%;width:${size}px;height:${size}px;` +
+          `background:radial-gradient(circle, rgba(${c},0.55) 0%, rgba(${c},0.18) 45%, rgba(${c},0) 70%);` +
+          `animation-duration:${rnd(9, 17)}s;animation-delay:${-rnd(0, 15)}s;` +
+          `--dx:${rnd(-80, 80)}px;--dy:${rnd(-120, -30)}px;--o:${rnd(0.35, 0.75)}`;
+        bokeh.appendChild(d);
+      }
+
+      // 上升金粉 + 星閃
+      const sparks = document.getElementById('revealSparks');
+      const nSparks = lowPower ? 14 : (mobile ? 18 : 30);
+      for (let i = 0; i < nSparks; i++) {
+        const d = document.createElement('span');
+        const size = rnd(1.5, 4);
+        d.className = 'rb-spark';
+        d.style.cssText = `left:${rnd(0, 100)}%;width:${size}px;height:${size}px;` +
+          `animation-duration:${rnd(5, 10)}s;animation-delay:${-rnd(0, 10)}s;--dx:${rnd(-60, 60)}px`;
+        sparks.appendChild(d);
+      }
+      const nTwinkle = lowPower ? 5 : 9;
+      for (let i = 0; i < nTwinkle; i++) {
+        const t = document.createElement('span');
+        const s = rnd(12, 26);
+        t.className = 'rb-twinkle';
+        t.style.cssText = `left:${rnd(5, 95)}%;top:${rnd(5, 90)}%;width:${s}px;height:${s}px;` +
+          `animation-duration:${rnd(2, 3.6)}s;animation-delay:${-rnd(0, 3)}s`;
+        sparks.appendChild(t);
+      }
+
+      // 翻轉金幣
+      const coins = document.getElementById('revealCoins');
+      const nCoins = lowPower ? 5 : (mobile ? 7 : 11);
+      for (let i = 0; i < nCoins; i++) {
+        const wrap = document.createElement('span');
+        const s = rnd(16, mobile ? 26 : 32);
+        wrap.className = 'rb-coin-fall';
+        wrap.style.cssText = `left:${rnd(2, 96)}%;animation-duration:${rnd(6, 11)}s;animation-delay:${-rnd(0, 10)}s;` +
+          `--dx:${rnd(-60, 60)}px;--rot:${rnd(-200, 200)}deg`;
+        const coin = document.createElement('span');
+        coin.className = 'rb-coin';
+        coin.textContent = '福';
+        coin.style.cssText = `--s:${s}px;animation-duration:${rnd(1, 2)}s`;
+        wrap.appendChild(coin);
+        coins.appendChild(wrap);
+      }
+
+      // 滑鼠視差（桌機才啟用，rAF 節流）
+      if (window.matchMedia('(pointer: fine)').matches) {
+        const bg = document.getElementById('revealBg');
+        const modal = document.getElementById('revealModal');
+        let pending = false, mx = 0, my = 0;
+        modal.addEventListener('pointermove', (e) => {
+          mx = (e.clientX / window.innerWidth - 0.5) * -28;
+          my = (e.clientY / window.innerHeight - 0.5) * -20;
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            bg.style.setProperty('--px', `${mx.toFixed(1)}px`);
+            bg.style.setProperty('--py', `${my.toFixed(1)}px`);
+            pending = false;
+          });
+        });
+      }
+    }
+
+    /* 每次開獎重播光束與光柱的進場動畫 */
+    function replayRevealBackground() {
+      const bg = document.getElementById('revealBg');
+      if (!bg) return;
+      bg.querySelectorAll('.rb-enter-scale, .rb-pillar').forEach(el => {
+        el.style.animation = 'none';
+        void el.offsetWidth;
+        el.style.animation = '';
+      });
+    }
+
+    function triggerRevealFlash() {
+      const f = document.getElementById('revealFlash');
+      if (!f || prefersReducedMotion) return;
+      f.classList.remove('fire');
+      void f.offsetWidth;
+      f.classList.add('fire');
     }
 
     function revealPrize(id) {
@@ -1978,23 +2548,19 @@
       const ball = document.getElementById('droppedEggBall');
 
       ball.classList.remove('tense-egg-pulse');
-      ball.classList.add('egg-cracking');
-      chuteStatusText.textContent = "開獎中...";
+      ball.classList.add('egg-open');
+      chuteStatusText.textContent = "";
+      Sound.playFireworkExplosion({ heavy: true });
+      triggerRevealFlash();
 
       setTimeout(() => {
         droppedEgg.classList.add('hidden');
         droppedEgg.classList.remove('anim-egg-drop');
-        ball.classList.remove('egg-cracking');
+        ball.classList.remove('egg-open');
         chuteStatusText.textContent = "WAITING...";
 
-        Sound.playWin();
-        fireGrandFireworksShow();
-        triggerShockwaveEffect();
-
         document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
-        
-        const titleContainer = document.getElementById('revealPrizeTitle');
-        titleContainer.innerHTML = renderStructuredPrizeText(selectedPrizeItem.name);
+        document.getElementById('revealPrizeTitle').innerHTML = renderStructuredPrizeText(selectedPrizeItem.name);
 
         const prizeBox = document.getElementById('prizeContentBox');
         prizeBox.classList.remove('prize-box-enter');
@@ -2003,91 +2569,77 @@
 
         const modal = document.getElementById('revealModal');
         const card = document.getElementById('revealCard');
+        document.body.classList.add('modal-open');
+        buildRevealBackground();
         modal.classList.remove('hidden');
-        setTimeout(() => {
+        replayRevealBackground();
+        card.classList.remove('card-flip-in');
+        void card.offsetWidth;
+        requestAnimationFrame(() => {
           modal.classList.remove('opacity-0');
           card.classList.remove('scale-90');
-          card.classList.add('scale-100');
+          card.classList.add('scale-100', 'card-flip-in');
           adjustPrizeFontSize();
-        }, 20);
+          Sound.playWin();
+          triggerShockwaveEffect();
+          fireGrandFireworksShow();
+          setTimeout(animatePrizeAmount, 350);
+        });
 
         isSpinning = false;
         updateDrawStatusUI();
-      }, 550);
+      }, 520);
     }
 
-    /* 雙層奢華香檳金 + 科技星藍彩帶加農砲 */
+    /* 香檳金 + 科技藍彩帶：開場兩側禮炮 → 頂部金雨 → 漸弱煙火 */
     function fireGrandFireworksShow() {
       if (typeof confetti === 'undefined') return;
 
-      const festColors = ['#FFE875', '#F59E0B', '#D97706', '#FFFFFF', '#3B82F6', '#60A5FA', '#EC4899'];
+      const festColors = ['#FFE875', '#F59E0B', '#D97706', '#FFFFFF', '#3B82F6', '#60A5FA'];
+      const base = { colors: festColors, zIndex: 9999, disableForReducedMotion: true };
+      const lowPower = (navigator.hardwareConcurrency || 4) <= 4;
+      const k = lowPower ? 0.6 : 1;
 
-      confetti({
-        particleCount: 100,
-        angle: 60,
-        spread: 60,
-        origin: { x: 0.05, y: 0.85 },
-        colors: festColors,
-        scalar: 1.15,
-        drift: 0.1,
-        zIndex: 9999
-      });
-      confetti({
-        particleCount: 100,
-        angle: 120,
-        spread: 60,
-        origin: { x: 0.95, y: 0.85 },
-        colors: festColors,
-        scalar: 1.15,
-        drift: -0.1,
-        zIndex: 9999
-      });
-      Sound.playFireworkExplosion({ heavy: true });
+      confetti({ ...base, particleCount: Math.round(90 * k), angle: 60, spread: 58, startVelocity: 55, origin: { x: 0, y: 0.9 }, scalar: 1.1 });
+      confetti({ ...base, particleCount: Math.round(90 * k), angle: 120, spread: 58, startVelocity: 55, origin: { x: 1, y: 0.9 }, scalar: 1.1 });
 
       setTimeout(() => {
         confetti({
-          particleCount: 80,
-          spread: 130,
-          origin: { y: 0.1 },
-          gravity: 0.55,
-          scalar: 0.85,
-          ticks: 340,
-          colors: ['#FDE047', '#FFFBEB', '#93C5FD', '#FFFFFF'],
-          zIndex: 9999
+          ...base,
+          particleCount: Math.round(70 * k),
+          spread: 140,
+          startVelocity: 18,
+          origin: { y: -0.05 },
+          gravity: 0.45,
+          drift: 0,
+          scalar: 0.8,
+          ticks: 380,
+          colors: ['#FDE047', '#FFFBEB', '#F59E0B', '#FFFFFF']
         });
-      }, 350);
+      }, 380);
 
-      const fireworksDuration = 3200;
+      const fireworksDuration = 3000;
       const animationEnd = Date.now() + fireworksDuration;
-
       const interval = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
         if (timeLeft <= 0) {
           clearInterval(interval);
           return;
         }
-
-        const particleCount = 40 * (timeLeft / fireworksDuration);
-
         confetti({
-          particleCount,
-          startVelocity: 32,
+          ...base,
+          particleCount: Math.round(36 * k * (timeLeft / fireworksDuration)) + 6,
+          startVelocity: 30,
           spread: 360,
           ticks: 70,
-          origin: {
-            x: Math.random() * 0.7 + 0.15,
-            y: Math.random() * 0.45 + 0.1
-          },
-          colors: festColors,
-          shapes: ['circle', 'square'],
-          scalar: Math.random() * 0.4 + 0.9,
-          zIndex: 9999
+          gravity: 0.9,
+          origin: { x: Math.random() * 0.7 + 0.15, y: Math.random() * 0.4 + 0.1 },
+          shapes: ['circle'],
+          scalar: Math.random() * 0.4 + 0.85
         });
-
-        Sound.playFireworkExplosion({ heavy: Math.random() > 0.65 });
-      }, 280);
+        Sound.playFireworkExplosion({ heavy: Math.random() > 0.7 });
+      }, 340);
     }
-
     /* ============================================================
        6. 後台管理
     ============================================================ */
@@ -2330,7 +2882,7 @@
 
         const ws = XLSX.utils.json_to_sheet(templateData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, "獎項清單");
+        XLSX.utils.book_append_sheet(wb, ws, "獎項清單");
         XLSX.writeFile(wb, "2027_TKT_抽獎獎項與轉動音效範本.xlsx");
       });
     }
@@ -2451,7 +3003,7 @@
           const qrx = (w - qrSize) / 2;
           const qry = 310;
           ctx.fillStyle = "#F8FAFC";
-          ctx.fillRect(qrx - 15, qry - 15, qrSize + 30, qry - 15);
+          ctx.fillRect(qrx - 15, qry - 15, qrSize + 30, qrSize + 30);
           ctx.strokeStyle = "#E2E8F0";
           ctx.lineWidth = 2;
           ctx.strokeRect(qrx - 15, qry - 15, qrSize + 30, qrSize + 30);
@@ -2476,6 +3028,26 @@
     /* ============================================================
        7. 頁面初始化與監聽
     ============================================================ */
+    /* 背景金粉：依裝置效能決定粒子數，純 CSS 合成動畫 */
+    function spawnAmbientDust() {
+      const host = document.getElementById('ambientDust');
+      if (!host || prefersReducedMotion) return;
+      const cores = navigator.hardwareConcurrency || 4;
+      const count = cores <= 4 ? 10 : (window.innerWidth < 640 ? 14 : 22);
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const d = document.createElement('i');
+        const size = 1.5 + Math.random() * 2.5;
+        d.style.left = `${Math.random() * 100}%`;
+        d.style.width = d.style.height = `${size}px`;
+        d.style.animationDuration = `${10 + Math.random() * 12}s`;
+        d.style.animationDelay = `${-Math.random() * 20}s`;
+        d.style.setProperty('--dx', `${(Math.random() - 0.5) * 120}px`);
+        frag.appendChild(d);
+      }
+      host.appendChild(frag);
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       function waitForLibraries() {
         if (window.THREE && window.CANNON && window.QRCode) {
@@ -2488,6 +3060,7 @@
         }
       }
       waitForLibraries();
+      spawnAmbientDust();
 
       const unlockAudio = () => {
         Sound.unlock();
@@ -2527,6 +3100,8 @@
         modal.classList.add('opacity-0');
         setTimeout(() => {
           modal.classList.add('hidden');
+          card.classList.remove('card-flip-in');
+          document.body.classList.remove('modal-open');
           const btn = document.getElementById('spinActionBtn');
           if (btn) btn.style.display = 'flex';
           updateDrawStatusUI();
