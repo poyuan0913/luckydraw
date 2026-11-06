@@ -1,0 +1,2599 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>2027 TKT End Party | 3D 擬真滿裝扭蛋系統</title>
+
+  <!-- 資源預連線加速 -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+
+  <!-- 關鍵樣式優先載入 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 核心 3D 與邏輯庫 -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script defer src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tkt: {
+              blue: '#0000FF',
+              dark: '#0000AA',
+              light: '#3333FF',
+              gold: '#F59E0B',
+              bg: '#040714'
+            }
+          },
+          boxShadow: {
+            'glow-blue': '0 0 35px rgba(0, 0, 255, 0.45)',
+            'glow-gold': '0 0 45px rgba(245, 158, 11, 0.65)',
+            'glow-gold-lg': '0 0 70px rgba(245, 158, 11, 0.85), 0 0 100px rgba(0, 0, 255, 0.45)',
+            'neon-chute': 'inset 0 0 20px rgba(0,0,0,0.95), 0 0 15px rgba(0,0,255,0.35)',
+            'neon-lunar': '0 0 16px rgba(239, 68, 68, 0.35), inset 0 0 8px rgba(245, 158, 11, 0.25)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .glass-panel {
+      background: linear-gradient(145deg, rgba(14, 25, 58, 0.96) 0%, rgba(6, 11, 28, 0.98) 100%);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(254, 240, 138, 0.35);
+      position: relative;
+    }
+
+    @keyframes crank-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(4320deg); }
+    }
+    .spinning-crank {
+      animation: crank-spin 5.6s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    @keyframes egg-crack-glow {
+      0% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.28); filter: brightness(2.4) drop-shadow(0 0 45px #EF4444); }
+      100% { transform: scale(0.9); filter: brightness(1.2); }
+    }
+    .egg-cracking {
+      animation: egg-crack-glow 0.65s ease-in-out forwards;
+    }
+
+    /* 加強版心跳搏動緊張視覺 */
+    @keyframes tense-heartbeat {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(239,68,68,0.7)); }
+      15% { transform: scale(1.22); filter: drop-shadow(0 0 28px rgba(245,158,11,0.95)); }
+      30% { transform: scale(0.94); }
+      45% { transform: scale(1.15); filter: drop-shadow(0 0 22px rgba(239,68,68,0.9)); }
+      60% { transform: scale(1); }
+    }
+    .tense-egg-pulse {
+      animation: tense-heartbeat 0.38s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+    }
+
+    /* 吉祥小羊/羊駝懸浮動畫 */
+    @keyframes sheep-float-motion {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      25% { transform: translateY(-4px) rotate(-3deg); }
+      75% { transform: translateY(2.5px) rotate(2.5deg); }
+    }
+    .anim-sheep-float {
+      animation: sheep-float-motion 3.2s ease-in-out infinite;
+      display: inline-block;
+      transform-origin: center bottom;
+    }
+
+    /* 喜慶鞭炮搖擺動畫 */
+    @keyframes firecracker-swing-motion {
+      0%, 100% { transform: rotate(0deg) translateY(0); }
+      30% { transform: rotate(7deg) translateY(-1px); }
+      75% { transform: rotate(-7deg) translateY(0.5px); }
+    }
+    .anim-cracker-swing {
+      animation: firecracker-swing-motion 2.6s ease-in-out infinite;
+      display: inline-block;
+      transform-origin: 50% 10%;
+    }
+
+    /* 頂部標題流動光芒 */
+    @keyframes title-shimmer-flow {
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+    .anim-title-shimmer {
+      background: linear-gradient(
+        90deg,
+        #cbd5e1 0%,
+        #93c5fd 20%,
+        #cbd5e1 40%,
+        #ffffff 50%,
+        #fde047 55%,
+        #cbd5e1 70%,
+        #93c5fd 85%,
+        #cbd5e1 100%
+      );
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: title-shimmer-flow 6s ease-in-out infinite;
+      display: inline-block;
+      filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.4))
+              drop-shadow(0 1px 4px rgba(59, 130, 246, 0.5));
+    }
+
+    /* Happy • Lunar • New • Year 春節流動特效 */
+    @keyframes lunar-glow-flow {
+      0% { background-position: 0% center; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8)); }
+      50% { background-position: 100% center; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.9)) drop-shadow(0 0 12px rgba(251, 191, 36, 0.8)); }
+      100% { background-position: 200% center; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8)); }
+    }
+    .anim-lunar-shimmer {
+      background: linear-gradient(
+        90deg,
+        #FDE047 0%,
+        #FF5252 25%,
+        #FFFFFF 50%,
+        #F59E0B 75%,
+        #FDE047 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: lunar-glow-flow 3.2s linear infinite;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* 紅燈籠搖擺 */
+    @keyframes lantern-swing-l {
+      0%, 100% { transform: rotate(-7deg) translateY(0); }
+      50% { transform: rotate(7deg) translateY(-1px); }
+    }
+    .anim-lantern-swing-left {
+      animation: lantern-swing-l 2.8s ease-in-out infinite;
+      transform-origin: top center;
+    }
+
+    @keyframes lantern-swing-r {
+      0%, 100% { transform: rotate(7deg) translateY(0); }
+      50% { transform: rotate(-7deg) translateY(-1px); }
+    }
+    .anim-lantern-swing-right {
+      animation: lantern-swing-r 3.1s ease-in-out infinite;
+      transform-origin: top center;
+    }
+
+    /* 春聯小標籤呼吸 */
+    @keyframes couplet-breath {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.5)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.85)); }
+    }
+    .anim-couplet-pulse {
+      animation: couplet-breath 2.4s ease-in-out infinite;
+    }
+
+    /* 喜慶紅色粗體流動光影效果 */
+    @keyframes festive-red-shimmer-flow {
+      0% { background-position: -250% center; }
+      100% { background-position: 250% center; }
+    }
+    .anim-festive-red-shimmer {
+      background: linear-gradient(
+        115deg,
+        #FF2A2A 0%,
+        #FF5252 20%,
+        #FFE57F 45%,
+        #FFFFFF 50%,
+        #FFD166 55%,
+        #FF2A2A 80%,
+        #D90429 100%
+      );
+      background-size: 250% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: festive-red-shimmer-flow 3.4s ease-in-out infinite;
+      display: inline-block;
+      font-weight: 900;
+      filter: drop-shadow(0 0 10px rgba(255, 42, 42, 0.95))
+              drop-shadow(0 0 24px rgba(239, 68, 68, 0.65))
+              drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85));
+    }
+
+    /* 按鈕立體懸浮微動效果 */
+    @keyframes btn-float-pulse {
+      0%, 100% {
+        transform: translateY(0px);
+        box-shadow: 0 0 25px rgba(0, 0, 255, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+      }
+      50% {
+        transform: translateY(-4px);
+        box-shadow: 0 0 38px rgba(59, 130, 246, 0.75), 0 0 50px rgba(245, 158, 11, 0.35), 0 10px 22px rgba(0, 0, 0, 0.5);
+      }
+    }
+    .anim-btn-float {
+      animation: btn-float-pulse 2.8s ease-in-out infinite;
+      will-change: transform, box-shadow;
+    }
+    .anim-btn-float:active {
+      animation: none;
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* 框體外金光呼吸 */
+    @keyframes golden-ambient-pulse {
+      0%, 100% {
+        box-shadow: 0 0 24px rgba(245, 158, 11, 0.32), inset 0 0 16px rgba(245, 158, 11, 0.2);
+        border-color: rgba(245, 158, 11, 0.85);
+      }
+      50% {
+        box-shadow: 0 0 46px rgba(245, 158, 11, 0.75), inset 0 0 26px rgba(245, 158, 11, 0.4);
+        border-color: rgba(254, 240, 138, 1);
+      }
+    }
+    .prize-box-neon {
+      animation: golden-ambient-pulse 5.5s ease-in-out infinite;
+      position: relative;
+      isolation: isolate;
+      transform: translateZ(0);
+    }
+
+    /* 絲滑慢速光流動動畫 */
+    @keyframes golden-continuous-flow-mobile {
+      0% {
+        transform: translate3d(-200%, 0, 0) rotate(20deg);
+        opacity: 0;
+      }
+      10% { opacity: 0; }
+      25% { opacity: 0.9; }
+      65% { opacity: 0.9; }
+      80% { opacity: 0; }
+      100% {
+        transform: translate3d(200%, 0, 0) rotate(20deg);
+        opacity: 0;
+      }
+    }
+
+    .prize-golden-shimmer-smooth {
+      position: absolute;
+      top: -120%;
+      left: -60%;
+      width: 240%;
+      height: 340%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(251, 191, 36, 0) 30%,
+        rgba(254, 240, 138, 0.25) 45%,
+        rgba(255, 255, 255, 0.95) 50%,
+        rgba(245, 158, 11, 0.5) 55%,
+        rgba(251, 191, 36, 0) 70%,
+        transparent 100%
+      );
+      pointer-events: none;
+      z-index: 15;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      animation: golden-continuous-flow-mobile 5.8s cubic-bezier(0.33, 1, 0.68, 1) infinite;
+    }
+
+    /* 金粉微粒漂浮 */
+    @keyframes golden-dust-float {
+      0%, 100% {
+        transform: translate3d(0, 0, 0) scale(0.8);
+        opacity: 0.2;
+      }
+      50% {
+        transform: translate3d(4px, -4px, 0) scale(1.2);
+        opacity: 0.9;
+      }
+    }
+    .golden-dust-particle {
+      position: absolute;
+      border-radius: 9999px;
+      background: #FDE047;
+      box-shadow: 0 0 8px #F59E0B;
+      pointer-events: none;
+      will-change: transform, opacity;
+      animation: golden-dust-float 5s ease-in-out infinite;
+    }
+
+    .golden-prize-text {
+      background: linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 25%, #FBBF24 50%, #FFF0BA 75%, #D97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 10px rgba(245, 158, 11, 0.55));
+    }
+
+    @keyframes pop-box-in {
+      0% { transform: scale(0.82) translateY(12px); opacity: 0; }
+      65% { transform: scale(1.03) translateY(-2px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .prize-box-enter {
+      animation: pop-box-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* 羊駝動態 */
+    @keyframes alpaca-happy-laugh {
+      0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+      15% { transform: translateY(-8px) rotate(-6deg) scale(1.08); }
+      30% { transform: translateY(2px) rotate(4deg) scale(0.97); }
+      45% { transform: translateY(-10px) rotate(-4deg) scale(1.1); }
+      60% { transform: translateY(1px) rotate(3deg) scale(0.99); }
+      75% { transform: translateY(-5px) rotate(-2deg) scale(1.04); }
+      90% { transform: translateY(0px) rotate(1deg) scale(1); }
+    }
+    .anim-alpaca-laugh {
+      animation: alpaca-happy-laugh 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      transform-origin: bottom center;
+      display: inline-block;
+      will-change: transform;
+    }
+
+    @keyframes glasses-glint {
+      0%, 80%, 100% { opacity: 0.15; transform: translateX(-15px) rotate(25deg); }
+      90% { opacity: 0.85; transform: translateX(25px) rotate(25deg); }
+    }
+    .anim-glasses-shine {
+      animation: glasses-glint 3.2s ease-in-out infinite;
+    }
+
+    /* ============================================================
+       開獎後質感深度強化特效 (God Rays / 光環 / 震波 / 奢華邊框)
+    ============================================================ */
+    /* 1. 背景慢速旋轉神聖放射光芒環 */
+    @keyframes sunburst-rotate {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    .modal-sunburst-halo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140vw;
+      height: 140vw;
+      max-width: 900px;
+      max-height: 900px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(59, 130, 246, 0.12) 35%, transparent 70%),
+                  conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.08) 15deg, transparent 30deg, rgba(251, 191, 36, 0.08) 45deg, transparent 60deg, rgba(251, 191, 36, 0.08) 75deg, transparent 90deg, rgba(251, 191, 36, 0.08) 105deg, transparent 120deg, rgba(251, 191, 36, 0.08) 135deg, transparent 150deg, rgba(251, 191, 36, 0.08) 165deg, transparent 180deg, rgba(251, 191, 36, 0.08) 195deg, transparent 210deg, rgba(251, 191, 36, 0.08) 225deg, transparent 240deg, rgba(251, 191, 36, 0.08) 255deg, transparent 270deg, rgba(251, 191, 36, 0.08) 285deg, transparent 300deg, rgba(251, 191, 36, 0.08) 315deg, transparent 330deg, rgba(251, 191, 36, 0.08) 345deg, transparent 360deg);
+      pointer-events: none;
+      z-index: 0;
+      animation: sunburst-rotate 38s linear infinite;
+      will-change: transform;
+    }
+
+    /* 2. 開獎瞬間金色震波擴散 */
+    @keyframes shockwave-out {
+      0% { transform: scale(0.65); opacity: 0.9; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .anim-shockwave {
+      animation: shockwave-out 1.1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+
+    /* 3. 獲獎金額發光標籤 */
+    .prize-amount-badge {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.38) 100%);
+      border: 1px solid rgba(254, 240, 138, 0.7);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4), inset 0 0 8px rgba(254, 240, 138, 0.3);
+      text-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+    }
+
+    /* 4. 按鈕奢華光帶掠過 */
+    @keyframes btn-shimmer-sweep {
+      0% { transform: translateX(-150%) skewX(-20deg); }
+      25%, 100% { transform: translateX(250%) skewX(-20deg); }
+    }
+    .btn-luxury-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-luxury-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+      animation: btn-shimmer-sweep 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* 舞台調光與物理落球 */
+    .stage-focus-active {
+      transition: filter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: brightness(0.38) contrast(1.12);
+    }
+    .stage-spotlight {
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.6s ease;
+      z-index: 40 !important;
+      box-shadow: 0 0 55px rgba(245, 158, 11, 0.8), 0 0 90px rgba(59, 130, 246, 0.6) !important;
+    }
+
+    @keyframes egg-drop-bounce {
+      0% { transform: translateY(-40px) scale(0.65) rotate(-20deg); opacity: 0; }
+      60% { transform: translateY(0px) scale(1.12, 0.88) rotate(4deg); opacity: 1; }
+      80% { transform: translateY(-6px) scale(0.96, 1.04) rotate(-2deg); }
+      100% { transform: translateY(0) scale(1, 1) rotate(0deg); opacity: 1; }
+    }
+    .anim-egg-drop {
+      animation: egg-drop-bounce 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .glass-sphere-container {
+      box-shadow: 
+        inset 0 10px 24px rgba(255, 255, 255, 0.32),
+        inset 0 -14px 28px rgba(0, 0, 0, 0.65),
+        0 15px 35px rgba(0, 0, 0, 0.8),
+        0 0 35px rgba(59, 130, 246, 0.3);
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .prize-en-nowrap {
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+      hyphens: none !important;
+      display: inline-block;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #qrAdminDrawer, #qrAdminDrawer * { visibility: visible; }
+      #qrAdminDrawer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white !important;
+        color: black !important;
+      }
+      .no-print, .hide-in-print { display: none !important; }
+      #qrCardsContainer {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+      }
+      .ticket-print-card {
+        page-break-inside: avoid;
+        border: 2px dashed #334155 !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        padding: 16px !important;
+      }
+      .ticket-print-card .secret-ticket-desc {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-tkt-bg text-slate-100 min-h-screen flex flex-col font-sans select-none overflow-x-hidden relative">
+
+  <!-- 背景金藍光暈 -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-700/20 rounded-full blur-[140px]"></div>
+    <div class="absolute top-1/2 -right-32 w-96 h-96 bg-amber-500/15 rounded-full blur-[150px]"></div>
+    <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-indigo-600/15 rounded-full blur-[160px]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+  </div>
+
+  <!-- 頂部導覽列 -->
+  <header class="relative z-30 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md px-4 py-3 sticky top-0 shadow-lg">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <!-- 左側 Logo 與標題緊密結合區域 -->
+      <div class="flex items-center gap-3.5">
+        <div class="bg-white p-1.5 rounded-xl shadow-md border border-white/20 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 hover:scale-105 transition-transform duration-200 shrink-0">
+          <svg class="w-full h-full" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
+            <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
+            <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
+            <text x="150" y="212" font-family="'Arial Black', 'Helvetica Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">
+              Technik • Kompetenz • Tradition
+            </text>
+          </svg>
+        </div>
+
+        <div class="h-10 w-px bg-slate-800 hidden sm:block"></div>
+
+        <!-- 標題區域 -->
+        <div class="flex flex-col items-center justify-center text-center">
+          <h1 class="text-base sm:text-xl font-black tracking-wider flex items-center justify-center gap-2">
+            <span class="anim-title-shimmer">2027 TKT End Party</span>
+            <span class="inline-flex items-center gap-1 text-xs sm:text-sm bg-gradient-to-r from-amber-500/25 via-yellow-400/30 to-amber-500/25 text-amber-200 border-2 border-amber-400/70 px-3 py-1 rounded-full font-black shadow-[0_0_14px_rgba(245,158,11,0.5)] tracking-wide shrink-0">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 animate-pulse"></i>
+              <span>年度盛典</span>
+            </span>
+          </h1>
+          <p class="text-[11px] sm:text-xs text-slate-400 font-medium tracking-wider text-center w-full mt-0.5">
+            3D 擬真扭蛋盲盒
+          </p>
+        </div>
+      </div>
+
+      <!-- 右側功能按鈕 -->
+      <div class="flex items-center gap-2">
+        <button id="soundToggleBtn" class="p-2 sm:p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 transition" title="開關音效">
+          <i data-lucide="volume-2" class="w-4 h-4" id="soundIcon"></i>
+        </button>
+
+        <button id="toggleQRAdminBtn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-tkt-dark to-tkt-blue text-white text-xs sm:text-sm font-semibold border border-blue-400/40 shadow-glow-blue hover:brightness-110 active:scale-95 transition">
+          <i data-lucide="lock" class="w-4 h-4"></i>
+          <span>後台 QR 管理</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- 專屬提示橫幅 -->
+  <div id="exclusiveBanner" class="hidden relative z-20 bg-gradient-to-r from-blue-950 via-tkt-blue to-indigo-950 border-b border-blue-400/30 px-3 py-1.5 text-center shadow-md overflow-x-auto no-scrollbar">
+    <div class="inline-flex items-center justify-center gap-2 whitespace-nowrap min-w-full text-xs sm:text-sm">
+      <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
+      <span class="text-slate-100 whitespace-nowrap">已成功載入您的專屬盲盒：</span>
+      <strong id="exclusiveBannerText" class="text-amber-300 font-extrabold whitespace-nowrap tracking-wider bg-black/40 px-3 py-0.5 rounded-full border border-amber-400/50">
+        ✨ 專屬神秘盲盒已就緒
+      </strong>
+    </div>
+  </div>
+
+  <!-- 主互動區：3D 滿裝扭蛋舞台 -->
+  <main id="draw-ui" class="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center transition-all duration-700">
+
+    <!-- 頂部招牌框 -->
+    <div class="w-[22rem] sm:w-[26rem] bg-gradient-to-r from-tkt-dark via-tkt-blue to-blue-700 rounded-2xl py-2.5 px-3.5 sm:px-5 shadow-glow-blue border border-blue-300/40 text-center relative z-20 flex items-center justify-between mb-3 sm:mb-4 overflow-hidden">
+      
+      <!-- 左側：吉祥羊駝圖示 -->
+      <div class="anim-sheep-float w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-400/25 via-yellow-300/10 to-transparent rounded-2xl border border-amber-300/60 flex items-center justify-center shadow-lg hover:scale-110 transition-transform shrink-0 overflow-hidden relative" title="吉羊開泰">
+        <img 
+          src="sheep.png" 
+          alt="Lucky Alpaca" 
+          class="w-full h-full object-cover filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.6)] mix-blend-multiply"
+          style="transform: scale(1.15) translateY(2px);"
+        >
+      </div>
+
+      <!-- 中間標題文字：喜氣紅色粗體流動光影 -->
+      <div class="text-center px-1 flex-1 min-w-0 overflow-hidden">
+        <div class="text-[9px] sm:text-[10px] tracking-widest font-black text-blue-200 uppercase whitespace-nowrap">3D REALISTIC GACHAPON</div>
+        <div class="w-full flex items-center justify-center overflow-hidden py-0.5">
+          <span 
+            style="font-size: clamp(12px, 3.6vw, 17px);"
+            class="whitespace-nowrap inline-block anim-festive-red-shimmer tracking-wide select-none">
+            ✨ 2027 TKT Lucky Draw ✨
+          </span>
+        </div>
+      </div>
+
+      <!-- 右側：喜慶鞭炮圖示 -->
+      <div class="anim-cracker-swing w-12 h-12 sm:w-14 sm:h-14 bg-rose-500/15 rounded-2xl border border-rose-400/50 flex items-center justify-center shadow-lg hover:scale-110 transition-transform shrink-0" title="迎春鞭炮">
+        <svg viewBox="0 0 64 64" class="w-9 h-9 sm:w-10 sm:h-10 drop-shadow-[0_2px_8px_rgba(244,63,94,0.5)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 28 6 L 31 10" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+          <path d="M 36 7 L 33 11" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="32" cy="7" r="1.5" fill="#EF4444"/>
+          <path d="M 32 10 Q 30 24 33 58" stroke="#D97706" stroke-width="2.5" stroke-linecap="round"/>
+          
+          <g transform="translate(16, 12) rotate(18)">
+            <rect x="0" y="0" width="13" height="7" rx="1.5" fill="#DC2626"/>
+            <rect x="0" y="2" width="13" height="3" fill="#FBBF24"/>
+            <path d="M 13 3.5 L 16 3" stroke="#D97706" stroke-width="1.5"/>
+          </g>
+
+          <g transform="translate(35, 20) rotate(-18)">
+            <rect x="0" y="0" width="13" height="7" rx="1.5" fill="#E11D48"/>
+            <rect x="0" y="2" width="13" height="3" fill="#FDE047"/>
+            <path d="M -3 3.5 L 0 3.5" stroke="#D97706" stroke-width="1.5"/>
+          </g>
+
+          <g transform="translate(17, 30) rotate(16)">
+            <rect x="0" y="0" width="13" height="7" rx="1.5" fill="#DC2626"/>
+            <rect x="0" y="2" width="13" height="3" fill="#FBBF24"/>
+            <path d="M 13 3.5 L 16 3" stroke="#D97706" stroke-width="1.5"/>
+          </g>
+
+          <g transform="translate(34, 38) rotate(-16)">
+            <rect x="0" y="0" width="13" height="7" rx="1.5" fill="#E11D48"/>
+            <rect x="0" y="2" width="13" height="3" fill="#FDE047"/>
+            <path d="M -3 3.5 L 0 3.5" stroke="#D97706" stroke-width="1.5"/>
+          </g>
+
+          <g transform="translate(26, 46) rotate(6)">
+            <rect x="0" y="0" width="15" height="9" rx="2" fill="#B91C1C"/>
+            <rect x="0" y="3" width="15" height="3.5" fill="#F59E0B"/>
+          </g>
+
+          <circle cx="14" cy="24" r="1.2" fill="#FDE047"/>
+          <circle cx="48" cy="18" r="1.5" fill="#F59E0B"/>
+          <circle cx="50" cy="35" r="1.2" fill="#FDE047"/>
+          <circle cx="15" cy="45" r="1.5" fill="#F59E0B"/>
+        </svg>
+      </div>
+
+    </div>
+
+    <!-- 3D 玻璃腔體 -->
+    <div class="relative w-80 sm:w-96 h-80 sm:h-96 rounded-full p-2 bg-gradient-to-b from-slate-700/60 via-blue-950/40 to-slate-900/90 glass-sphere-container border-4 border-slate-700/80 overflow-hidden flex items-center justify-center">
+      <div class="absolute -top-4 left-6 w-52 h-28 bg-gradient-to-b from-white/30 to-transparent rounded-full rotate-[-28deg] pointer-events-none z-10 blur-[1px]"></div>
+      <div class="absolute inset-0 rounded-full ring-2 ring-inset ring-white/20 pointer-events-none z-10"></div>
+      
+      <div id="threeContainer" class="w-full h-full rounded-full overflow-hidden cursor-grab active:cursor-grabbing"></div>
+
+      <div class="absolute bottom-2 inset-x-0 text-center pointer-events-none z-10">
+        <span class="text-[9px] text-slate-300 bg-slate-950/70 px-2.5 py-0.5 rounded-full border border-white/10">
+          滑鼠拖曳可旋轉 3D 視角檢視
+        </span>
+      </div>
+    </div>
+
+    <!-- 扭蛋機基座 & 出蛋口 & 旋鈕開關 -->
+    <div class="w-80 sm:w-96 bg-gradient-to-b from-slate-900 via-slate-950 to-black rounded-b-3xl border-x-4 border-b-4 border-slate-800 p-3 sm:p-5 shadow-2xl relative -mt-3 z-10 flex flex-col items-center">
+      
+      <!-- Happy • Lunar • New • Year 區塊 -->
+      <div class="w-full flex items-center justify-between px-1.5 py-1 sm:py-1.5 mb-3 bg-gradient-to-r from-red-950/80 via-amber-950/60 to-red-950/80 border border-amber-400/50 rounded-2xl shadow-neon-lunar gap-1">
+        
+        <!-- 左側：搖擺紅燈籠 + 迎春對聯 -->
+        <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
+          <div class="anim-lantern-swing-left w-3.5 h-5 sm:w-4 sm:h-6 drop-shadow-[0_0_6px_rgba(239,68,68,0.85)]">
+            <svg viewBox="0 0 32 44" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 16 0 L 16 5" stroke="#FBBF24" stroke-width="1.8"/>
+              <rect x="8" y="5" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
+              <ellipse cx="16" cy="20" rx="13" ry="12" fill="#DC2626"/>
+              <path d="M 8 20 C 8 11 24 11 24 20 C 24 29 8 29 8 20 Z" fill="#EF4444" opacity="0.85"/>
+              <path d="M 13 8 C 9 14 9 26 13 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
+              <path d="M 19 8 C 23 14 23 26 19 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
+              <line x1="16" y1="8" x2="16" y2="32" stroke="#FBBF24" stroke-width="1"/>
+              <rect x="8" y="32" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
+              <path d="M 16 35 L 16 43" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="16" cy="43" r="1.5" fill="#EF4444"/>
+            </svg>
+          </div>
+          <div class="anim-couplet-pulse bg-gradient-to-b from-red-600 to-red-800 border border-amber-300 text-amber-200 text-[8px] sm:text-[9.5px] font-black leading-none px-0.5 py-0.5 rounded shadow flex flex-col items-center shrink-0">
+            <span>迎</span>
+            <span class="mt-0.5">春</span>
+          </div>
+        </div>
+
+        <!-- 中間：文字完整彈性縮放 -->
+        <div class="flex-1 flex items-center justify-center min-w-0 px-0.5 overflow-visible">
+          <span class="font-mono font-black anim-lunar-shimmer tracking-tighter sm:tracking-normal text-center leading-none" style="font-size: clamp(8.5px, 2.6vw, 12px);">
+            Happy • Lunar • New • Year
+          </span>
+        </div>
+
+        <!-- 右側：納福對聯 + 搖擺紅燈籠 -->
+        <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
+          <div class="anim-couplet-pulse bg-gradient-to-b from-red-600 to-red-800 border border-amber-300 text-amber-200 text-[8px] sm:text-[9.5px] font-black leading-none px-0.5 py-0.5 rounded shadow flex flex-col items-center shrink-0">
+            <span>納</span>
+            <span class="mt-0.5">福</span>
+          </div>
+          <div class="anim-lantern-swing-right w-3.5 h-5 sm:w-4 sm:h-6 drop-shadow-[0_0_6px_rgba(239,68,68,0.85)]">
+            <svg viewBox="0 0 32 44" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 16 0 L 16 5" stroke="#FBBF24" stroke-width="1.8"/>
+              <rect x="8" y="5" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
+              <ellipse cx="16" cy="20" rx="13" ry="12" fill="#DC2626"/>
+              <path d="M 8 20 C 8 11 24 11 24 20 C 24 29 8 29 8 20 Z" fill="#EF4444" opacity="0.85"/>
+              <path d="M 13 8 C 9 14 9 26 13 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
+              <path d="M 19 8 C 23 14 23 26 19 32" stroke="#FDE047" stroke-width="1" stroke-linecap="round"/>
+              <line x1="16" y1="8" x2="16" y2="32" stroke="#FBBF24" stroke-width="1"/>
+              <rect x="8" y="32" width="16" height="3" rx="1" fill="#F59E0B" stroke="#D97706" stroke-width="0.8"/>
+              <path d="M 16 35 L 16 43" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="16" cy="43" r="1.5" fill="#EF4444"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="w-full grid grid-cols-2 gap-4 items-center">
+        <!-- 旋轉手柄 -->
+        <div class="flex flex-col items-center">
+          <div id="crankKnob" class="relative w-20 h-20 rounded-full bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950 border-4 border-slate-600 shadow-xl flex items-center justify-center cursor-pointer group active:scale-95 transition">
+            <div id="crankLever" class="w-16 h-4 bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 rounded-full shadow-md flex items-center justify-between px-1">
+              <div class="w-2 h-2 rounded-full bg-slate-950"></div>
+              <div class="w-2 h-2 rounded-full bg-slate-950"></div>
+            </div>
+            <div class="absolute w-7 h-7 rounded-full bg-gradient-to-br from-tkt-blue to-tkt-dark border-2 border-white/70 flex items-center justify-center shadow">
+              <i data-lucide="rotate-cw" class="w-3.5 h-3.5 text-white"></i>
+            </div>
+          </div>
+          <span class="text-[11px] text-slate-400 mt-1.5 font-medium">點擊或轉動旋鈕</span>
+        </div>
+
+        <!-- 3D 扭蛋出蛋口 -->
+        <div class="flex flex-col items-center">
+          <div id="chuteContainer" class="w-28 h-20 rounded-2xl bg-black border-2 border-slate-800 shadow-neon-chute relative flex items-center justify-center overflow-hidden transition-all duration-500">
+            <div class="absolute inset-x-2 top-0 h-1 bg-slate-800 rounded-b"></div>
+            
+            <div id="droppedEgg" class="hidden absolute flex flex-col items-center transform hover:scale-110 transition">
+              <div id="droppedEggBall" class="w-12 h-12 rounded-full border-2 border-white/90 shadow-[0_0_20px_rgba(245,158,11,0.85)] flex items-center justify-center text-sm font-black text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-b from-rose-500 from-50% to-white to-50%"></div>
+                <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[3px] bg-slate-900/60 z-10"></div>
+                <span class="relative z-20 drop-shadow">🎁</span>
+              </div>
+            </div>
+
+            <div id="chuteStatusText" class="text-[10px] text-slate-500 font-mono text-center px-1">
+              WAITING...
+            </div>
+          </div>
+          <span class="text-[11px] text-slate-400 mt-1.5 font-medium">獎品出蛋口</span>
+        </div>
+      </div>
+
+      <!-- 啟動按鈕 -->
+      <button id="spinActionBtn" class="anim-btn-float mt-4 w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-tkt-blue to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base tracking-wider active:scale-[0.98] transition flex items-center justify-center gap-2 border border-blue-300/40 cursor-pointer">
+        <i data-lucide="sparkles" class="w-4 h-4 text-amber-300 animate-pulse"></i>
+        <span id="spinBtnText">啟動 3D 扭蛋 (SPIN)</span>
+      </button>
+
+      <div class="w-full flex items-center justify-between mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] text-slate-400 px-1">
+        <span id="remainingPrizeCounter" class="font-medium text-slate-300">剩餘獎項：30 / 30</span>
+        <span id="activeTicketStatus" class="font-mono text-amber-400 font-bold">隨機幸運抽取模式</span>
+      </div>
+
+      <!-- 獎項全數開完重置快捷提示 -->
+      <div id="allDoneAlertBox" class="hidden w-full mt-2.5 p-2 rounded-xl bg-amber-500/15 border border-amber-400/40 text-center">
+        <p class="text-xs text-amber-300 font-bold">所有獎項已全數開完！</p>
+        <button onclick="verifyAndOpenAdmin()" class="mt-1 text-[11px] text-blue-300 hover:text-white underline">
+          前往管理後台「重置開獎紀錄」以重新開始
+        </button>
+      </div>
+
+      <!-- 抽獎前扭蛋機最底部署名 -->
+      <div class="w-full mt-3 pt-2.5 border-t border-slate-800/60 flex items-center justify-center overflow-hidden px-1">
+        <span 
+          style="font-size: clamp(9.5px, 2.9vw, 13px); letter-spacing: 0.05em;"
+          class="whitespace-nowrap inline-block font-bold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.4)] select-none">
+          ✨ 2027 TKT Year-end party by Po Yuan ✨
+        </span>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============================================================
+       開獎揭曉祝賀彈窗 (神聖光芒 + 震波光環 + 黑金奢華層次)
+  ============================================================ -->
+  <div id="revealModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/92 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 overflow-hidden">
+    
+    <!-- 背景旋轉神聖光輝環 (Sunburst Halo) -->
+    <div class="modal-sunburst-halo"></div>
+
+    <!-- 開獎瞬間金色能量擴散震波 -->
+    <div id="revealShockwave" class="hidden absolute w-80 h-80 sm:w-96 sm:h-96 rounded-full border-2 border-amber-400/80 pointer-events-none z-10 shadow-[0_0_50px_rgba(245,158,11,0.8)]"></div>
+
+    <!-- 主頒獎卡片 -->
+    <div id="revealCard" class="relative z-20 w-full max-w-sm sm:max-w-lg md:max-w-xl glass-panel rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-center border-2 border-amber-300/80 shadow-glow-gold-lg transform scale-90 transition-transform duration-500 my-auto max-h-[92vh] flex flex-col justify-between overflow-y-auto no-scrollbar">
+      
+      <!-- 卡片頂部細緻光緣 (Inner Highlight) -->
+      <div class="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-200 to-transparent"></div>
+
+      <!-- Logo 樣式 -->
+      <div class="w-14 sm:w-20 md:w-24 h-auto mx-auto mb-1 bg-white p-1 sm:p-1.5 rounded-xl shadow-[0_0_22px_rgba(255,255,255,0.4)] shrink-0 border border-white/40">
+        <svg class="w-full h-auto block" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
+          <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
+          <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
+          <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle">Technik • Kompetenz • Tradition</text>
+        </svg>
+      </div>
+
+      <!-- 獎盃圖示 -->
+      <div class="mx-auto w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-200 to-amber-600 flex items-center justify-center shadow-[0_0_22px_rgba(245,158,11,0.9)] mb-1 shrink-0 animate-bounce">
+        <i data-lucide="trophy" class="w-4 h-4 sm:w-5 sm:h-5 text-slate-950"></i>
+      </div>
+
+      <div class="text-sm sm:text-base md:text-lg font-black text-amber-300 tracking-[0.32em] uppercase mb-0.5 drop-shadow-[0_2px_12px_rgba(245,158,11,0.8)] shrink-0">
+        CONGRATULATIONS
+      </div>
+
+      <h3 class="text-xs sm:text-sm md:text-base font-bold text-slate-100 mb-2 tracking-wider drop-shadow shrink-0">
+        🎉 恭喜幸運中獎！ 🎉
+      </h3>
+
+      <!-- 幸運序號標籤 (更精細金屬鍍層) -->
+      <div class="flex items-center justify-center mb-2 shrink-0">
+        <div class="inline-flex items-center gap-1.5 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-blue-950 via-blue-900 to-blue-950 border border-blue-400/80 shadow-[0_0_12px_rgba(59,130,246,0.4)]">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="text-xs sm:text-sm font-mono font-black text-blue-100 tracking-wider" id="revealTicketNo">幸運序號 #--</span>
+        </div>
+      </div>
+      
+      <!-- 獎品內容框容器 -->
+      <div class="relative w-full max-w-sm sm:max-w-md mx-auto my-1.5">
+
+        <!-- 戴眼鏡羊駝 燦笑插畫 -->
+        <div class="absolute -top-7 -right-3 sm:-top-9 sm:-right-7 z-30 pointer-events-none anim-alpaca-laugh select-none">
+          <div class="relative w-16 h-16 sm:w-20 sm:h-20 filter drop-shadow-[0_4px_16px_rgba(245,158,11,0.7)]">
+            <svg viewBox="0 0 120 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="alpacaWool" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFFFFF"/>
+                  <stop offset="60%" stop-color="#FFF8E7"/>
+                  <stop offset="100%" stop-color="#FDE68A"/>
+                </linearGradient>
+                <linearGradient id="glassesGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FDE047"/>
+                  <stop offset="50%" stop-color="#F59E0B"/>
+                  <stop offset="100%" stop-color="#D97706"/>
+                </linearGradient>
+              </defs>
+
+              <path d="M 32 40 C 22 24 28 8 36 12 C 43 15 42 32 40 40 Z" fill="#FFF8E7" stroke="#D97706" stroke-width="1.8"/>
+              <path d="M 32 34 C 26 24 29 14 34 16 C 38 18 38 28 36 34 Z" fill="#FCA5A5"/>
+
+              <path d="M 88 40 C 98 24 92 8 84 12 C 77 15 78 32 80 40 Z" fill="#FFF8E7" stroke="#D97706" stroke-width="1.8"/>
+              <path d="M 88 34 C 94 24 91 14 86 16 C 82 18 82 28 84 34 Z" fill="#FCA5A5"/>
+
+              <path d="M 34 50 Q 24 66 32 82 Q 40 98 60 98 Q 80 98 88 82 Q 96 66 86 50 Q 82 32 60 32 Q 38 32 34 50 Z" fill="url(#alpacaWool)" stroke="#F59E0B" stroke-width="2"/>
+
+              <circle cx="48" cy="32" r="9" fill="#FFFFFF"/>
+              <circle cx="60" cy="27" r="10" fill="#FFFFFF"/>
+              <circle cx="72" cy="32" r="9" fill="#FFFFFF"/>
+              <circle cx="60" cy="35" r="8" fill="#FFFDF5"/>
+
+              <path d="M 43 56 Q 48 50 53 56" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M 67 56 Q 72 50 77 56" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+
+              <ellipse cx="36" cy="67" rx="5" ry="3" fill="#FB7185" opacity="0.8"/>
+              <ellipse cx="84" cy="67" rx="5" ry="3" fill="#FB7185" opacity="0.8"/>
+
+              <ellipse cx="60" cy="74" rx="17" ry="14" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1.5"/>
+              <path d="M 57 66 C 58 64 62 64 63 66 C 64 68 61 70 60 70 C 59 70 56 68 57 66 Z" fill="#F43F5E"/>
+
+              <g>
+                <path d="M 49 73 Q 60 71 71 73 Q 60 91 49 73 Z" fill="#991B1B" stroke="#7F1D1D" stroke-width="1"/>
+                <path d="M 50.5 73 Q 60 72 69.5 73 L 69 77 Q 60 78 51 77 Z" fill="#FFFFFF"/>
+                <line x1="56.5" y1="73" x2="56.5" y2="77" stroke="#CBD5E1" stroke-width="0.8"/>
+                <line x1="63.5" y1="73" x2="63.5" y2="77" stroke="#CBD5E1" stroke-width="0.8"/>
+                <path d="M 54 84 Q 60 81 66 84 Q 60 90 54 84 Z" fill="#FB7185"/>
+              </g>
+
+              <g>
+                <path d="M 53 57 Q 60 54 67 57" fill="none" stroke="url(#glassesGold)" stroke-width="2.4" stroke-linecap="round"/>
+                <circle cx="46" cy="58" r="11" fill="rgba(255,255,255,0.22)" stroke="url(#glassesGold)" stroke-width="2.6"/>
+                <line x1="35" y1="58" x2="28" y2="54" stroke="url(#glassesGold)" stroke-width="2" stroke-linecap="round"/>
+                
+                <circle cx="74" cy="58" r="11" fill="rgba(255,255,255,0.22)" stroke="url(#glassesGold)" stroke-width="2.6"/>
+                <line x1="85" y1="58" x2="92" y2="54" stroke="url(#glassesGold)" stroke-width="2" stroke-linecap="round"/>
+
+                <g class="anim-glasses-shine" opacity="0.6">
+                  <path d="M 40 52 L 44 48 L 47 52 L 43 56 Z" fill="#FFFFFF"/>
+                  <path d="M 68 52 L 72 48 L 75 52 L 71 56 Z" fill="#FFFFFF"/>
+                </g>
+              </g>
+
+              <path d="M 98 32 Q 102 32 102 28 Q 102 32 106 32 Q 102 32 102 36 Q 102 32 98 32 Z" fill="#FDE047"/>
+              <path d="M 18 42 Q 21 42 21 39 Q 21 42 24 42 Q 21 42 21 45 Q 21 42 18 42 Z" fill="#FDE047"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 獎品主框體 (黑金奢華暗色漸層 + 雙層流光) -->
+        <div id="prizeContentBox" class="prize-box-neon prize-box-enter bg-gradient-to-b from-[#111f4d] via-[#091133] to-[#030614] border-2 border-amber-300 rounded-xl sm:rounded-2xl py-3 px-3.5 shadow-2xl relative w-full flex flex-col items-center justify-center min-h-[96px] overflow-hidden">
+          
+          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 via-white/5 to-transparent pointer-events-none rounded-t-xl z-10"></div>
+          <div class="prize-golden-shimmer-smooth"></div>
+
+          <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-3 left-6" style="animation-delay: 0s;"></div>
+          <div class="golden-dust-particle z-10 w-1 h-1 bottom-4 left-16" style="animation-delay: 1.8s;"></div>
+          <div class="golden-dust-particle z-10 w-2 h-2 top-4 right-10" style="animation-delay: 3.2s;"></div>
+          <div class="golden-dust-particle z-10 w-1 h-1 bottom-3 right-8" style="animation-delay: 0.9s;"></div>
+          <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/2 left-1/4" style="animation-delay: 4.5s;"></div>
+          <div class="golden-dust-particle z-10 w-1.5 h-1.5 top-1/3 right-1/4" style="animation-delay: 2.7s;"></div>
+
+          <div class="w-full flex flex-col items-center justify-center text-center px-1 overflow-hidden relative z-20">
+            <div id="revealPrizeTitle" class="font-black tracking-wide w-full flex flex-col items-center justify-center leading-snug">
+              大獎揭曉中...
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="text-[9px] sm:text-xs text-slate-300/90 my-2 leading-relaxed font-medium shrink-0">
+        請截圖此畫面至舞台領獎處兌獎<br>
+        <span class="text-amber-300 font-bold drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">✨ 2027 TKT Year-end party by Po Yuan ✨</span>
+      </p>
+
+      <!-- 按鈕加入金色光流掠過 -->
+      <button id="closeModalBtn" class="btn-luxury-shimmer w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs sm:text-sm tracking-wider hover:brightness-110 active:scale-95 transition shadow-lg border border-amber-200/60 shrink-0">
+        收下幸運大獎 / 繼續體驗
+      </button>
+    </div>
+  </div>
+
+  <!-- 後台管理密碼驗證視窗 -->
+  <div id="adminPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-200">
+    <div class="relative w-full max-w-sm glass-panel rounded-2xl p-5 border border-slate-700 shadow-2xl flex flex-col">
+      <div class="flex items-center justify-between mb-4 pb-2.5 border-b border-slate-700/60">
+        <div class="flex items-center gap-2 text-white font-black text-sm">
+          <i data-lucide="lock" class="w-4 h-4 text-amber-400"></i>
+          <span>管理員身分驗證</span>
+        </div>
+        <button id="closeAdminPasswordBtn" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+        請輸入後台管理密碼進入設定系統：
+      </p>
+
+      <div class="relative mb-2">
+        <input 
+          type="password" 
+          id="adminPasswordInput" 
+          placeholder="••••••••••••" 
+          autocomplete="current-password"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 font-mono tracking-widest"
+        />
+      </div>
+
+      <div id="adminPasswordError" class="text-[11px] text-rose-400 min-h-[18px] mb-3 font-medium hidden">
+        密碼錯誤，請重新輸入！
+      </div>
+
+      <div class="flex items-center justify-end gap-2 mt-1">
+        <button id="cancelAdminPasswordBtn" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          取消
+        </button>
+        <button id="submitAdminPasswordBtn" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-tkt-dark to-tkt-blue hover:brightness-110 active:scale-95 transition shadow-glow-blue">
+          確認登入
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Code 管理面板 -->
+  <div id="qrAdminDrawer" class="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-sm hidden transition-opacity duration-300">
+    <div class="w-full max-w-4xl bg-slate-900 border-l border-slate-700/80 h-full flex flex-col shadow-2xl relative overflow-hidden">
+      
+      <div class="p-4 sm:p-5 border-b border-slate-800 bg-slate-950 flex items-center justify-between no-print">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-white p-1 rounded-xl shadow-md border border-white/20 flex items-center justify-center">
+            <svg class="w-full h-full" viewBox="0 0 300 300">
+              <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
+              <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
+              <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
+              <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle">Technik • Kompetenz • Tradition</text>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-white">⚙️ 30 獎項 QR Code & Excel 設定後台</h2>
+            <p class="text-xs text-slate-400">管理開獎紀錄 · 雙重自訂 MP3 + Web Audio 智能備援</p>
+          </div>
+        </div>
+
+        <button id="closeQRDrawerBtn" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- 工具列 -->
+      <div class="px-5 py-3.5 bg-slate-800/80 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3 text-xs no-print">
+        <div class="flex items-center flex-wrap gap-2">
+          <label class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold cursor-pointer shadow transition">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            <span>匯入 Excel 獎項 (.xlsx)</span>
+            <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden">
+          </label>
+
+          <button id="downloadTemplateBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>下載標準 Excel 範本</span>
+          </button>
+
+          <!-- 重置已開獎紀錄按鈕 -->
+          <button id="resetDrawHistoryBtn" class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition shadow">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>重置開獎紀錄（重新開始）</span>
+          </button>
+
+          <button id="resetDefaultsBtn" class="text-slate-400 hover:text-rose-400 text-xs ml-1">
+            恢復預設獎項
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="downloadAllQRsBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition shadow">
+            <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
+            <span>一鍵下載全部 QR (無獎品文案)</span>
+          </button>
+          <button id="printAllBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-medium transition shadow">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>列印票券 (隱藏獎項)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 30 張卡片網格容器 -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 no-scrollbar" id="qrCardsContainer">
+      </div>
+
+      <!-- 面板底部 -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex justify-between items-center text-xs text-slate-400 no-print">
+        <button onclick="logoutAdmin()" class="text-rose-400 hover:text-rose-300 font-bold">登出管理模式</button>
+        <button id="closeQRDrawerBottomBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200">
+          返回抽獎頁
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 單張 QR Code 放大預覽 Modal -->
+  <div id="singleQRModal" class="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden">
+    <div class="relative w-full max-w-sm bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl flex flex-col items-center">
+      <button id="closeSingleQRBtn" class="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div id="ticketPreviewCard" class="w-full bg-white text-slate-900 p-5 rounded-2xl flex flex-col items-center shadow-lg border border-slate-300 text-center my-2">
+        <div class="flex flex-col items-center mb-1">
+          <div class="w-20 h-20 flex items-center justify-center">
+            <svg class="w-full h-full" viewBox="0 0 300 300">
+              <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
+              <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
+              <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
+              <text x="150" y="212" font-family="'Arial Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle">Technik • Kompetenz • Tradition</text>
+            </svg>
+          </div>
+          <span class="text-[13px] font-black text-slate-800 mt-1">2027 TKT 尾牙摸彩券</span>
+        </div>
+
+        <div class="w-full h-px border-t border-dashed border-slate-300 my-2"></div>
+
+        <div class="text-sm font-black text-blue-700" id="singleCardTicketTag">幸運號碼 #01</div>
+        <div class="text-xs text-amber-600 font-bold mb-2">★ 3D 專屬盲盒 · 掃碼開獎 ★</div>
+
+        <div id="singleQRCanvasBox" class="bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-center shadow-sm"></div>
+
+        <p class="text-[9px] text-slate-400 mt-2.5">
+          用手機相機直接掃描，即刻開啟專屬 3D 扭蛋機！
+        </p>
+      </div>
+
+      <div class="w-full mt-3">
+        <button id="downloadSinglePngBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-tkt-blue to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-glow-blue transition">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>下載摸彩券 PNG (內嵌 Logo / 保密)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="exportCanvas" class="hidden"></canvas>
+
+  <script>
+    /* ============================================================
+       0. 內嵌完整正方形 TKT 向量商標 (1:1 比例)
+    ============================================================ */
+    const TKT_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+      <path d="M 20 80 H 115 V 105 H 82 V 180 H 53 V 105 H 20 Z" fill="#0000FF"/>
+      <path d="M 115 80 H 145 V 125 L 175 80 H 210 L 165 137 L 210 180 H 175 L 145 145 V 180 H 115 Z" fill="#0000FF"/>
+      <path d="M 205 80 H 300 V 105 H 267 V 180 H 238 V 105 H 205 Z" fill="#0000FF"/>
+      <text x="150" y="212" font-family="'Arial Black', 'Helvetica Black', sans-serif" font-size="14" font-weight="900" fill="#0000FF" text-anchor="middle" letter-spacing="0.2">Technik • Kompetenz • Tradition</text>
+    </svg>`;
+    const TKT_LOGO_DATA_URL = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(TKT_LOGO_SVG);
+
+    const cachedLogoImg = new Image();
+    cachedLogoImg.src = TKT_LOGO_DATA_URL;
+
+    /* ============================================================
+       1. 預設 30 個獎項清單 & 已開獎紀錄系統
+    ============================================================ */
+    const DEFAULT_PRIZES = [];
+    const prizeNames = [
+      "1、現金 + 郵政禮券\nCash + Cash (Post Office)\n: $51,000",
+      "2、郵政禮券\nCash (Post Office)\n: $36,000",
+      "3、郵政禮券\nCash (Post Office)\n: $30,000",
+      "4、新光三越禮券 + 郵政禮券\nShin Kong Mitsukoshi Coupon + Cash (Post Office)\n: $23,600",
+      "5、現金\nCash\n: $20,000",
+      "6、川湯春天溫泉飯店住宿券\nChuang-Tang Spring Hotel Voucher\n: $19,920",
+      "7、郵政禮券\nCash (Post Office)\n: $17,000",
+      "8、家樂福禮券 + 郵政禮券\nCarrefour Coupon + Cash (Post Office)\n: $15,500",
+      "9、郵政禮券 + 現金\nCash (Post Office) + Cash\n: $15,000",
+      "10、郵政禮券 + 現金\nCash (Post Office) + Cash\n: $13,000",
+      "11、家樂福禮券 + 郵政禮券\nCarrefour Coupon + Cash (Post Office)\n: $13,000",
+      "12、遠東百貨禮券 + 現金\nFar Eastern Coupon + Cash\n: $10,600",
+      "13、郵政禮券\nCash (Post Office)\n: $10,000",
+      "14、現金\nCash\n: $10,000",
+      "15、郵政禮券 + 家樂福禮券\nCash (Post Office) + Carrefour Coupon\n: $10,000",
+      "16、現金\nCash\n: $15,000",
+      "17、現金\nCash\n: $15,000",
+      "18、現金\nCash\n: $15,000",
+      "19、現金\nCash\n: $15,000",
+      "20、現金\nCash\n: $15,000",
+      "21、現金\nCash\n: $15,000",
+      "22、現金\nCash\n: $15,000",
+      "23、現金\nCash\n: $15,000",
+      "24、現金\nCash\n: $15,000",
+      "25、現金\nCash\n: $15,000",
+      "26、現金\nCash\n: $15,000",
+      "27、現金\nCash\n: $15,000",
+      "28、現金\nCash\n: $15,000",
+      "29、現金\nCash\n: $15,000",
+      "30、現金\nCash\n: $15,000"
+    ];
+
+    for (let i = 1; i <= 30; i++) {
+      DEFAULT_PRIZES.push({
+        id: i,
+        name: prizeNames[i - 1],
+        audio: `drum${i}.mp3`
+      });
+    }
+
+    let prizeList = [];
+    let drawnPrizeIds = [];
+
+    function loadDrawnHistory() {
+      const stored = localStorage.getItem('tkt_drawn_prize_ids');
+      if (stored) {
+        try {
+          drawnPrizeIds = JSON.parse(stored);
+        } catch(e) {
+          drawnPrizeIds = [];
+        }
+      } else {
+        drawnPrizeIds = [];
+      }
+    }
+
+    function saveDrawnHistory() {
+      localStorage.setItem('tkt_drawn_prize_ids', JSON.stringify(drawnPrizeIds));
+      updateDrawStatusUI();
+    }
+
+    function resetDrawHistory() {
+      drawnPrizeIds = [];
+      localStorage.removeItem('tkt_drawn_prize_ids');
+      updateDrawStatusUI();
+      if (typeof renderQRManager === 'function') {
+        renderQRManager();
+      }
+      alert("✅ 已成功清除所有開獎紀錄！獎項可重新開始抽取。");
+    }
+
+    function loadPrizeData() {
+      const stored = localStorage.getItem('tkt_custom_prizes');
+      if (stored) {
+        try {
+          prizeList = JSON.parse(stored);
+        } catch(e) {
+          prizeList = JSON.parse(JSON.stringify(DEFAULT_PRIZES));
+        }
+      } else {
+        prizeList = JSON.parse(JSON.stringify(DEFAULT_PRIZES));
+      }
+      loadDrawnHistory();
+    }
+    loadPrizeData();
+
+    const ADMIN_PASSWORD = "tkt2027admin";
+    const qrDataURLs = {};
+
+    /* ============================================================
+       更新抽獎按鈕與狀態 UI
+    ============================================================ */
+    function updateDrawStatusUI() {
+      const remainingCount = prizeList.length - drawnPrizeIds.length;
+      const counterElem = document.getElementById('remainingPrizeCounter');
+      const btn = document.getElementById('spinActionBtn');
+      const btnText = document.getElementById('spinBtnText');
+      const alertBox = document.getElementById('allDoneAlertBox');
+
+      if (counterElem) {
+        counterElem.textContent = `剩餘獎項：${remainingCount} / ${prizeList.length}`;
+      }
+
+      if (remainingCount <= 0) {
+        if (btn) {
+          btn.disabled = true;
+          btn.classList.remove('anim-btn-float', 'bg-gradient-to-r', 'from-blue-600', 'via-tkt-blue', 'to-indigo-600', 'cursor-pointer');
+          btn.classList.add('bg-slate-700', 'opacity-60', 'cursor-not-allowed');
+        }
+        if (btnText) {
+          btnText.textContent = "🎉 所有獎項已全數開完！";
+        }
+        if (alertBox) {
+          alertBox.classList.remove('hidden');
+        }
+      } else {
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.add('anim-btn-float', 'bg-gradient-to-r', 'from-blue-600', 'via-tkt-blue', 'to-indigo-600', 'cursor-pointer');
+          btn.classList.remove('bg-slate-700', 'opacity-60', 'cursor-not-allowed');
+        }
+        if (btnText) {
+          btnText.textContent = "啟動 3D 扭蛋 (SPIN)";
+        }
+        if (alertBox) {
+          alertBox.classList.add('hidden');
+        }
+      }
+    }
+
+    /* ============================================================
+       2. 音效系統 (Web Audio + 自訂 MP3)
+    ============================================================ */
+    let isSoundMuted = false;
+    let drum = null;
+    let winSound = null;
+    let winSoundTimer = null;
+    let audioCtx = null;
+    let tenseDrumTimer = null;
+    let tenseRiserOsc = null;
+    let tenseRiserGain = null;
+    let preloadedAudios = {};
+
+    const Sound = {
+      getCtx() {
+        if (!audioCtx) {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioCtxClass();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return audioCtx;
+      },
+
+      preloadTrack(id) {
+        if (!id || preloadedAudios[id]) return;
+        try {
+          const a = new Audio(`drum${id}.mp3`);
+          a.preload = 'auto';
+          a.load();
+          preloadedAudios[id] = a;
+        } catch(e) {}
+      },
+
+      unlock() {
+        try {
+          const ctx = this.getCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          gain.gain.value = 0.0001;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(0);
+          osc.stop(ctx.currentTime + 0.02);
+
+          if (!winSound) {
+            winSound = new Audio('win.mp3');
+            winSound.preload = 'auto';
+            winSound.load();
+          }
+        } catch(e) {
+          console.warn("音訊通道解鎖警告:", e);
+        }
+      },
+
+      playDrum(id) {
+        if (isSoundMuted) return;
+        this.unlock();
+
+        const soundId = (id >= 1 && id <= 30) ? id : 0;
+        const targetSrc = `drum${soundId}.mp3`;
+
+        let audioToPlay = null;
+        if (preloadedAudios[soundId]) {
+          audioToPlay = preloadedAudios[soundId];
+          audioToPlay.currentTime = 0;
+        } else {
+          audioToPlay = new Audio(targetSrc);
+        }
+
+        audioToPlay.volume = 1.0;
+        const playPromise = audioToPlay.play();
+
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            drum = audioToPlay;
+          }).catch(err => {
+            console.warn(`外部 MP3 (${targetSrc}) 播放受限或不存在，立即啟動 Web Audio 萬能合成音:`, err);
+            Sound.playFallbackDrum();
+          });
+        } else {
+          Sound.playFallbackDrum();
+        }
+      },
+
+      stopDrum() {
+        if (drum) {
+          try {
+            drum.pause();
+            drum.currentTime = 0;
+          } catch(e) {}
+        }
+      },
+
+      startTenseDrums() {
+        if (isSoundMuted) return;
+        Sound.stopTenseDrums();
+
+        const ctx = this.getCtx();
+        const totalDuration = 3000;
+        const startTime = Date.now();
+
+        try {
+          tenseRiserOsc = ctx.createOscillator();
+          tenseRiserGain = ctx.createGain();
+          
+          tenseRiserOsc.type = 'sawtooth';
+          const now = ctx.currentTime;
+          tenseRiserOsc.frequency.setValueAtTime(80, now);
+          tenseRiserOsc.frequency.exponentialRampToValueAtTime(520, now + 3.0);
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(220, now);
+          filter.frequency.exponentialRampToValueAtTime(1600, now + 3.0);
+          filter.Q.value = 3.5;
+
+          tenseRiserGain.gain.setValueAtTime(0.01, now);
+          tenseRiserGain.gain.linearRampToValueAtTime(0.22, now + 2.5);
+          tenseRiserGain.gain.exponentialRampToValueAtTime(0.001, now + 3.05);
+
+          tenseRiserOsc.connect(filter);
+          filter.connect(tenseRiserGain);
+          tenseRiserGain.connect(ctx.destination);
+
+          tenseRiserOsc.start(now);
+          tenseRiserOsc.stop(now + 3.1);
+        } catch(e){}
+
+        function scheduleNextBeat() {
+          const elapsed = Date.now() - startTime;
+          if (elapsed >= totalDuration) return;
+
+          const progress = Math.min(elapsed / totalDuration, 1);
+          const isFinalRush = elapsed > 2000;
+
+          Sound.hitTenseHeartbeatBeat(ctx, progress, isFinalRush);
+
+          let nextInterval;
+          if (!isFinalRush) {
+            nextInterval = 380 - progress * 240;
+          } else {
+            nextInterval = 90 - (progress - 0.66) * 60;
+          }
+
+          tenseDrumTimer = setTimeout(scheduleNextBeat, Math.max(nextInterval, 65));
+        }
+
+        scheduleNextBeat();
+      },
+
+      stopTenseDrums() {
+        if (tenseDrumTimer) {
+          clearTimeout(tenseDrumTimer);
+          tenseDrumTimer = null;
+        }
+        if (tenseRiserOsc) {
+          try {
+            tenseRiserOsc.stop();
+            tenseRiserOsc.disconnect();
+          } catch(e){}
+          tenseRiserOsc = null;
+        }
+      },
+
+      hitTenseHeartbeatBeat(ctx, progress, isFinalRush) {
+        try {
+          const now = ctx.currentTime;
+
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'sine';
+          const startPitch = 150 + progress * 50;
+          osc.frequency.setValueAtTime(startPitch, now);
+          osc.frequency.exponentialRampToValueAtTime(36, now + 0.14);
+
+          const volume = Math.min(0.55 + progress * 0.45, 1.0);
+          gain.gain.setValueAtTime(volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
+
+          if (!isFinalRush) {
+            const secondOsc = ctx.createOscillator();
+            const secondGain = ctx.createGain();
+            const secondTime = now + 0.085;
+
+            secondOsc.type = 'sine';
+            secondOsc.frequency.setValueAtTime(110 + progress * 30, secondTime);
+            secondOsc.frequency.exponentialRampToValueAtTime(32, secondTime + 0.11);
+
+            secondGain.gain.setValueAtTime(volume * 0.65, secondTime);
+            secondGain.gain.exponentialRampToValueAtTime(0.001, secondTime + 0.12);
+
+            secondOsc.connect(secondGain);
+            secondGain.connect(ctx.destination);
+            secondOsc.start(secondTime);
+            secondOsc.stop(secondTime + 0.13);
+          } else {
+            const bufferSize = ctx.sampleRate * 0.04;
+            const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+              output[i] = Math.random() * 2 - 1;
+            }
+            const noise = ctx.createBufferSource();
+            noise.buffer = noiseBuffer;
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.35, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+            noise.connect(noiseGain);
+            noiseGain.connect(ctx.destination);
+            noise.start(now);
+          }
+        } catch(e){}
+      },
+
+      playWin() {
+        if (isSoundMuted) return;
+        this.stopWin();
+
+        try {
+          if (!winSound) {
+            winSound = new Audio('win.mp3');
+          }
+          winSound.volume = 1.0;
+          winSound.currentTime = 0;
+          const p = winSound.play();
+          if (p !== undefined) {
+            p.catch(err => {
+              console.warn("自訂 win.mp3 播放受阻，啟用號角合成備援音:", err);
+              Sound.playFallbackWin();
+            });
+          }
+
+          winSoundTimer = setTimeout(() => {
+            Sound.stopWin();
+          }, 7000);
+        } catch(e) {
+          Sound.playFallbackWin();
+        }
+      },
+
+      stopWin() {
+        if (winSoundTimer) {
+          clearTimeout(winSoundTimer);
+          winSoundTimer = null;
+        }
+        if (winSound) {
+          try {
+            winSound.pause();
+            winSound.currentTime = 0;
+          } catch(e) {}
+        }
+      },
+
+      playFireworkExplosion(options = {}) {
+        if (isSoundMuted) return;
+        try {
+          const ctx = this.getCtx();
+          const now = ctx.currentTime;
+          const isHeavy = options.heavy || false;
+
+          const osc = ctx.createOscillator();
+          const oscGain = ctx.createGain();
+          osc.type = 'sine';
+          const startFreq = isHeavy ? (160 + Math.random() * 40) : (130 + Math.random() * 30);
+          osc.frequency.setValueAtTime(startFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(25, now + (isHeavy ? 0.45 : 0.3));
+
+          const baseVolume = isHeavy ? 0.75 : (0.45 + Math.random() * 0.2);
+          oscGain.gain.setValueAtTime(baseVolume, now);
+          oscGain.gain.exponentialRampToValueAtTime(0.001, now + (isHeavy ? 0.5 : 0.35));
+
+          osc.connect(oscGain);
+          oscGain.connect(ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + (isHeavy ? 0.52 : 0.38));
+
+          const bufferSize = ctx.sampleRate * (isHeavy ? 0.4 : 0.25);
+          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+
+          const whiteNoise = ctx.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(isHeavy ? 600 : (900 + Math.random() * 400), now);
+          filter.Q.setValueAtTime(1.8, now);
+
+          const noiseGain = ctx.createGain();
+          noiseGain.gain.setValueAtTime(isHeavy ? 0.55 : 0.35, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + (isHeavy ? 0.38 : 0.22));
+
+          whiteNoise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(ctx.destination);
+
+          whiteNoise.start(now);
+        } catch(e){}
+      },
+
+      playFallbackDrum() {
+        if (isSoundMuted) return;
+        try {
+          const ctx = this.getCtx();
+          const totalTicks = 24;
+          for (let i = 0; i < totalTicks; i++) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const startTime = ctx.currentTime + i * 0.12;
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(140 + (i % 4) * 25, startTime);
+            osc.frequency.exponentialRampToValueAtTime(35, startTime + 0.08);
+
+            gain.gain.setValueAtTime(0.4, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.08);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + 0.09);
+          }
+        } catch(e) {}
+      },
+
+      playFallbackWin() {
+        if (isSoundMuted) return;
+        try {
+          const ctx = this.getCtx();
+          const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const startTime = ctx.currentTime + idx * 0.08;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, startTime);
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.3, startTime + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.7);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + 0.75);
+          });
+        } catch(e){}
+      }
+    };
+
+    /* ============================================================
+       3. Three.js + Cannon.js 3D 滿裝扭蛋模擬
+    ============================================================ */
+    let scene, camera, renderer, world;
+    let ballMeshes = [], ballBodies = [];
+    let mixerRotorMesh, mixerRotorBody;
+    const SPHERE_RADIUS = 3.6;
+    const CAPSULE_RADIUS = 0.52;
+    const NUM_CAPSULES = 85;
+    const CAPSULE_COLORS = [0x0000FF, 0xEF4444, 0xF59E0B, 0x10B981, 0x8B5CF6, 0xEC4899, 0x06B6D4];
+
+    function init3DGachapon() {
+      const container = document.getElementById('threeContainer');
+      const width = container.clientWidth || 320;
+      const height = container.clientHeight || 320;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+      camera.position.set(0, 0.6, 9.2);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.appendChild(renderer.domElement);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+      const mainLight = new THREE.DirectionalLight(0xffffff, 1.35);
+      mainLight.position.set(5, 8, 6);
+      scene.add(mainLight);
+
+      const rimLight = new THREE.DirectionalLight(0x60a5fa, 0.65);
+      rimLight.position.set(-5, -4, -4);
+      scene.add(rimLight);
+
+      world = new CANNON.World();
+      world.gravity.set(0, -9.82 * 1.5, 0);
+      world.broadphase = new CANNON.NaiveBroadphase();
+      world.solver.iterations = 10;
+
+      const glassGeo = new THREE.SphereGeometry(SPHERE_RADIUS, 36, 36);
+      const glassMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.18,
+        roughness: 0.05,
+        metalness: 0.08,
+        transmission: 0.92,
+        ior: 1.45,
+        reflectivity: 0.6,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.06,
+        side: THREE.FrontSide,
+        depthWrite: false
+      });
+      scene.add(new THREE.Mesh(glassGeo, glassMat));
+
+      const boundaryMat = new CANNON.Material("boundary");
+      const wallThickness = 1.0;
+      const r = SPHERE_RADIUS * 0.90;
+
+      const walls = [
+        { size: [r * 2, wallThickness, r * 2], pos: [0, -r - wallThickness, 0] },
+        { size: [r * 2, wallThickness, r * 2], pos: [0, r + wallThickness + 0.3, 0] },
+        { size: [wallThickness, r * 2, r * 2], pos: [-r - wallThickness, 0, 0] },
+        { size: [wallThickness, r * 2, r * 2], pos: [r + wallThickness, 0, 0] },
+        { size: [r * 2, r * 2, wallThickness], pos: [0, 0, -r - wallThickness] },
+        { size: [r * 2, r * 2, wallThickness], pos: [0, 0, r + wallThickness] }
+      ];
+
+      walls.forEach(w => {
+        const body = new CANNON.Body({ mass: 0, material: boundaryMat });
+        body.addShape(new CANNON.Box(new CANNON.Vec3(w.size[0] / 2, w.size[1] / 2, w.size[2] / 2)));
+        body.position.set(...w.pos);
+        world.addBody(body);
+      });
+
+      const sphereMat = new CANNON.Material("capsuleMat");
+      for (let i = 0; i < NUM_CAPSULES; i++) {
+        const group = new THREE.Group();
+        const topMesh = new THREE.Mesh(
+          new THREE.SphereGeometry(CAPSULE_RADIUS, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+          new THREE.MeshStandardMaterial({ 
+            color: CAPSULE_COLORS[i % CAPSULE_COLORS.length], 
+            roughness: 0.18, 
+            metalness: 0.32 
+          })
+        );
+        const bottomMesh = new THREE.Mesh(
+          new THREE.SphereGeometry(CAPSULE_RADIUS, 16, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+          new THREE.MeshStandardMaterial({ 
+            color: 0xF8FAFC, 
+            roughness: 0.25, 
+            metalness: 0.15 
+          })
+        );
+        group.add(topMesh);
+        group.add(bottomMesh);
+        scene.add(group);
+        ballMeshes.push(group);
+
+        const sphereBody = new CANNON.Body({
+          mass: 0.28,
+          shape: new CANNON.Sphere(CAPSULE_RADIUS),
+          material: sphereMat,
+          linearDamping: 0.28,
+          angularDamping: 0.35
+        });
+
+        const layerRatio = i / NUM_CAPSULES;
+        const theta = Math.random() * Math.PI * 2;
+        const currentMaxR = Math.sqrt(Math.max(0.05, 1 - Math.pow((layerRatio * 2 - 1), 2))) * (SPHERE_RADIUS * 0.65);
+        const rPos = Math.random() * currentMaxR;
+        const y = -1.9 + layerRatio * 3.6;
+
+        sphereBody.position.set(Math.cos(theta) * rPos, y, Math.sin(theta) * rPos);
+        world.addBody(sphereBody);
+        ballBodies.push(sphereBody);
+      }
+
+      mixerRotorMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(2.6, 0.22, 0.32),
+        new THREE.MeshStandardMaterial({ color: 0xF59E0B, metalness: 0.85, roughness: 0.15 })
+      );
+      scene.add(mixerRotorMesh);
+
+      mixerRotorBody = new CANNON.Body({
+        mass: 0,
+        type: CANNON.Body.KINEMATIC,
+        position: new CANNON.Vec3(0, -SPHERE_RADIUS * 0.74, 0)
+      });
+      mixerRotorBody.addShape(new CANNON.Box(new CANNON.Vec3(1.3, 0.11, 0.16)));
+      world.addBody(mixerRotorBody);
+
+      setupOrbitControl(container);
+      animate3D();
+    }
+
+    function setupOrbitControl(dom) {
+      let isDragging = false;
+      let prevPos = { x: 0, y: 0 };
+      let angle = { theta: 0, phi: 0 };
+
+      dom.addEventListener('mousedown', (e) => { isDragging = true; prevPos = { x: e.clientX, y: e.clientY }; });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - prevPos.x;
+        const dy = e.clientY - prevPos.y;
+        prevPos = { x: e.clientX, y: e.clientY };
+
+        angle.theta -= dx * 0.007;
+        angle.phi = Math.max(-0.6, Math.min(0.6, angle.phi + dy * 0.007));
+
+        const dist = 9.2;
+        camera.position.x = dist * Math.sin(angle.theta) * Math.cos(angle.phi);
+        camera.position.z = dist * Math.cos(angle.theta) * Math.cos(angle.phi);
+        camera.position.y = dist * Math.sin(angle.phi) + 0.6;
+        camera.lookAt(0, 0, 0);
+      });
+    }
+
+    function churnBallsPhysics() {
+      mixerRotorBody.angularVelocity.set(0, 22, 0);
+      ballBodies.forEach(body => {
+        body.velocity.y = 6.8 + Math.random() * 6.5;
+        body.velocity.x += (Math.random() - 0.5) * 4.5;
+        body.velocity.z += (Math.random() - 0.5) * 4.5;
+
+        const maxV = 11.0;
+        body.velocity.x = Math.max(-maxV, Math.min(maxV, body.velocity.x));
+        body.velocity.y = Math.max(-maxV, Math.min(maxV, body.velocity.y));
+        body.velocity.z = Math.max(-maxV, Math.min(maxV, body.velocity.z));
+      });
+    }
+
+    let lastTime = performance.now();
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      const time = performance.now();
+      const dt = Math.min((time - lastTime) / 1000, 0.033);
+      lastTime = time;
+
+      world.step(1 / 60, dt, 4);
+
+      for (let i = 0; i < ballMeshes.length; i++) {
+        ballMeshes[i].position.copy(ballBodies[i].position);
+        ballMeshes[i].quaternion.copy(ballBodies[i].quaternion);
+      }
+      mixerRotorMesh.position.copy(mixerRotorBody.position);
+      mixerRotorMesh.quaternion.copy(mixerRotorBody.quaternion);
+      mixerRotorBody.angularVelocity.scale(0.95, mixerRotorBody.angularVelocity);
+      renderer.render(scene, camera);
+    }
+
+    /* ============================================================
+       4. 專屬籤號檢測與即時音效預載
+    ============================================================ */
+    let boundTicketId = null;
+
+    function detectAssignedTicket() {
+      const params = new URLSearchParams(window.location.search);
+      let tid = null;
+
+      if (params.get('key')) {
+        try {
+          const decoded = atob(params.get('key'));
+          const parsed = parseInt(decoded, 10);
+          if (!isNaN(parsed)) tid = parsed;
+        } catch(e){}
+      } else if (params.get('ticket')) {
+        tid = parseInt(params.get('ticket'), 10);
+      }
+
+      if (tid && tid >= 1 && tid <= prizeList.length) {
+        boundTicketId = tid;
+        const banner = document.getElementById('exclusiveBanner');
+        banner.classList.remove('hidden');
+
+        const activeStatus = document.getElementById('activeTicketStatus');
+        const bannerText = document.getElementById('exclusiveBannerText');
+        
+        if (drawnPrizeIds.includes(tid)) {
+          activeStatus.textContent = `⚠️ 專屬獎項 #${tid} 已被領取`;
+          activeStatus.classList.remove('text-emerald-400');
+          activeStatus.classList.add('text-rose-400');
+          if (bannerText) {
+            bannerText.textContent = `⚠️ 序號 #${tid} 獎項已於先前開出，請勿重複兌換！`;
+            bannerText.classList.remove('text-amber-300');
+            bannerText.classList.add('text-rose-300');
+          }
+        } else {
+          activeStatus.textContent = `✨ 專屬幸運盲盒 #${tid}`;
+          activeStatus.classList.add('text-emerald-400');
+          Sound.preloadTrack(tid);
+        }
+      }
+    }
+
+    /* ============================================================
+       5. 轉動與開獎流程 (震波爆發 + 聖光光環加持)
+    ============================================================ */
+    let isSpinning = false;
+    let selectedPrizeItem = null;
+
+    function spinGachapon() {
+      if (isSpinning) return;
+
+      const availablePrizes = prizeList.filter(p => !drawnPrizeIds.includes(p.id));
+
+      if (availablePrizes.length === 0) {
+        alert("🎉 所有獎項已經全數開完！如需重新開獎，請至後台點選「重置開獎紀錄」。");
+        return;
+      }
+
+      if (boundTicketId) {
+        if (drawnPrizeIds.includes(boundTicketId)) {
+          alert(`⚠️ 此專屬摸彩券 (序號 #${boundTicketId}) 已經開出過囉！無法重複領取。`);
+          return;
+        }
+        selectedPrizeItem = prizeList.find(p => p.id === boundTicketId) || availablePrizes[0];
+      } else {
+        const randIdx = Math.floor(Math.random() * availablePrizes.length);
+        selectedPrizeItem = availablePrizes[randIdx];
+      }
+
+      isSpinning = true;
+
+      if (!drawnPrizeIds.includes(selectedPrizeItem.id)) {
+        drawnPrizeIds.push(selectedPrizeItem.id);
+        saveDrawnHistory();
+      }
+
+      Sound.playDrum(selectedPrizeItem.id);
+
+      const lever = document.getElementById('crankLever');
+      lever.classList.add('spinning-crank');
+
+      let stirTimer = setInterval(() => {
+        churnBallsPhysics();
+      }, 220);
+
+      setTimeout(() => {
+        clearInterval(stirTimer);
+        lever.classList.remove('spinning-crank');
+      }, 5000);
+
+      setTimeout(() => {
+        const btn = document.getElementById('spinActionBtn');
+        if (btn) btn.style.display = 'none';
+
+        const mainStage = document.getElementById('draw-ui');
+        const chuteBox = document.getElementById('chuteContainer');
+        if (mainStage) mainStage.classList.add('stage-focus-active');
+        if (chuteBox) chuteBox.classList.add('stage-spotlight');
+
+        Sound.stopDrum();
+        Sound.startTenseDrums();
+
+        const droppedEgg = document.getElementById('droppedEgg');
+        const ball = document.getElementById('droppedEggBall');
+        const chuteStatusText = document.getElementById('chuteStatusText');
+
+        droppedEgg.classList.remove('hidden', 'anim-egg-drop');
+        void droppedEgg.offsetWidth;
+        droppedEgg.classList.add('anim-egg-drop');
+
+        ball.classList.remove('egg-cracking');
+        ball.classList.add('tense-egg-pulse');
+        chuteStatusText.textContent = "🥁 準備揭曉中...";
+
+        setTimeout(() => {
+          Sound.stopTenseDrums();
+          if (mainStage) mainStage.classList.remove('stage-focus-active');
+          if (chuteBox) chuteBox.classList.remove('stage-spotlight');
+          revealPrize(selectedPrizeItem.id);
+        }, 3000);
+
+      }, 5800);
+    }
+
+    /* ============================================================
+       動態文字自適應縮放
+    ============================================================ */
+    function adjustPrizeFontSize() {
+      const container = document.getElementById('prizeContentBox');
+      const textElem = document.getElementById('revealPrizeTitle');
+      const enElem = document.getElementById('revealEnPart');
+      if (!container || !textElem) return;
+
+      const isMobile = window.innerWidth < 640;
+      let startSize = isMobile ? 22 : (window.innerWidth < 1024 ? 26 : 28);
+      const minSize = 12;
+
+      textElem.style.fontSize = `${startSize}px`;
+
+      let currentSize = startSize;
+      const maxAvailableWidth = container.clientWidth - 24;
+
+      while (
+        currentSize > minSize &&
+        (textElem.scrollWidth > maxAvailableWidth ||
+         (enElem && enElem.scrollWidth > maxAvailableWidth))
+      ) {
+        currentSize -= 0.5;
+        textElem.style.fontSize = `${currentSize}px`;
+      }
+    }
+
+    function renderStructuredPrizeText(rawText) {
+      const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+      let zhPart = lines[0] || rawText;
+      let enPart = lines[1] || '';
+      let pricePart = lines[2] || '';
+
+      if (lines.length === 1 && rawText.includes(':')) {
+        const parts = rawText.split(':');
+        zhPart = parts[0].trim();
+        pricePart = ': ' + parts[1].trim();
+      }
+
+      return `
+        <div class="golden-prize-text font-black leading-tight drop-shadow mb-1 text-center">${zhPart}</div>
+        ${enPart ? `<div id="revealEnPart" class="prize-en-nowrap text-amber-100/90 font-semibold tracking-normal leading-tight text-[0.62em] sm:text-[0.68em] my-0.5 text-center">${enPart}</div>` : ''}
+        ${pricePart ? `<div class="prize-amount-badge text-amber-200 font-black tracking-widest text-[0.8em] sm:text-[0.88em] mt-2 px-4 py-1 rounded-full inline-block">${pricePart}</div>` : ''}
+      `;
+    }
+
+    function triggerShockwaveEffect() {
+      const wave = document.getElementById('revealShockwave');
+      if (!wave) return;
+      wave.classList.remove('hidden', 'anim-shockwave');
+      void wave.offsetWidth;
+      wave.classList.add('anim-shockwave');
+      setTimeout(() => {
+        wave.classList.add('hidden');
+      }, 1100);
+    }
+
+    function revealPrize(id) {
+      const droppedEgg = document.getElementById('droppedEgg');
+      const chuteStatusText = document.getElementById('chuteStatusText');
+      const ball = document.getElementById('droppedEggBall');
+
+      ball.classList.remove('tense-egg-pulse');
+      ball.classList.add('egg-cracking');
+      chuteStatusText.textContent = "開獎中...";
+
+      setTimeout(() => {
+        droppedEgg.classList.add('hidden');
+        droppedEgg.classList.remove('anim-egg-drop');
+        ball.classList.remove('egg-cracking');
+        chuteStatusText.textContent = "WAITING...";
+
+        Sound.playWin();
+        fireGrandFireworksShow();
+        triggerShockwaveEffect();
+
+        document.getElementById('revealTicketNo').textContent = `幸運序號 #${String(id).padStart(2, '0')}`;
+        
+        const titleContainer = document.getElementById('revealPrizeTitle');
+        titleContainer.innerHTML = renderStructuredPrizeText(selectedPrizeItem.name);
+
+        const prizeBox = document.getElementById('prizeContentBox');
+        prizeBox.classList.remove('prize-box-enter');
+        void prizeBox.offsetWidth;
+        prizeBox.classList.add('prize-box-enter');
+
+        const modal = document.getElementById('revealModal');
+        const card = document.getElementById('revealCard');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          card.classList.remove('scale-90');
+          card.classList.add('scale-100');
+          adjustPrizeFontSize();
+        }, 20);
+
+        isSpinning = false;
+        updateDrawStatusUI();
+      }, 550);
+    }
+
+    /* 雙層奢華香檳金 + 科技星藍彩帶加農砲 */
+    function fireGrandFireworksShow() {
+      if (typeof confetti === 'undefined') return;
+
+      const festColors = ['#FFE875', '#F59E0B', '#D97706', '#FFFFFF', '#3B82F6', '#60A5FA', '#EC4899'];
+
+      confetti({
+        particleCount: 100,
+        angle: 60,
+        spread: 60,
+        origin: { x: 0.05, y: 0.85 },
+        colors: festColors,
+        scalar: 1.15,
+        drift: 0.1,
+        zIndex: 9999
+      });
+      confetti({
+        particleCount: 100,
+        angle: 120,
+        spread: 60,
+        origin: { x: 0.95, y: 0.85 },
+        colors: festColors,
+        scalar: 1.15,
+        drift: -0.1,
+        zIndex: 9999
+      });
+      Sound.playFireworkExplosion({ heavy: true });
+
+      setTimeout(() => {
+        confetti({
+          particleCount: 80,
+          spread: 130,
+          origin: { y: 0.1 },
+          gravity: 0.55,
+          scalar: 0.85,
+          ticks: 340,
+          colors: ['#FDE047', '#FFFBEB', '#93C5FD', '#FFFFFF'],
+          zIndex: 9999
+        });
+      }, 350);
+
+      const fireworksDuration = 3200;
+      const animationEnd = Date.now() + fireworksDuration;
+
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          return;
+        }
+
+        const particleCount = 40 * (timeLeft / fireworksDuration);
+
+        confetti({
+          particleCount,
+          startVelocity: 32,
+          spread: 360,
+          ticks: 70,
+          origin: {
+            x: Math.random() * 0.7 + 0.15,
+            y: Math.random() * 0.45 + 0.1
+          },
+          colors: festColors,
+          shapes: ['circle', 'square'],
+          scalar: Math.random() * 0.4 + 0.9,
+          zIndex: 9999
+        });
+
+        Sound.playFireworkExplosion({ heavy: Math.random() > 0.65 });
+      }, 280);
+    }
+
+    /* ============================================================
+       6. 後台管理
+    ============================================================ */
+    function verifyAndOpenAdmin() {
+      const isAuth = sessionStorage.getItem('admin_authenticated');
+      if (isAuth === 'true') {
+        renderQRManager();
+        document.getElementById('qrAdminDrawer').classList.remove('hidden');
+      } else {
+        openAdminPasswordModal();
+      }
+    }
+
+    function openAdminPasswordModal() {
+      const modal = document.getElementById('adminPasswordModal');
+      const input = document.getElementById('adminPasswordInput');
+      const errorText = document.getElementById('adminPasswordError');
+
+      input.value = '';
+      errorText.classList.add('hidden');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        input.focus();
+      }, 20);
+    }
+
+    function closeAdminPasswordModal() {
+      const modal = document.getElementById('adminPasswordModal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        document.getElementById('adminPasswordInput').value = '';
+      }, 200);
+    }
+
+    function submitAdminPassword() {
+      const input = document.getElementById('adminPasswordInput');
+      const errorText = document.getElementById('adminPasswordError');
+
+      if (input.value === ADMIN_PASSWORD) {
+        sessionStorage.setItem('admin_authenticated', 'true');
+        closeAdminPasswordModal();
+        renderQRManager();
+        document.getElementById('qrAdminDrawer').classList.remove('hidden');
+      } else {
+        errorText.classList.remove('hidden');
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('admin_authenticated');
+      document.getElementById('qrAdminDrawer').classList.add('hidden');
+      alert("已安全登出管理員身分。");
+      if (new URLSearchParams(window.location.search).get('admin') === '1') {
+        location.href = location.pathname;
+      }
+    }
+
+    function getCleanBaseUrl() {
+      return window.location.origin + window.location.pathname;
+    }
+
+    function drawLogoOnQRCanvas(canvas) {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const qrW = canvas.width;
+      const qrH = canvas.height;
+
+      const logoW = Math.floor(qrW * 0.26);
+      const logoH = Math.floor(qrH * 0.26);
+      const x = (qrW - logoW) / 2;
+      const y = (qrH - logoH) / 2;
+
+      const padding = Math.max(3, Math.floor(qrW * 0.015));
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x - padding, y - padding, logoW + padding * 2, logoH + padding * 2);
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x - padding, y - padding, logoW + padding * 2, logoH + padding * 2);
+
+      if (cachedLogoImg.complete) {
+        ctx.drawImage(cachedLogoImg, x, y, logoW, logoH);
+      } else {
+        cachedLogoImg.onload = () => {
+          ctx.drawImage(cachedLogoImg, x, y, logoW, logoH);
+        };
+      }
+    }
+
+    function renderQRManager() {
+      const container = document.getElementById('qrCardsContainer');
+      container.innerHTML = '';
+      const baseUrl = getCleanBaseUrl();
+
+      prizeList.forEach(item => {
+        const ticketId = item.id;
+        const key = btoa(ticketId.toString());
+        const targetUrl = `${baseUrl}?key=${key}`;
+        const isDrawn = drawnPrizeIds.includes(ticketId);
+
+        const card = document.createElement('div');
+        card.className = `ticket-print-card ${isDrawn ? 'bg-slate-900/80 border-slate-800 opacity-60' : 'bg-slate-800/60 hover:bg-slate-800 border-slate-700/80'} border rounded-2xl p-4 flex flex-col justify-between transition shadow-sm text-center relative`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-mono font-black ${isDrawn ? 'bg-slate-700 text-slate-400' : 'bg-tkt-blue/30 text-blue-300 border-tkt-blue/40'} border px-2 py-0.5 rounded-full">
+              Ticket #${String(ticketId).padStart(2, '0')}
+            </span>
+            ${isDrawn ? `
+              <span class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-full font-bold">
+                ✓ 已開出
+              </span>
+            ` : `
+              <span class="text-[10px] text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full hide-in-print">
+                🎵 drum${ticketId}.mp3
+              </span>
+            `}
+          </div>
+
+          <p class="text-[11px] text-slate-300 line-clamp-2 h-8 my-1 leading-tight font-medium hide-in-print" title="${item.name.replace(/"/g, '&quot;')}">
+            ${item.name.replace(/\n/g, ' ')}
+          </p>
+
+          <div class="hidden secret-ticket-desc text-xs font-black text-slate-800 my-1">
+            2027 TKT 尾牙專屬盲盒摸彩券
+          </div>
+
+          <div class="bg-white p-2 rounded-xl self-center shadow cursor-pointer hover:ring-2 ring-tkt-blue transition my-1" id="qr_thumb_${ticketId}" title="點擊單張下載"></div>
+
+          <div class="mt-2 flex items-center justify-between pt-2 border-t border-slate-700/60 text-xs no-print">
+            <button class="text-blue-400 hover:text-blue-300 font-medium text-[11px] preview-btn" data-id="${ticketId}">
+              預覽票券
+            </button>
+            <button class="text-amber-400 hover:text-amber-300 font-medium text-[11px] download-single-btn" data-id="${ticketId}">
+              下載 PNG
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+
+        setTimeout(() => {
+          const holder = document.getElementById(`qr_thumb_${ticketId}`);
+          if (holder && !holder.hasChildNodes()) {
+            new QRCode(holder, {
+              text: targetUrl,
+              width: 140,
+              height: 140,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.H
+            });
+
+            setTimeout(() => {
+              const canvas = holder.querySelector('canvas');
+              if (canvas) {
+                drawLogoOnQRCanvas(canvas);
+                const dataURL = canvas.toDataURL('image/png');
+                qrDataURLs[ticketId] = dataURL;
+                canvas.onclick = () => downloadSinglePNG(ticketId, dataURL);
+              }
+            }, 80);
+          }
+        }, 10);
+      });
+
+      if (window.lucide) lucide.createIcons();
+
+      document.querySelectorAll('.preview-btn').forEach(btn => {
+        btn.onclick = () => openSinglePreview(parseInt(btn.dataset.id, 10));
+      });
+      document.querySelectorAll('.download-single-btn').forEach(btn => {
+        btn.onclick = () => exportSingleTicketPNG(parseInt(btn.dataset.id, 10));
+      });
+    }
+
+    function loadSheetJS(callback) {
+      if (window.XLSX) {
+        callback();
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      s.onload = callback;
+      document.head.appendChild(s);
+    }
+
+    function handleExcelUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      loadSheetJS(() => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(sheet);
+
+            if (!rows || rows.length === 0) {
+              alert("Excel 檔案為空或格式不正確！");
+              return;
+            }
+
+            const parsedList = [];
+            for (let i = 0; i < Math.min(rows.length, 30); i++) {
+              const row = rows[i];
+              parsedList.push({
+                id: parseInt(row.id || (i + 1), 10),
+                name: String(row.name || `獎項 #${i + 1}`),
+                audio: String(row.audio || `drum${i + 1}.mp3`).trim()
+              });
+            }
+
+            prizeList = parsedList;
+            localStorage.setItem('tkt_custom_prizes', JSON.stringify(prizeList));
+            resetDrawHistory();
+            alert(`✅ 成功匯入 ${prizeList.length} 個獎項設定，並已重置開獎紀錄！`);
+            renderQRManager();
+          } catch(err) {
+            alert("解析 Excel 失敗，請確認檔案格式是否正確。");
+            console.error(err);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    function downloadExcelTemplate() {
+      loadSheetJS(() => {
+        const templateData = prizeList.map(p => ({
+          id: p.id,
+          name: p.name,
+          audio: `drum${p.id}.mp3`
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(templateData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, "獎項清單");
+        XLSX.writeFile(wb, "2027_TKT_抽獎獎項與轉動音效範本.xlsx");
+      });
+    }
+
+    function downloadSinglePNG(ticketId, dataURL) {
+      const a = document.createElement('a');
+      a.download = `QR_Ticket_${String(ticketId).padStart(2, '0')}.png`;
+      a.href = dataURL;
+      a.click();
+    }
+
+    async function downloadAllQRs() {
+      const btn = document.getElementById('downloadAllQRsBtn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `<span>⏳ 正在下載中...</span>`;
+      btn.disabled = true;
+
+      for (let i = 1; i <= prizeList.length; i++) {
+        if (qrDataURLs[i]) {
+          downloadSinglePNG(i, qrDataURLs[i]);
+          await new Promise(r => setTimeout(r, 220));
+        }
+      }
+      btn.innerHTML = `<span>✅ 下載完成</span>`;
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        if (window.lucide) lucide.createIcons();
+      }, 2000);
+    }
+
+    let currentPreviewId = 1;
+    function openSinglePreview(ticketId) {
+      currentPreviewId = ticketId;
+      document.getElementById('singleCardTicketTag').textContent = `幸運號碼 #${String(ticketId).padStart(2, '0')}`;
+      const box = document.getElementById('singleQRCanvasBox');
+      box.innerHTML = '';
+      const key = btoa(ticketId.toString());
+      const targetUrl = `${getCleanBaseUrl()}?key=${key}`;
+
+      new QRCode(box, {
+        text: targetUrl,
+        width: 260,
+        height: 260,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const canvas = box.querySelector('canvas');
+        if (canvas) {
+          drawLogoOnQRCanvas(canvas);
+        }
+      }, 100);
+
+      document.getElementById('singleQRModal').classList.remove('hidden');
+    }
+
+    function exportSingleTicketPNG(ticketId) {
+      const canvas = document.getElementById('exportCanvas');
+      const ctx = canvas.getContext('2d');
+      const w = 600, h = 820;
+      canvas.width = w;
+      canvas.height = h;
+
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#0000FF";
+      ctx.fillRect(0, 0, w, 18);
+      ctx.strokeStyle = "#CBD5E1";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(16, 16, w - 32, h - 32);
+
+      const logoSize = 120;
+      const logoX = (w - logoSize) / 2;
+      ctx.drawImage(cachedLogoImg, logoX, 35, logoSize, logoSize);
+
+      ctx.fillStyle = "#0F172A";
+      ctx.font = "900 24px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("2027 TKT 尾牙摸彩券", w / 2, 182);
+
+      ctx.strokeStyle = "#94A3B8";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 8]);
+      ctx.beginPath();
+      ctx.moveTo(35, 205);
+      ctx.lineTo(w - 35, 205);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#0000FF";
+      ctx.font = "800 24px monospace";
+      ctx.fillText(`LUCKY TICKET #${String(ticketId).padStart(2, '0')}`, w / 2, 246);
+
+      ctx.fillStyle = "#D97706";
+      ctx.font = "bold 18px sans-serif";
+      ctx.fillText("★ 3D 專屬盲盒 · 掃碼啟動扭蛋 ★", w / 2, 278);
+
+      const tempDiv = document.createElement('div');
+      const key = btoa(ticketId.toString());
+      new QRCode(tempDiv, {
+        text: `${getCleanBaseUrl()}?key=${key}`,
+        width: 320,
+        height: 320,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const qrCanvas = tempDiv.querySelector('canvas');
+        if (qrCanvas) {
+          drawLogoOnQRCanvas(qrCanvas);
+
+          const qrSize = 320;
+          const qrx = (w - qrSize) / 2;
+          const qry = 310;
+          ctx.fillStyle = "#F8FAFC";
+          ctx.fillRect(qrx - 15, qry - 15, qrSize + 30, qry - 15);
+          ctx.strokeStyle = "#E2E8F0";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(qrx - 15, qry - 15, qrSize + 30, qrSize + 30);
+          ctx.drawImage(qrCanvas, qrx, qry, qrSize, qrSize);
+
+          ctx.fillStyle = "#475569";
+          ctx.font = "bold 14px sans-serif";
+          ctx.fillText("持手機相機直接掃描本 QR Code 即刻轉動扭蛋！", w / 2, 695);
+
+          ctx.fillStyle = "#94A3B8";
+          ctx.font = "12px sans-serif";
+          ctx.fillText("獎項內容已加密封存 · 轉開扭蛋即刻揭曉", w / 2, 725);
+
+          const a = document.createElement('a');
+          a.download = `TKT_2027_尾牙摸彩券_#${String(ticketId).padStart(2, '0')}.png`;
+          a.href = canvas.toDataURL("image/png");
+          a.click();
+        }
+      }, 100);
+    }
+
+    /* ============================================================
+       7. 頁面初始化與監聽
+    ============================================================ */
+    window.addEventListener('DOMContentLoaded', () => {
+      function waitForLibraries() {
+        if (window.THREE && window.CANNON && window.QRCode) {
+          if (window.lucide) lucide.createIcons();
+          init3DGachapon();
+          detectAssignedTicket();
+          updateDrawStatusUI();
+        } else {
+          setTimeout(waitForLibraries, 40);
+        }
+      }
+      waitForLibraries();
+
+      const unlockAudio = () => {
+        Sound.unlock();
+      };
+      window.addEventListener('click', unlockAudio, { once: true });
+      window.addEventListener('touchstart', unlockAudio, { once: true });
+      window.addEventListener('keydown', unlockAudio, { once: true });
+
+      if (new URLSearchParams(window.location.search).get('admin') === '1') {
+        verifyAndOpenAdmin();
+      }
+
+      document.getElementById('spinActionBtn').addEventListener('click', spinGachapon);
+      document.getElementById('crankKnob').addEventListener('click', spinGachapon);
+
+      const soundBtn = document.getElementById('soundToggleBtn');
+      const soundIcon = document.getElementById('soundIcon');
+      soundBtn.addEventListener('click', () => {
+        isSoundMuted = !isSoundMuted;
+        soundIcon.setAttribute('data-lucide', isSoundMuted ? 'volume-x' : 'volume-2');
+        if (isSoundMuted) {
+          Sound.stopDrum();
+          Sound.stopTenseDrums();
+          Sound.stopWin();
+        } else {
+          Sound.unlock();
+        }
+        if (window.lucide) lucide.createIcons();
+      });
+
+      document.getElementById('closeModalBtn').addEventListener('click', () => {
+        Sound.stopWin();
+        const modal = document.getElementById('revealModal');
+        const card = document.getElementById('revealCard');
+        card.classList.remove('scale-100');
+        card.classList.add('scale-90');
+        modal.classList.add('opacity-0');
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          const btn = document.getElementById('spinActionBtn');
+          if (btn) btn.style.display = 'flex';
+          updateDrawStatusUI();
+        }, 250);
+      });
+
+      document.getElementById('toggleQRAdminBtn').addEventListener('click', verifyAndOpenAdmin);
+      document.getElementById('closeAdminPasswordBtn').addEventListener('click', closeAdminPasswordModal);
+      document.getElementById('cancelAdminPasswordBtn').addEventListener('click', closeAdminPasswordModal);
+      document.getElementById('submitAdminPasswordBtn').addEventListener('click', submitAdminPassword);
+
+      document.getElementById('adminPasswordInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          submitAdminPassword();
+        } else if (e.key === 'Escape') {
+          closeAdminPasswordModal();
+        }
+      });
+
+      document.getElementById('closeQRDrawerBtn').addEventListener('click', () => {
+        document.getElementById('qrAdminDrawer').classList.add('hidden');
+      });
+      document.getElementById('closeQRDrawerBottomBtn').addEventListener('click', () => {
+        document.getElementById('qrAdminDrawer').classList.add('hidden');
+      });
+
+      document.getElementById('excelFileInput').addEventListener('change', handleExcelUpload);
+      document.getElementById('downloadTemplateBtn').addEventListener('click', downloadExcelTemplate);
+      
+      document.getElementById('resetDrawHistoryBtn').addEventListener('click', () => {
+        if (confirm("確定要重置所有開獎紀錄嗎？\n重置後所有獎項將重新開放抽取！")) {
+          resetDrawHistory();
+        }
+      });
+
+      document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
+        if (confirm("確定要清除自訂設定，恢復預設 30 個獎項嗎？")) {
+          localStorage.removeItem('tkt_custom_prizes');
+          loadPrizeData();
+          resetDrawHistory();
+          renderQRManager();
+          alert("已恢復預設獎項並清除開獎紀錄！");
+        }
+      });
+
+      document.getElementById('downloadAllQRsBtn').addEventListener('click', downloadAllQRs);
+      document.getElementById('printAllBtn').addEventListener('click', () => window.print());
+
+      document.getElementById('closeSingleQRBtn').addEventListener('click', () => {
+        document.getElementById('singleQRModal').classList.add('hidden');
+      });
+      document.getElementById('downloadSinglePngBtn').addEventListener('click', () => {
+        exportSingleTicketPNG(currentPreviewId);
+      });
+
+      window.addEventListener('resize', () => {
+        const container = document.getElementById('threeContainer');
+        if (renderer && camera && container) {
+          const w = container.clientWidth || 320;
+          const h = container.clientHeight || 320;
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        }
+        adjustPrizeFontSize();
+      });
+    });
+  </script>
+</body>
+</html>
